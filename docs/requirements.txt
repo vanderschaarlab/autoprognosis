@@ -1,0 +1,6 @@
+autodoc
+m2r2
+myst-parser
+sphinx-autopackagesummary
+sphinx-rtd-theme
+sphinxcontrib-napoleon
