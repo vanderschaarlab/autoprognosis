@@ -31,7 +31,12 @@ def main(nb_dir: Path) -> None:
             continue
 
         print("Testing ", p.name)
-        run_notebook(p)
+        try:
+            run_notebook(p)
+        except BaseException as e:
+            print("FAIL", p.name, e)
+
+            raise e
 
 
 if __name__ == "__main__":
