@@ -29,5 +29,8 @@ jobs:
         run: |
             pip install .
             pip install .[testing]
+
+            python -m pip install ipykernel
+            python -m ipykernel install --user
       - name: Run the tutorials
         run: python scripts/nb_test.py --nb_dir tutorials/
