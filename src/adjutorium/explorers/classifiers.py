@@ -26,6 +26,21 @@ dispatcher = Parallel(n_jobs=cpu_count())
 
 
 class ClassifierSeeker:
+    """
+    AutoML core logic for classification tasks.
+
+    Args:
+        study_name: str.
+        num_iter: int. Number of optimization trials.
+        metric: str. The metric to use for optimization. ["aucroc", "aucprc"]
+        CV: int. Number of folds to use for evaluation
+        timeout: int. Max wait time(in seconds) for the optimization output.
+        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
+        classifiers: list. Plugins to use in the pipeline for prediction.
+        imputers: list. Plugins to use in the pipeline for imputation.
+        hooks: Hooks. Custom callbacks to be notified about the search progress.
+    """
+
     def __init__(
         self,
         study_name: str,
@@ -44,7 +59,7 @@ class ClassifierSeeker:
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
                 )
-        metrics = ["aucroc", "aucprc", "c_index"]
+        metrics = ["aucroc", "aucprc"]
         if metric not in metrics:
             raise ValueError(f"invalid input metric. Should be from {metrics}")
 
