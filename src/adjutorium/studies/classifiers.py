@@ -37,7 +37,7 @@ class ClassifierStudy(Study):
         feature_scaling: List[str] = default_feature_scaling_names,
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = ["ice"],
-        workspace: Path = Path("/tmp"),
+        workspace: Path = Path("tmp"),
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
     ) -> None:

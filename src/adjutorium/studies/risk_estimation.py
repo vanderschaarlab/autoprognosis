@@ -37,7 +37,7 @@ class RiskEstimationStudy(Study):
         num_study_iter: int = 5,
         timeout: int = 360,
         study_name: Optional[str] = None,
-        workspace: Path = Path("/tmp"),
+        workspace: Path = Path("tmp"),
         risk_estimators: List[str] = default_risk_estimation_names,
         imputers: List[str] = ["ice"],
         feature_scaling: List[str] = default_feature_scaling_names,
