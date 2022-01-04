@@ -131,10 +131,6 @@ def _estimate_concordance_index(
 
         est = estimate[order[mask]]
 
-        assert event_i, (
-            "got censored sample at index %d, but expected uncensored" % order[ind]
-        )
-
         ties = np.absolute(est - est_i) <= tied_tol
         n_ties = ties.sum()
         # an event should have a higher score

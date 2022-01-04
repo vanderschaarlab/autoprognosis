@@ -46,5 +46,6 @@ class GumbelSoftmax(torch.distributions.RelaxedOneHotCategorical):
         """value is one-hot or relaxed"""
         if value.shape != self.logits.shape:
             value = F.one_hot(value.long(), self.logits.shape[-1]).float()
-            assert value.shape == self.logits.shape
+            if value.shape != self.logits.shape:
+                raise RuntimeError("log_prob failure")
         return -torch.sum(-value * F.log_softmax(self.logits, -1), -1)

@@ -28,7 +28,8 @@ class LimePlugin(ExplainerPlugin):
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
     ) -> None:
-        assert task_type in ["classification", "treatments", "risk_estimation"]
+        if task_type not in ["classification", "treatments", "risk_estimation"]:
+            raise RuntimeError("invalid task type")
 
         self.task_type = task_type
         self.feature_names = list(
@@ -42,15 +43,15 @@ class LimePlugin(ExplainerPlugin):
                 model.fit(X, y)
             self.predict_fn = lambda x: np.asarray(model.predict_proba(x).astype(float))
         elif task_type == "treatments":
-            assert w is not None
-            assert y_full is not None
+            if w is None or y_full is None:
+                raise RuntimeError("invalid input for treatments")
 
             if not prefit:
                 model.fit(X, w, y)
             self.predict_fn = lambda x: np.asarray(model.predict(x).astype(float))
         elif task_type == "risk_estimation":
-            assert time_to_event is not None
-            assert eval_times is not None
+            if time_to_event is None or eval_times is None:
+                raise RuntimeError("invalid input for risk estimation interpretability")
 
             if not prefit:
                 model.fit(X, time_to_event, y)

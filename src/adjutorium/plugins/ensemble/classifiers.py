@@ -369,12 +369,13 @@ class AggregatingEnsemble(BaseEnsemble):
         for model in self.models:
             model.change_output("numpy")
 
-        assert method in [
+        if method not in [
             "average",
             "maximization",
             "majority vote",
             "median",
-        ], "Invalid aggregating method"
+        ]:
+            raise RuntimeError("Invalid aggregating ensemble method")
 
         self.method = method
         self.explainer_plugins = explainer_plugins

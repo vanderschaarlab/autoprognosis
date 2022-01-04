@@ -48,7 +48,9 @@ class ClassifierStudy(Study):
 
         imputation_method: Optional[str] = None
         if dataset.isnull().values.any():
-            assert len(imputers) > 0, "Please provide at least one imputation method"
+            if len(imputers) == 0:
+                raise RuntimeError("Please provide at least one imputation method")
+
             if len(imputers) == 1:
                 imputation_method = imputers[0]
                 imputers = []

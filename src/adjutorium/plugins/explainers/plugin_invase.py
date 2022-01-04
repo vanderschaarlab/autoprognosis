@@ -55,19 +55,19 @@ class Masking(nn.Module):
         self.masking_values = masking_values
 
     def forward(self, tensors: List[torch.Tensor]) -> torch.Tensor:
-        assert (
-            len(tensors) == 2
-        ), "Invalid number of tensor for the masking layer. It requires the features vector and the selection vector"
+        if len(tensors) != 2:
+            raise RuntimeError(
+                "Invalid number of tensor for the masking layer. It requires the features vector and the selection vector"
+            )
 
         features_vector = tensors[0]
         selection_vector = tensors[1]
 
-        assert len(features_vector[0]) == len(
-            self.masking_values
-        ), "Invalid shape for the features vector"
-        assert len(selection_vector[0]) == len(
-            self.masking_values
-        ), "Invalid shape for the features vector"
+        if len(features_vector[0]) != len(self.masking_values):
+            raise RuntimeError("Invalid shape for the features vector")
+
+        if len(selection_vector[0]) != len(self.masking_values):
+            raise RuntimeError("Invalid shape for the features vector")
 
         sampled_mask = []
         for uniq_vals in self.masking_values:
@@ -556,11 +556,12 @@ class INVASEPlugin(ExplainerPlugin):
         samples: int = 2000,
         prefit: bool = False,
     ) -> None:
-        assert task_type in [
+        if task_type not in [
             "classification",
             "treatments",
             "risk_estimation",
-        ], f"Invalid task type {task_type}"
+        ]:
+            raise RuntimeError(f"Invalid task type {task_type}")
 
         self.task_type = task_type
         self.feature_names = (
@@ -589,10 +590,14 @@ class INVASEPlugin(ExplainerPlugin):
                     n_epoch_inner=n_epoch_inner,
                 )
         elif task_type in ["risk_estimation"]:
-            assert eval_times is not None
+            if eval_times is None:
+                raise RuntimeError("Invalid input for risk estimation interpretability")
 
             if not prefit:
-                assert time_to_event is not None
+                if time_to_event is None:
+                    raise RuntimeError(
+                        "Invalid time_to_event for risk estimation interpretability"
+                    )
                 model.fit(X, time_to_event, y)
 
             self.explainer = invaseRiskEstimation(
@@ -604,8 +609,8 @@ class INVASEPlugin(ExplainerPlugin):
                 samples=samples,
             )
         elif task_type in ["treatments"]:
-            assert w is not None
-            assert y_full is not None
+            if w is None or y_full is None:
+                raise RuntimeError("invalid input for treatments interpretability")
 
             if not prefit:
                 model.fit(X, w, y)

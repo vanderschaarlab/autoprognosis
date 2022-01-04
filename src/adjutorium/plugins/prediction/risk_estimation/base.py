@@ -60,7 +60,9 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         self._fit(X, *args, **kwargs)
 
         if self.with_explanations and self.explainer is None:
-            assert "eval_times" in kwargs
+            if "eval_times" not in kwargs:
+                raise RuntimeError("fit requires eval_times")
+
             self.explainer = explainer(
                 copy.deepcopy(self),
                 X,

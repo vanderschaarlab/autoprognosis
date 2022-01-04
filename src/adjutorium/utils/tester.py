@@ -41,8 +41,8 @@ class Eval:
         return self.m_metric
 
     def score_proba(self, y_test: np.ndarray, y_pred_proba: np.ndarray) -> float:
-        assert y_test is not None
-        assert y_pred_proba is not None
+        if y_test is None or y_pred_proba is None:
+            raise RuntimeError("Invalid input for score_proba")
 
         if self.m_metric == "aucprc":
             score_val = self.average_precision_score(y_test, y_pred_proba)

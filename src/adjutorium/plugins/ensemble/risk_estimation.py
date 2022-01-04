@@ -27,12 +27,10 @@ class RiskEnsemble:
         explanations_nepoch: int = 10000,
         hooks: Hooks = DefaultHooks(),
     ) -> None:
-        assert len(weights) == len(
-            time_horizons
-        ), "RiskEnsemble: weights, time_horizon shape mismatch"
-        assert len(models) == len(
-            weights[0]
-        ), "RiskEnsemble: models, weights shape mismatch"
+        if len(weights) != len(time_horizons):
+            raise RuntimeError("RiskEnsemble: weights, time_horizon shape mismatch")
+        if len(models) != len(weights[0]):
+            raise RuntimeError("RiskEnsemble: models, weights shape mismatch")
 
         try:
             self.models = copy.deepcopy(models)

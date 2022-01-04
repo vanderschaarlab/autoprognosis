@@ -62,7 +62,8 @@ class EncodersCallbacks:
             output = self.imputer.transform(output)
             output.columns = columns
 
-            assert not output.isnull().values.any()
+            if output.isnull().values.any():
+                raise RuntimeError("Imputation returned null")
 
         return output
 
@@ -84,7 +85,9 @@ class EncodersCallbacks:
             output.drop(columns=columns, inplace=True)
             output = pd.concat([output, decoded], axis=1)
 
-        assert not output.isnull().values.any()
+        if output.isnull().values.any():
+            raise RuntimeError("Imputation returned null")
+
         return output
 
     def numeric_decode(self, df: pd.DataFrame, strategy: str = "max") -> pd.DataFrame:
@@ -101,7 +104,8 @@ class EncodersCallbacks:
                 raise ValueError(f"unknown strategy {strategy}")
             output.drop(columns=columns, inplace=True)
             output[col] = vals
-        assert not output.isnull().values.any()
+        if output.isnull().values.any():
+            raise RuntimeError("Imputation returned null")
         return output
 
     def __getitem__(self, key: str) -> Any:

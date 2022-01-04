@@ -21,7 +21,8 @@ dim_reduction_plugins = glob.glob(
 
 class Preprocessors:
     def __init__(self, category: str = "feature_scaling") -> None:
-        assert category in ["feature_scaling", "dimensionality_reduction"]
+        if category not in ["feature_scaling", "dimensionality_reduction"]:
+            raise RuntimeError("Invalid preprocessing category")
 
         self.category = category
         self._plugins: Dict[str, Type] = {}
@@ -39,7 +40,8 @@ class Preprocessors:
         for plugin in plugins:
             name = basename(plugin)
             spec = importlib.util.spec_from_file_location(name, plugin)
-            assert isinstance(spec.loader, Loader)
+            if not isinstance(spec.loader, Loader):
+                raise RuntimeError("Invalid loader type")
 
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)

@@ -28,7 +28,8 @@ class ImputerPlugin(plugin.Plugin):
     def __init__(self, model: imputation_plugin) -> None:
         super().__init__()
 
-        assert isinstance(model, imputation_plugin.Plugin), "Instance model type"
+        if not isinstance(model, imputation_plugin.Plugin):
+            raise RuntimeError("Invalid instance model type")
 
         self._model = model
 
@@ -65,6 +66,7 @@ class ImputerPlugin(plugin.Plugin):
     def load(cls, buff: bytes) -> "ImputerPlugin":
         obj = load_model(buff)
 
-        assert isinstance(obj, cls)
+        if not isinstance(obj, cls):
+            raise RuntimeError("Invalid object type in buffer")
 
         return obj

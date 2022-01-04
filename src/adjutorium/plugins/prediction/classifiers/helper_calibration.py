@@ -11,7 +11,8 @@ calibrations = ["none", "sigmoid", "isotonic"]
 
 
 def calibrated_model(model: Any, calibration: int = 1, **kwargs: Any) -> Any:
-    assert calibration < len(calibrations), "invalid calibration value"
+    if calibration >= len(calibrations):
+        raise RuntimeError("invalid calibration value")
 
     if not hasattr(model, "predict_proba"):
         return CalibratedClassifierCV(base_estimator=model, n_jobs=cpu_count())

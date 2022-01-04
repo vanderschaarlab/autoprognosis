@@ -71,7 +71,7 @@ def test_tabnet_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
 
     y_pred = test_plugin.fit(X_train, y_train).predict(X_test).to_numpy()
 
-    assert np.abs(np.subtract(y_pred, y_test)).mean() < 1
+    assert np.abs(np.subtract(y_pred, y_test)).mean() < 2
 
 
 @pytest.mark.slow

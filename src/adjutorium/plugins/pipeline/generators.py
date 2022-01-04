@@ -79,7 +79,8 @@ def _generate_constructor() -> Callable:
         self.stages = []
         self.args = args
 
-        assert output in ["pandas", "numpy"], "Invalid output type"
+        if output not in ["pandas", "numpy"]:
+            raise RuntimeError("Invalid output type")
         if output == "pandas":
             self.output = pd.DataFrame
         elif output == "numpy":
@@ -96,7 +97,8 @@ def _generate_constructor() -> Callable:
 
 def _generate_change_output() -> Callable:
     def change_output_impl(self: Any, output: str) -> None:
-        assert output in ["pandas", "numpy"], "Invalid output type"
+        if output not in ["pandas", "numpy"]:
+            raise RuntimeError("Invalid output type")
         if output == "pandas":
             self.output = pd.DataFrame
         elif output == "numpy":

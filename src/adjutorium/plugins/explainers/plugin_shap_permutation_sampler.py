@@ -28,11 +28,12 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
         prefit: bool = False,
     ) -> None:
 
-        assert task_type in [
+        if task_type not in [
             "classification",
             "treatments",
             "risk_estimation",
-        ], f"Invalid task type {task_type}"
+        ]:
+            raise RuntimeError(f"Invalid task type {task_type}")
 
         self.task_type = task_type
         self.feature_names = (
@@ -50,8 +51,8 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
                 return model.predict_proba(X)
 
         elif task_type == "treatments":
-            assert w is not None
-            assert y_full is not None
+            if w is None or y_full is None:
+                raise RuntimeError("invalid input for treatments interpretability")
 
             if not prefit:
                 model.fit(X, time_to_event, y)
@@ -60,8 +61,8 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
                 return model.predict(X)
 
         elif task_type == "risk_estimation":
-            assert time_to_event is not None
-            assert eval_times is not None
+            if time_to_event is None or eval_times is None:
+                raise RuntimeError("invalid input for risk estimation interpretability")
 
             if not prefit:
                 model.fit(X, time_to_event, y)
