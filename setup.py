@@ -2,12 +2,28 @@
     Setup file for adjutorium.
     Use setup.cfg to configure your project.
 """
+# stdlib
+import os
+import re
+
 # third party
 from setuptools import setup
 
 
+def read(fname: str) -> str:
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
 def find_version() -> str:
-    return "0.0.1"
+    version_file = read("src/adjutorium/version.py")
+    version_re = r"__version__ = \"(?P<version>.+)\""
+    version_raw = re.match(version_re, version_file)
+
+    if version_raw is None:
+        return "0.0.1"
+
+    version = version_raw.group("version")
+    return version
 
 
 if __name__ == "__main__":
