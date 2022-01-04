@@ -71,6 +71,7 @@ def test_xgboost_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     assert score["clf"]["rmse"][0] < 5000
 
 
+@pytest.mark.slow
 def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return

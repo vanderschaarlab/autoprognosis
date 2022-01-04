@@ -81,6 +81,7 @@ def test_bagging_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     assert np.abs(np.subtract(y_pred, y_test)).mean() < 1
 
 
+@pytest.mark.slow
 def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return

@@ -74,6 +74,7 @@ def test_catboost_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     assert np.abs(np.subtract(y_pred, y_test)).mean() < 1
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )

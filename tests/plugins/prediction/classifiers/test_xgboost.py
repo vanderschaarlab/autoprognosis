@@ -86,6 +86,7 @@ def test_xgboost_plugin_score(test_plugin: PredictionPlugin) -> None:
     assert test_plugin.score(X_test, y_test) > 0.5
 
 
+@pytest.mark.slow
 def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return
