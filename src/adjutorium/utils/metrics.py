@@ -20,15 +20,14 @@ from adjutorium.utils.third_party.metrics import brier_score, concordance_index_
 
 
 def get_y_pred_proba_hlpr(y_pred_proba: np.ndarray, nclasses: int) -> np.ndarray:
-    if isinstance(y_pred_proba, tuple):
-        y_pred_proba_tmp = y_pred_proba[1]
-    elif nclasses <= 2 and isinstance(y_pred_proba, (np.ndarray, np.generic)):
-        y_pred_proba_tmp = (
-            y_pred_proba if len(y_pred_proba.shape) < 2 else y_pred_proba[:, 1]
-        )
-    else:
-        y_pred_proba_tmp = y_pred_proba
-    return y_pred_proba_tmp
+    if nclasses == 2:
+        if len(y_pred_proba.shape) < 2:
+            return y_pred_proba
+
+        if y_pred_proba.shape[1] == 2:
+            return y_pred_proba[:, 1]
+
+    return y_pred_proba
 
 
 def evaluate_auc(
