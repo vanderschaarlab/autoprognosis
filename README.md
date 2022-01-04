@@ -15,9 +15,10 @@
 
 <div align="center">
 
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://www.vanderschaar-lab.com/)
+[![Tests](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml)
+[![Tutorials](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
-[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/vanderschaarlab/adjutorium-priv/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
 
 
 </div>

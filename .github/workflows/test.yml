@@ -1,4 +1,4 @@
-name: Adjutorium Tests
+name: Tests
 
 on:
   push:
