@@ -11,12 +11,14 @@ from sklearn.model_selection import train_test_split
 
 # adjutorium absolute
 from adjutorium.plugins.explainers import Explainers
-from adjutorium.plugins.explainers.data_generation import generate_dataset
 from adjutorium.plugins.explainers.plugin_invase import plugin
 from adjutorium.plugins.pipeline import Pipeline
 from adjutorium.plugins.prediction.classifiers import Classifiers
 from adjutorium.plugins.prediction.risk_estimation.plugin_cox_ph import plugin as CoxPH
 from adjutorium.plugins.preprocessors import Preprocessors
+
+# adjutorium relative
+from .data_generation import generate_dataset
 
 
 def dataset() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:

@@ -17,6 +17,16 @@ EPS = 10 ** -8
 
 
 class RiskEnsemble:
+    """
+    Weighted risk ensemble.
+
+    Args:
+        models: list of base models.
+        weights: list of weights for each model and each time horizon.
+        time_horizons: list of time horizons used for evaluation.
+        explainer_plugins: list of explainers attached to the ensemble.
+    """
+
     def __init__(
         self,
         models: List,
