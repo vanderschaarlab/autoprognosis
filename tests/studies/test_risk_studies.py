@@ -15,6 +15,7 @@ from adjutorium.utils.serialization import load_model_from_file
 from adjutorium.utils.tester import evaluate_survival_estimator
 
 
+@pytest.mark.slow
 def test_search() -> None:
     rossi = load_rossi()
 

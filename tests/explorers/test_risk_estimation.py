@@ -30,6 +30,7 @@ def test_sanity() -> None:
     assert len(sq.estimators) > 0
 
 
+@pytest.mark.slow
 def test_search() -> None:
 
     rossi = load_rossi()
