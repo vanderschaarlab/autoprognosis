@@ -1,0 +1,120 @@
+# third party
+from pycox.datasets import metabric
+import pytest
+from sklearn.model_selection import train_test_split
+
+# adjutorium absolute
+from adjutorium.plugins.prediction import PredictionPlugin, Predictions
+from adjutorium.plugins.prediction.risk_estimation.plugin_survival_catboost import (
+    plugin,
+)
+from adjutorium.utils.metrics import (
+    evaluate_skurv_brier_score,
+    evaluate_skurv_c_index,
+    evaluate_weighted_brier_score,
+    evaluate_weighted_c_index,
+)
+
+
+def from_api() -> PredictionPlugin:
+    return Predictions(category="risk_estimation").get(
+        "survival_catboost",
+        with_explanations=True,
+        explanations_nepoch=100,
+        explanations_nfolds=1,
+    )
+
+
+def from_module() -> PredictionPlugin:
+    return plugin(
+        with_explanations=True, explanations_nepoch=200, explanations_nfolds=1
+    )
+
+
+def from_serde() -> PredictionPlugin:
+    buff = plugin().save()
+    return plugin().load(buff)
+
+
+def calibrated(method: int) -> PredictionPlugin:
+    return plugin(calibration=method)
+
+
+@pytest.mark.parametrize("test_plugin", [from_api(), from_module(), from_serde()])
+def test_survival_catboost_plugin_sanity(test_plugin: PredictionPlugin) -> None:
+    assert test_plugin is not None
+
+
+@pytest.mark.parametrize("test_plugin", [from_api(), from_module(), from_serde()])
+def test_survival_catboost_plugin_name(test_plugin: PredictionPlugin) -> None:
+    assert test_plugin.name() == "survival_catboost"
+
+
+@pytest.mark.parametrize("test_plugin", [from_api(), from_module(), from_serde()])
+def test_survival_catboost_plugin_type(test_plugin: PredictionPlugin) -> None:
+    assert test_plugin.type() == "prediction"
+    assert test_plugin.subtype() == "risk_estimation"
+
+
+@pytest.mark.parametrize("test_plugin", [from_api(), from_module(), from_serde()])
+def test_survival_catboost_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
+    assert len(test_plugin.hyperparameter_space()) == 0
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    "test_plugin",
+    [
+        from_api(),
+        from_module(),
+    ],
+)
+def test_survival_catboost_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
+    df = metabric.read_df()
+
+    X = df.drop(["duration", "event"], axis=1)
+    Y = df["event"]
+    T = df["duration"]
+
+    X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
+        X, T, Y, test_size=0.1, random_state=0
+    )
+
+    eval_time_horizons = [
+        int(T[Y.iloc[:] == 1].quantile(0.50)),
+        int(T[Y.iloc[:] == 1].quantile(0.75)),
+    ]
+
+    y_pred = (
+        test_plugin.fit(X_train, T_train, Y_train, eval_times=eval_time_horizons)
+        .predict(X_test, T_test)
+        .to_numpy()
+    )
+
+    for e_idx, eval_time in enumerate(eval_time_horizons):
+        c_index = evaluate_weighted_c_index(
+            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
+        )
+        assert c_index > 0.5
+
+        c_index = evaluate_skurv_c_index(
+            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
+        )
+        assert c_index > 0.5
+
+        brier_score = evaluate_weighted_brier_score(
+            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
+        )
+        assert brier_score < 0.5
+
+        brier_score = evaluate_skurv_brier_score(
+            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
+        )
+        assert brier_score < 0.5
+
+    importance = test_plugin.explain(X_train)
+    assert importance.shape == (
+        X_train.shape[0],
+        X_train.shape[1],
+        len(eval_time_horizons),
+    )
