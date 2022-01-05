@@ -15,6 +15,7 @@
 
 [![Tests](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml)
 [![Tutorials](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml)
+[![Docs](https://readthedocs.org/projects/adjutorium/badge/?version=latest)](https://adjutorium.readthedocs.io/en/latest/?badge=latest)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
 
