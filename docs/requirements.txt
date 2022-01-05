@@ -1,6 +1,9 @@
 autodoc
+git+git://github.com/vanderschaarlab/adjutorium-framework
 m2r2
+matplotlib
 myst-parser
+seaborn
 sphinx-autopackagesummary
 sphinx-rtd-theme
 sphinxcontrib-napoleon
