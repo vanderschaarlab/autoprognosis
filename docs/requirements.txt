@@ -1,4 +1,5 @@
 autodoc
+git+git://github.com/vanderschaarlab/adjutorium-framework
 m2r2
 myst-parser
 sphinx-autopackagesummary
