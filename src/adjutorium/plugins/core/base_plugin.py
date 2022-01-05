@@ -26,6 +26,7 @@ class Plugin(metaclass=ABCMeta):
         _fit() - internal method, called by `fit` on each training set.
         _transform() - internal method, called by `transform`. Used by imputation or preprocessing plugins.
         _predict() - internal method, called by `predict`. Used by classification/prediction plugins.
+        load/save - serialization methods
 
     If any method implementation is missing, the class constructor will fail.
     """

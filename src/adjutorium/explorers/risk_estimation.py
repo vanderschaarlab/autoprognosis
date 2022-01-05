@@ -27,6 +27,21 @@ dispatcher = Parallel(n_jobs=cpu_count())
 
 
 class RiskEstimatorSeeker:
+    """
+    AutoML core logic for risk estimation tasks.
+
+    Args:
+        study_name: str.
+        time_horizons:list. list of time horizons.
+        num_iter: int. Number of optimization trials.
+        timeout: int. Max wait time(in seconds) for the optimization output.
+        CV: int. Number of folds to use for evaluation
+        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
+        estimators: list. Plugins to use in the pipeline for risk prediction.
+        imputers: list. Plugins to use in the pipeline for imputation.
+        hooks: Hooks. Custom callbacks to be notified about the search progress.
+    """
+
     def __init__(
         self,
         study_name: str,

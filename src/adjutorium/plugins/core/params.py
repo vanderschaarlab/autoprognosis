@@ -8,6 +8,10 @@ from optuna.trial import Trial
 
 
 class Params(metaclass=ABCMeta):
+    """
+    Helper for describing the hyperparameters for each estimator.
+    """
+
     def __init__(self, name: str, bounds: Tuple[Any, Any]) -> None:
         self.name = name
         self.bounds = bounds

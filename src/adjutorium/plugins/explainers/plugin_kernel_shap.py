@@ -12,6 +12,21 @@ from adjutorium.plugins.explainers.base import ExplainerPlugin
 
 
 class KernelSHAPPlugin(ExplainerPlugin):
+    """
+    Interpretability plugin based on KernelSHAP.
+
+    Args:
+        estimator: model. The model to explain.
+        X: dataframe. Training set
+        y: dataframe. Training labels
+        task_type: str. classification of risk_estimation
+        prefit: bool. If true, the estimator won't be trained.
+        n_epoch: int. training epochs
+        subsample: int. Number of samples to use.
+        time_to_event: dataframe. Used for risk estimation tasks.
+        eval_times: list. Used for risk estimation tasks.
+    """
+
     def __init__(
         self,
         estimator: Any,
@@ -22,14 +37,11 @@ class KernelSHAPPlugin(ExplainerPlugin):
         subsample: int = 1000,
         prefit: bool = False,
         n_epoch: int = 10000,
-        # Treatment effects
-        w: Optional[pd.DataFrame] = None,
-        y_full: Optional[pd.DataFrame] = None,  # for treatment effects
         # risk estimation
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
     ) -> None:
-        if task_type not in ["classification", "treatments", "risk_estimation"]:
+        if task_type not in ["classification", "risk_estimation"]:
             raise RuntimeError("invalid task type")
 
         self.feature_names = (
@@ -46,16 +58,6 @@ class KernelSHAPPlugin(ExplainerPlugin):
                 model.fit(X, y)
             self.explainer = shap.KernelExplainer(
                 model.predict_proba, X_summary, feature_names=self.feature_names
-            )
-        elif task_type == "treatments":
-            if w is None or y_full is None:
-                raise RuntimeError("Invalid input for treatments interpretability")
-
-            if not prefit:
-                model.fit(X, w, y)
-
-            self.explainer = shap.KernelExplainer(
-                model.predict, X_summary, feature_names=self.feature_names
             )
         elif task_type == "risk_estimation":
             if time_to_event is None or eval_times is None:

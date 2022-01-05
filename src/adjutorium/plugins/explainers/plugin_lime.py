@@ -12,6 +12,20 @@ from adjutorium.plugins.explainers.base import ExplainerPlugin
 
 
 class LimePlugin(ExplainerPlugin):
+    """
+    Interpretability plugin based on LIME.
+
+    Args:
+        estimator: model. The model to explain.
+        X: dataframe. Training set
+        y: dataframe. Training labels
+        task_type: str. classification of risk_estimation
+        prefit: bool. If true, the estimator won't be trained.
+        n_epoch: int. training epochs
+        time_to_event: dataframe. Used for risk estimation tasks.
+        eval_times: list. Used for risk estimation tasks.
+    """
+
     def __init__(
         self,
         estimator: Any,
@@ -21,14 +35,11 @@ class LimePlugin(ExplainerPlugin):
         task_type: str = "classification",
         prefit: bool = False,
         n_epoch: int = 10000,
-        # Treatment effects
-        w: Optional[pd.DataFrame] = None,
-        y_full: Optional[pd.DataFrame] = None,  # for treatment effects
         # Risk estimation
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
     ) -> None:
-        if task_type not in ["classification", "treatments", "risk_estimation"]:
+        if task_type not in ["classification", "risk_estimation"]:
             raise RuntimeError("invalid task type")
 
         self.task_type = task_type
@@ -42,13 +53,6 @@ class LimePlugin(ExplainerPlugin):
             if not prefit:
                 model.fit(X, y)
             self.predict_fn = lambda x: np.asarray(model.predict_proba(x).astype(float))
-        elif task_type == "treatments":
-            if w is None or y_full is None:
-                raise RuntimeError("invalid input for treatments")
-
-            if not prefit:
-                model.fit(X, w, y)
-            self.predict_fn = lambda x: np.asarray(model.predict(x).astype(float))
         elif task_type == "risk_estimation":
             if time_to_event is None or eval_times is None:
                 raise RuntimeError("invalid input for risk estimation interpretability")

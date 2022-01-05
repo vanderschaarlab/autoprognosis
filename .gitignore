@@ -68,3 +68,4 @@ MANIFEST
 .venv*/
 .conda*/
 datasets
+generated

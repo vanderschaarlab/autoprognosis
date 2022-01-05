@@ -11,6 +11,21 @@ from adjutorium.plugins.explainers.base import ExplainerPlugin
 
 
 class ShapPermutationSamplerPlugin(ExplainerPlugin):
+    """
+    Interpretability plugin based on ShapPermutation sampler.
+
+    Args:
+        estimator: model. The model to explain.
+        X: dataframe. Training set
+        y: dataframe. Training labels
+        task_type: str. classification of risk_estimation
+        prefit: bool. If true, the estimator won't be trained.
+        n_epoch: int. training epochs
+        subsample: int. Number of samples to use.
+        time_to_event: dataframe. Used for risk estimation tasks.
+        eval_times: list. Used for risk estimation tasks.
+    """
+
     def __init__(
         self,
         estimator: Any,
@@ -19,9 +34,6 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
         feature_names: Optional[List] = None,
         task_type: str = "classification",
         n_epoch: int = 10000,
-        # for treatment effects
-        w: Optional[pd.DataFrame] = None,
-        y_full: Optional[pd.DataFrame] = None,  # for treatment effects
         # for survival analysis
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
@@ -30,7 +42,6 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
 
         if task_type not in [
             "classification",
-            "treatments",
             "risk_estimation",
         ]:
             raise RuntimeError(f"Invalid task type {task_type}")
@@ -49,16 +60,6 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
 
             def model_fn(X: pd.DataFrame) -> pd.DataFrame:
                 return model.predict_proba(X)
-
-        elif task_type == "treatments":
-            if w is None or y_full is None:
-                raise RuntimeError("invalid input for treatments interpretability")
-
-            if not prefit:
-                model.fit(X, time_to_event, y)
-
-            def model_fn(X: pd.DataFrame) -> pd.DataFrame:
-                return model.predict(X)
 
         elif task_type == "risk_estimation":
             if time_to_event is None or eval_times is None:

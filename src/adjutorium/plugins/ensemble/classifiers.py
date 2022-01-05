@@ -23,6 +23,10 @@ dispatcher = Parallel(n_jobs=cpu_count())
 
 
 class BaseEnsemble(metaclass=ABCMeta):
+    """
+    Abstract ensemble interface
+    """
+
     @abstractmethod
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble":
         ...
@@ -55,6 +59,15 @@ class BaseEnsemble(metaclass=ABCMeta):
 
 
 class WeightedEnsemble(BaseEnsemble):
+    """
+    Weighted ensemble
+
+    Args:
+        models: list. List of base models.
+        weights: list. The weights for each base model.
+        explainer_plugins: list. List of explainers attached to the ensemble.
+    """
+
     def __init__(
         self,
         models: List[PipelineMeta],
@@ -150,6 +163,15 @@ class WeightedEnsemble(BaseEnsemble):
 
 
 class WeightedEnsembleCV(BaseEnsemble):
+    """
+    Cross-validated Weighted ensemble, with uncertainity prediction support
+
+    Args:
+        models: list. List of base models.
+        weights: list. The weights for each base model.
+        explainer_plugins: list. List of explainers attached to the ensemble.
+    """
+
     def __init__(
         self,
         ensembles: Optional[List[WeightedEnsemble]] = None,
@@ -269,6 +291,15 @@ class WeightedEnsembleCV(BaseEnsemble):
 
 
 class StackingEnsemble(BaseEnsemble):
+    """
+    Stacking ensemble(meta ensembling): Use a meta-learner on top of the base models
+
+    Args:
+        models: list. List of base models.
+        meta_model: Pipeline. The meta learner.
+        explainer_plugins: list. List of explainers attached to the ensemble.
+    """
+
     def __init__(
         self,
         models: List[PipelineMeta],
@@ -355,6 +386,19 @@ class StackingEnsemble(BaseEnsemble):
 
 
 class AggregatingEnsemble(BaseEnsemble):
+    """
+    Basic ensemble strategies:
+        - average:  average across all scores/prediction results, maybe with weights
+        - maximization: simple combination by taking the maximum scores
+        - majority vote
+        - median: take the median value across all scores/prediction results
+
+    Args:
+        models: list. List of base models.
+        method: str. average, maximization, majority vote, median
+        explainer_plugins: list. List of explainers attached to the ensemble.
+    """
+
     def __init__(
         self,
         models: List[PipelineMeta],

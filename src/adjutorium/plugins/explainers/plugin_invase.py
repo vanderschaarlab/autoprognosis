@@ -539,13 +539,26 @@ class invaseCV:
 
 
 class INVASEPlugin(ExplainerPlugin):
+    """
+    Interpretability plugin based on the INVASE algorithm.
+
+    Args:
+        estimator: model. The model to explain.
+        X: dataframe. Training set
+        y: dataframe. Training labels
+        time_to_event: dataframe. Used for risk estimation tasks.
+        eval_times: list. Used for risk estimation tasks.
+        n_epoch: int. training epochs
+        task_type: str. classification of risk_estimation
+        samples: int. Number of samples to use.
+        prefit: bool. If true, the estimator won't be trained.
+    """
+
     def __init__(
         self,
         estimator: Any,
         X: pd.DataFrame,
         y: pd.DataFrame,
-        w: Optional[pd.DataFrame] = None,
-        y_full: Optional[pd.DataFrame] = None,  # for treatment effects
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
         feature_names: Optional[List] = None,
@@ -558,7 +571,6 @@ class INVASEPlugin(ExplainerPlugin):
     ) -> None:
         if task_type not in [
             "classification",
-            "treatments",
             "risk_estimation",
         ]:
             raise RuntimeError(f"Invalid task type {task_type}")
@@ -608,24 +620,6 @@ class INVASEPlugin(ExplainerPlugin):
                 n_epoch_inner=n_epoch_inner,
                 samples=samples,
             )
-        elif task_type in ["treatments"]:
-            if w is None or y_full is None:
-                raise RuntimeError("invalid input for treatments interpretability")
-
-            if not prefit:
-                model.fit(X, w, y)
-            if n_folds == 1:
-                self.explainer = invaseClassifier(
-                    model, X, n_epoch=n_epoch, n_epoch_inner=n_epoch_inner
-                )
-            else:
-                self.explainer = invaseCV(
-                    model,
-                    X,
-                    n_epoch=n_epoch,
-                    n_folds=n_folds,
-                    n_epoch_inner=n_epoch_inner,
-                )
 
     def explain(self, X: pd.DataFrame) -> np.ndarray:
         result = self.explainer.explain(X)

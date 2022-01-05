@@ -13,29 +13,22 @@
   <br>
 </h3>
 
-<div align="center">
-
 [![Tests](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml)
 [![Tutorials](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
 
-
-</div>
-
 ## Features
 
-- :key: Automatically learns ensembles of pipelines for prediction or survival analysis.
-- :cyclone: Easy to extend pluginable architecture.
-- :zap: Survival analysis and Treatment effects models.
-- :fire: Interpretability tools.
+- Automatically learns ensembles of pipelines for prediction or survival analysis.
+- Easy to extend pluginable architecture.
+- Interpretability tools.
 
 ## Installation
 
 #### Using pip
 
 ```bash
-$ pip install -r requirements_dev.txt
 $ pip install .
 ```
 
@@ -47,7 +40,8 @@ For that, install the redis-server package following the steps described on the 
 ## Testing
 After installing the library, the tests can be executed using `pytest`
 ```bash
-$ pytest -vxsx -m "not slow"
+$ pip install .[testing]
+$ pytest -vxs -m "not slow"
 ```
 ## Using the library
 More advanced use cases can be found on our [tutorials section](#tutorials).
@@ -153,12 +147,6 @@ if output.exists():
 
     print(f"Model {model.name()} score: {metrics['clf']}")
 ```
-## Using the UI
-1. Install and start [Redis](https://redis.io/topics/quickstart).
-2. Install [Docker](https://docs.docker.com/get-started/).
-3. Build the Adjutorium Docker image ```docker build -t adjutorium .```.
-4. Start the Adjutorium server ```docker run --network host -it -p 8002:8002 adjutorium:latest```.
-5. The interface will be available at [http://127.0.0.1:8002/](http://127.0.0.1:8002/).
 
 ## Tutorials
 
@@ -166,25 +154,15 @@ if output.exists():
 - [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
 - [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
 - [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [Calibration](tutorials/plugins/tutorial_03_calibration_plugins.ipynb)
-- [Pipelines](tutorials/plugins/tutorial_04_pipelines.ipynb)
-- [Treatments](tutorials/plugins/tutorial_05_treatments.ipynb)
+- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
+- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
 ### AutoML
  - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
- - [Survival analysis](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
+ - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
+ - [Survival analysisi tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
+ - [Survival analysisi tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
 
 ## References
 1. [Adjutorium: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
 2. [Prognostication and Risk Factors for Cystic Fibrosis via Automated Machine Learning](https://www.nature.com/articles/s41598-018-29523-2)
 3. [Cardiovascular Disease Risk Prediction using Automated Machine Learning: A Prospective Study of 423,604 UK Biobank Participants](https://www.ncbi.nlm.nih.gov/pubmed/31091238)
-
-## Presentation
-
-<div align="center">
-
-[![Adjutorium: Automatic Prognostic Modelling](https://img.youtube.com/vi/d1uEATa0qIo/0.jpg)](https://www.youtube.com/watch?v=d1uEATa0qIo "Automatic Prognostic Modelling")
-
-</div>
-
-## License
-[MIT License](https://github.com/vanderschaarlab/adjutorium-priv/blob/main/LICENSE)
