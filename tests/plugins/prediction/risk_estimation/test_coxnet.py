@@ -55,7 +55,7 @@ def test_coxnet_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
         from_module(),
     ],
 )
-def test_deephit_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
+def test_coxnet_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     df = metabric.read_df()
 
     X = df.drop(["duration", "event"], axis=1)
