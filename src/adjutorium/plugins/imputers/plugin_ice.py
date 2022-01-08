@@ -2,7 +2,7 @@
 from typing import Any, List
 
 # third party
-from hyperimpute.plugins.imputers.plugin_ice import plugin as base_model
+from hyperimpute.plugins.imputers.plugin_sklearn_ice import plugin as base_model
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
@@ -40,7 +40,7 @@ class IterativeChainedEquationsPlugin(base.ImputerPlugin):
 
     @staticmethod
     def name() -> str:
-        return base_model.name()
+        return "ice"
 
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
