@@ -14,15 +14,15 @@ from adjutorium.plugins.utils.simulate import simulate_nan
 
 
 def from_api() -> ImputerPlugin:
-    return Imputers().get("gain", iterations=100)
+    return Imputers().get("gain", n_epochs=100)
 
 
 def from_module() -> ImputerPlugin:
-    return plugin(iterations=100)
+    return plugin(n_epochs=100)
 
 
 def from_serde() -> ImputerPlugin:
-    buff = plugin(iterations=100).save()
+    buff = plugin(n_epochs=100).save()
     return plugin().load(buff)
 
 

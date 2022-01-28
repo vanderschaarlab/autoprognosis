@@ -1,6 +1,9 @@
 # stdlib
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, List
+from importlib.abc import Loader
+import importlib.util
+from os.path import basename
+from typing import Any, Dict, Generator, List, Type
 
 # third party
 import numpy as np
@@ -8,6 +11,7 @@ from optuna.trial import Trial
 import pandas as pd
 
 # adjutorium absolute
+import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
 
 # adjutorium relative
@@ -153,3 +157,77 @@ class Plugin(metaclass=ABCMeta):
     @abstractmethod
     def load(cls, buff: bytes) -> "Plugin":
         ...
+
+
+class PluginLoader:
+    def __init__(self, plugins: list, expected_type: Type) -> None:
+        self._plugins: Dict[str, Type] = {}
+        self._plugin_list = plugins
+        self._expected_type = expected_type
+
+        self._load_default_plugins(plugins)
+
+    def _load_default_plugins(self, plugins: list) -> None:
+        for plugin in plugins:
+            name = basename(plugin)
+            try:
+                spec = importlib.util.spec_from_file_location(name, plugin)
+                if not isinstance(spec.loader, Loader):
+                    raise RuntimeError("invalid plugin type")
+
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+
+                cls = mod.plugin  # type: ignore
+            except BaseException as e:
+                log.critical(f"module {name} load failed {e}")
+                continue
+
+            log.debug(f"Loaded plugin {cls.type()} - {cls.name()}")
+            self.add(cls.name(), cls)
+
+    def list(self) -> List[str]:
+        return list(self._plugins.keys())
+
+    def types(self) -> List[Type]:
+        return list(self._plugins.values())
+
+    def add(self, name: str, cls: Type) -> "PluginLoader":
+        if name in self._plugins:
+            raise ValueError(f"Plugin {name} already exists.")
+
+        if not issubclass(cls, self._expected_type):
+            raise ValueError(
+                f"Plugin {name} must derive the {self._expected_type} interface."
+            )
+
+        self._plugins[name] = cls
+
+        return self
+
+    def get(self, name: str, **kwargs: Any) -> Any:
+        if name not in self._plugins:
+            raise ValueError(f"Plugin {name} doesn't exist.")
+
+        return self._plugins[name](**kwargs)
+
+    def get_type(self, name: str) -> Type:
+        if name not in self._plugins:
+            raise ValueError(f"Plugin {name} doesn't exist.")
+
+        return self._plugins[name]
+
+    def __iter__(self) -> Generator:
+        for x in self._plugins:
+            yield x
+
+    def __len__(self) -> int:
+        return len(self.list())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.get(key)
+
+    def reload(self) -> "PluginLoader":
+        self._plugins = {}
+        self._load_default_plugins(self._plugin_list)
+        return self
