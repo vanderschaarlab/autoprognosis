@@ -9,6 +9,8 @@ import re
 # third party
 from setuptools import setup
 
+PKG_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def read(fname: str) -> str:
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -29,6 +31,9 @@ def find_version() -> str:
 if __name__ == "__main__":
     try:
         setup(
+            install_requires=[
+                f"hyperimpute @ file://localhost{PKG_DIR}/third_party/hyperimpute-0.0.1-py3-none-any.whl"
+            ],
             version=find_version(),
         )
     except:  # noqa
