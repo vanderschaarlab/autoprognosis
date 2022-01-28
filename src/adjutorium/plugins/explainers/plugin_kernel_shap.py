@@ -34,7 +34,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         y: pd.DataFrame,
         task_type: str = "classification",
         feature_names: Optional[List] = None,
-        subsample: int = 1000,
+        subsample: int = 10,
         prefit: bool = False,
         n_epoch: int = 10000,
         # risk estimation
@@ -49,7 +49,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         )
 
         X = pd.DataFrame(X, columns=self.feature_names)
-        X_summary = shap.sample(X, subsample)
+        X_summary = shap.kmeans(X, subsample)
         model = copy.deepcopy(estimator)
         self.task_type = task_type
 

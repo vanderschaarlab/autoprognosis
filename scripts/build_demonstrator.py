@@ -14,7 +14,7 @@ from adjutorium.deploy.proto import NewAppProto
 @click.option("--time_column", type=str)
 @click.option("--target_column", type=str)
 @click.option("--horizons", type=str)
-@click.option("--explainers", type=str, default="invase")
+@click.option("--explainers", type=str, default="kernel_shap")
 @click.option("--imputers", type=str, default="ice")
 @click.option("--plot_alternatives", type=str, default=[])
 def build(
