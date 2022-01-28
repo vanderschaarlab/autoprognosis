@@ -28,7 +28,7 @@ def build(
     explainers: str,
     imputers: str,
     plot_alternatives: str,
-) -> None:
+) -> str:
     print(task_type)
     if task_type == "risk_estimation":
         parsed_horizons = []
@@ -69,7 +69,7 @@ def build(
     else:
         raise RuntimeError(f"unsupported type {type}")
 
-    task.run()
+    return task.run()
 
 
 if __name__ == "__main__":

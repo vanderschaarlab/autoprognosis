@@ -18,7 +18,12 @@ from adjutorium.deploy.utils import get_ports, is_local_port_open
 import adjutorium.logger as log
 from adjutorium.utils.serialization import load_model_from_file
 
-BASELINE_PORT = 9000
+try:
+    port = os.getenv("PORT")
+    if port:
+        BASELINE_PORT = int(port)
+except BaseException:
+    BASELINE_PORT = 9000
 
 
 def run_server(app_path: Path, port: int) -> None:
