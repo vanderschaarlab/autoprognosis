@@ -39,6 +39,14 @@ class BaseEnsemble(metaclass=ABCMeta):
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         ...
 
+    def enable_explainer(
+        self,
+        explainer_plugins: list = [],
+        explanations_nepoch: int = 10000,
+    ) -> None:
+        self.explainer_plugins = explainer_plugins
+        self.explanations_nepoch = explanations_nepoch
+
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
         ev = Eval(metric)
         preds = self.predict_proba(X)

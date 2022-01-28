@@ -5,14 +5,14 @@ from pathlib import Path
 import queue
 import threading
 import traceback
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, Union
 
 # third party
 import pandas as pd
 
 # adjutorium absolute
-from adjutorium.apps.survival_analysis.utils.pandas_to_dash import generate_menu
-from adjutorium.deploy.proto import NewAppProto
+from adjutorium.apps.common.pandas_to_dash import generate_menu
+from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 from adjutorium.deploy.utils import file_copy, file_md5
 from adjutorium.exceptions import BuildCancelled
 import adjutorium.logger as log
@@ -99,7 +99,11 @@ class BuilderProgress:
 
 
 class Builder:
-    def __init__(self, task: NewAppProto, blocking: bool = True) -> None:
+    def __init__(
+        self,
+        task: Union[NewRiskEstimationAppProto, NewClassificationAppProto],
+        blocking: bool = True,
+    ) -> None:
         self.task = task
 
         self.blocking = blocking
@@ -117,60 +121,108 @@ class Builder:
         self.checkpoint = CHECKPOINT_DATASET_LOADING
 
         data = pd.read_csv(self.task.dataset_path)
-        data = data[data[self.task.time_column] > 0]
-
-        X = data.drop(
-            columns=[
-                self.task.time_column,
-                self.task.target_column,
-            ]
-        )
-        T = data[self.task.time_column]
-        Y = data[self.task.target_column]
-        log.info(f"Loaded dataset {X.shape} {T.shape} {Y.shape}")
-
-        self._should_continue()
-
-        self.checkpoint = CHECKPOINT_DATASET_IMPUTATION
-        self.checkpoint = CHECKPOINT_DATASET_ENCODING
-
         imputation_method: Optional[str] = None
-        if len(self.task.imputers) == 1:
-            imputation_method = self.task.imputers[0]
-
-        rawX = X.copy()
-
-        X, encoders = dataframe_encode_and_impute(
-            X, imputation_method=imputation_method
-        )
-        log.info(f"Loaded dataset after encoding {X.shape} {T.shape} {Y.shape}")
-
         # we treat binary columns as checkboxes
         checkboxes: list = []
         other_cols: list = []
-        for col in rawX.columns:
-            vals = [v for v in rawX[col].unique() if not pd.isna(v)]
-            log.info(f"unique vals {vals}")
-            if sorted(vals) == [0, 1]:
-                checkboxes.append(col)
-            else:
-                other_cols.append(col)
 
-        rawX = rawX[checkboxes + other_cols]
-        X = encoders.encode(rawX)
-        rawX = encoders.decode(X.dropna())
-        log.info(f"Loaded dataset final encoding {X.shape} {T.shape} {Y.shape}")
+        if self.task.type == "risk_estimation":
+            data = data[data[self.task.time_column] > 0]
 
-        return (
-            X,
-            rawX,
-            T,
-            Y,
-            encoders,
-            checkboxes,
-        )
+            X = data.drop(
+                columns=[
+                    self.task.time_column,
+                    self.task.target_column,
+                ]
+            )
+            T = data[self.task.time_column]
+            Y = data[self.task.target_column]
+            log.info(f"Loaded dataset {X.shape} {T.shape} {Y.shape}")
 
-    def _load_models(
+            self._should_continue()
+
+            self.checkpoint = CHECKPOINT_DATASET_IMPUTATION
+            self.checkpoint = CHECKPOINT_DATASET_ENCODING
+
+            if len(self.task.imputers) == 1:
+                imputation_method = self.task.imputers[0]
+
+            rawX = X.copy()
+
+            X, encoders = dataframe_encode_and_impute(
+                X, imputation_method=imputation_method
+            )
+            log.info(f"Loaded dataset after encoding {X.shape} {T.shape} {Y.shape}")
+
+            for col in rawX.columns:
+                vals = [v for v in rawX[col].unique() if not pd.isna(v)]
+                log.info(f"unique vals {vals}")
+                if sorted(vals) == [0, 1]:
+                    checkboxes.append(col)
+                else:
+                    other_cols.append(col)
+
+            rawX = rawX[checkboxes + other_cols]
+            X = encoders.encode(rawX)
+            rawX = encoders.decode(X.dropna())
+            log.info(f"Loaded dataset final encoding {X.shape} {T.shape} {Y.shape}")
+
+            return (
+                X,
+                rawX,
+                T,
+                Y,
+                encoders,
+                checkboxes,
+            )
+        elif self.task.type == "classification":
+            X = data.drop(
+                columns=[
+                    self.task.target_column,
+                ]
+            )
+            Y = data[self.task.target_column]
+            log.info(f"Loaded dataset {X.shape} {Y.shape}")
+
+            self._should_continue()
+
+            self.checkpoint = CHECKPOINT_DATASET_IMPUTATION
+            self.checkpoint = CHECKPOINT_DATASET_ENCODING
+
+            if len(self.task.imputers) == 1:
+                imputation_method = self.task.imputers[0]
+
+            rawX = X.copy()
+
+            X, encoders = dataframe_encode_and_impute(
+                X, imputation_method=imputation_method
+            )
+            log.info(f"Loaded dataset after encoding {X.shape} {Y.shape}")
+
+            for col in rawX.columns:
+                vals = [v for v in rawX[col].unique() if not pd.isna(v)]
+                log.info(f"unique vals {vals}")
+                if sorted(vals) == [0, 1]:
+                    checkboxes.append(col)
+                else:
+                    other_cols.append(col)
+
+            rawX = rawX[checkboxes + other_cols]
+            X = encoders.encode(rawX)
+            rawX = encoders.decode(X.dropna())
+            log.info(f"Loaded dataset final encoding {X.shape} {Y.shape}")
+
+            return (
+                X,
+                rawX,
+                None,
+                Y,
+                encoders,
+                checkboxes,
+            )
+        raise NotImplementedError(f"task not supported {self.task.type}")
+
+    def _load_models_risk_estimation(
         self,
         X: pd.DataFrame,
         T: pd.DataFrame,
@@ -199,19 +251,57 @@ class Builder:
 
         return app_models
 
+    def _load_models_classification(
+        self,
+        X: pd.DataFrame,
+        Y: pd.DataFrame,
+        output_path: Path,
+        explainers: list,
+    ) -> dict:
+        self._should_continue()
+        log.info(f"Creating model with explainers {explainers}")
+        model = load_model_from_file(self.task.model_path)
+        model.enable_explainer(explainer_plugins=explainers, explanations_nepoch=500)
+        log.info(f"Loaded model {model.name()}")
+
+        self.checkpoint = CHECKPOINT_TRAIN_MODEL
+        self._should_continue()
+        model.fit(X, Y)
+
+        self._should_continue()
+        app_models = {
+            DISPLAY_NAME: model,
+        }
+
+        self._should_continue()
+        save_model_to_file(output_path, app_models)
+
+        return app_models
+
     def _run(self, app_path: Path) -> str:
         self._should_continue()
         X, rawX, T, Y, encoders, checkboxes = self._load_dataset()
 
         self._should_continue()
-        app_models = self._load_models(
-            X,
-            T,
-            Y,
-            self.task.horizons,
-            output_path=self.trained_model_path,
-            explainers=self.task.explainers,
-        )
+        if self.task.type == "risk_estimation":
+            app_models = self._load_models_risk_estimation(
+                X,
+                T,
+                Y,
+                self.task.horizons,
+                output_path=self.trained_model_path,
+                explainers=self.task.explainers,
+            )
+        elif self.task.type == "classification":
+            app_models = self._load_models_classification(
+                X,
+                Y,
+                output_path=self.trained_model_path,
+                explainers=self.task.explainers,
+            )
+
+        else:
+            raise RuntimeError(f"invalid task type {self.task.type}")
 
         self._should_continue()
 
@@ -226,19 +316,35 @@ class Builder:
                 raise ValueError(f"Invalid col for split {col} {X.columns}")
             plot_alternatives[DISPLAY_NAME][col] = list(rawX[col].unique())
 
-        save_model_to_file(
-            app_path,
-            {
-                "title": app_title,
-                "banner_title": banner_title,
-                "models": app_models,
-                "column_types": column_types,
-                "encoders": encoders,
-                "menu_components": menu_components,
-                "time_horizons": self.task.horizons,
-                "plot_alternatives": plot_alternatives,
-            },
-        )
+        if self.task.type == "risk_estimation":
+            save_model_to_file(
+                app_path,
+                {
+                    "title": app_title,
+                    "type": self.task.type,
+                    "banner_title": banner_title,
+                    "models": app_models,
+                    "column_types": column_types,
+                    "encoders": encoders,
+                    "menu_components": menu_components,
+                    "time_horizons": self.task.horizons,
+                    "plot_alternatives": plot_alternatives,
+                },
+            )
+        elif self.task.type == "classification":
+            save_model_to_file(
+                app_path,
+                {
+                    "title": app_title,
+                    "type": self.task.type,
+                    "banner_title": banner_title,
+                    "models": app_models,
+                    "column_types": column_types,
+                    "encoders": encoders,
+                    "menu_components": menu_components,
+                    "plot_alternatives": plot_alternatives,
+                },
+            )
         file_copy(app_path, self.app_backup_file)
         self.checkpoint = CHECKPOINT_DONE
 

@@ -8,6 +8,9 @@ import time
 from typing import Tuple
 
 # adjutorium absolute
+from adjutorium.apps.classification.classification_template import (
+    classification_dashboard,
+)
 from adjutorium.apps.survival_analysis.survival_analysis_template import (
     survival_analysis_dashboard,
 )
@@ -21,16 +24,29 @@ BASELINE_PORT = 9000
 def run_server(app_path: Path, port: int) -> None:
     app_params = load_model_from_file(app_path)
 
-    app = survival_analysis_dashboard(
-        app_params["title"],
-        app_params["banner_title"],
-        app_params["models"],
-        app_params["column_types"],
-        app_params["encoders"],
-        app_params["menu_components"],
-        app_params["time_horizons"],
-        app_params["plot_alternatives"],
-    )
+    if app_params["type"] == "risk_estimation":
+        app = survival_analysis_dashboard(
+            app_params["title"],
+            app_params["banner_title"],
+            app_params["models"],
+            app_params["column_types"],
+            app_params["encoders"],
+            app_params["menu_components"],
+            app_params["time_horizons"],
+            app_params["plot_alternatives"],
+        )
+    elif app_params["type"] == "classification":
+        app = classification_dashboard(
+            app_params["title"],
+            app_params["banner_title"],
+            app_params["models"],
+            app_params["column_types"],
+            app_params["encoders"],
+            app_params["menu_components"],
+            app_params["plot_alternatives"],
+        )
+    else:
+        raise RuntimeError(f"unsupported task {app.type}")
 
     app.run_server(
         debug=False,

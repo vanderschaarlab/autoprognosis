@@ -3,7 +3,7 @@ from dash import html
 import dash_bootstrap_components as dbc
 
 # adjutorium absolute
-from adjutorium.apps.survival_analysis.assets.styles import (
+from adjutorium.apps.common.assets.styles import (
     page_banner_body,
     page_banner_border,
     page_banner_button_right_style,

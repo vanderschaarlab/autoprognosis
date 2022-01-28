@@ -7,7 +7,7 @@ import pandas as pd
 from pandas.api.types import is_float_dtype, is_integer_dtype
 
 # adjutorium absolute
-import adjutorium.apps.survival_analysis.utils.dash_reusable_components as drc
+import adjutorium.apps.common.dash_reusable_components as drc
 
 
 class DropdownColumn:
@@ -105,6 +105,7 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> Tuple:
             col_layout = drc.NamedInput(
                 obj.name,
                 min=obj.min,
+                value=obj.min,
                 max=obj.max,
             )
             children.append(col_layout)
@@ -112,6 +113,7 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> Tuple:
             col_layout = drc.NamedInput(
                 obj.name,
                 min=obj.min,
+                value=obj.min,
                 max=obj.max,
                 step=0.1,
             )

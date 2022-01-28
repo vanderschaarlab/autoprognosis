@@ -6,7 +6,6 @@ import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-import numpy as np
 import pandas as pd
 import plotly.express as px
 
@@ -23,14 +22,13 @@ external_stylesheets = [
 ]
 
 
-def survival_analysis_dashboard(
+def classification_dashboard(
     title: str,
     banner_title: str,
     models: Dict,
     column_types: List,
     encoders_ctx: EncodersCallbacks,
     menu_components: List,
-    time_horizons: List,
     plot_alternatives: Dict,
 ) -> dash.Dash:
 
@@ -56,7 +54,19 @@ def survival_analysis_dashboard(
         children=[
             html.Div("Risk estimation", className="predictiontitle"),
             html.Div(CAUTION_STATEMENT, className="predictionsubtitle"),
-            dcc.Graph(id="risk_chart", figure=px.line(template="simple_white")),
+            dbc.Row(
+                [
+                    dbc.Col(),
+                    dbc.Col(
+                        dcc.Graph(
+                            id="risk_chart",
+                            figure=px.line(template="simple_white"),
+                            style={"align": "center"},
+                        )
+                    ),
+                    dbc.Col(),
+                ]
+            ),
             html.Br(),
             interpretation_graphs,
         ],
@@ -81,33 +91,24 @@ def survival_analysis_dashboard(
                 pretty_name = Explainers().get_type(src).pretty_name()
                 src_interpretation = raw_interpretation[src]
 
-                if src_interpretation.shape != (1, len(df.columns), len(time_horizons)):
+                if src_interpretation.shape != (1, len(df.columns)):
                     print(
-                        f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
+                        f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns))}"
                     )
                     continue
 
-                display_interpretation = []
-
-                for idx, h in enumerate(time_horizons):
-                    interpretation_df = pd.DataFrame(
-                        src_interpretation[0, :, idx].reshape(1, -1),
-                        columns=df.columns,
-                        index=df.index.copy(),
-                    )
-                    interpretation_df = encoders_ctx.numeric_decode(interpretation_df)
-                    display_interpretation.append(interpretation_df.values)
-                interpretation = np.asarray(display_interpretation).T.squeeze()
-                interpretation = (interpretation - interpretation.min()) / (
-                    interpretation.max() - interpretation.min() + 1e-8
+                interpretation_df = pd.DataFrame(
+                    src_interpretation[0, :].reshape(1, -1),
+                    columns=df.columns,
+                    index=df.index.copy(),
                 )
+                interpretation_df = encoders_ctx.numeric_decode(interpretation_df)
 
                 fig = px.imshow(
-                    interpretation,
-                    y=interpretation_df.columns,
-                    x=np.asarray(time_horizons) / 365,
-                    labels=dict(x="Years", y="Feature", color="Feature importance"),
-                    color_continuous_scale="OrRd",
+                    interpretation_df,
+                    labels=dict(x="Feature", y="Source", color="Feature importance"),
+                    color_continuous_scale="Blues",
+                    height=250,
                 )
                 output_figs.extend(
                     [
@@ -125,86 +126,28 @@ def survival_analysis_dashboard(
         return output_figs
 
     def update_predictions(raw_df: pd.DataFrame, df: pd.DataFrame) -> px.imshow:
-        output_df = pd.DataFrame(
-            {
-                "alternative": [],
-                "risk": [],
-                "years": [],
-                "reason": [],
-            }
+        for reason in models:
+            predictions = models[reason].predict_proba(df)
+            break
+
+        vals = {
+            "Probability": predictions.values.squeeze(),
+            "Category": predictions.columns,
+        }
+        fig = px.bar(
+            vals,
+            x="Category",
+            y="Probability",
+            color="Category",
+            color_continuous_scale="RdBu",
+            height=300,
+            width=600,
         )
-
-        for reason in models:
-            predictions = models[reason].predict(df, time_horizons)
-            risk_estimation = predictions.values[0]
-            # uncertainity_estimation = uncertainity.values[0]
-
-            local_output_df = pd.DataFrame(
-                {
-                    "alternative": "(for the selected parameters)",
-                    "risk": risk_estimation,
-                    # "uncertainity": uncertainity_estimation,
-                    "years": time_horizons,
-                    "reason": [reason] * len(time_horizons),
-                }
-            )
-            output_df = output_df.append(local_output_df)
-
-        for reason in models:
-            if reason not in plot_alternatives:
-                continue
-
-            for col in plot_alternatives[reason]:
-
-                if col not in raw_df.columns:
-                    print("unknown column provided", col)
-                    continue
-
-                current_val = raw_df[col].values[0]
-                for alternative_val in plot_alternatives[reason][col]:
-                    if alternative_val == current_val:
-                        continue
-
-                    alt_raw_df = raw_df.copy()
-                    alt_raw_df[col] = alternative_val
-
-                    try:
-                        alt_df = encoders_ctx.encode(alt_raw_df)
-                    except BaseException as e:
-                        print("failed to encode", str(e))
-                        continue
-                    predictions = models[reason].predict(alt_df, time_horizons)
-                    alt_risk_estimation = predictions.values[0]
-
-                    alt_output_df = pd.DataFrame(
-                        {
-                            "alternative": "(alternative)",
-                            "risk": alt_risk_estimation,
-                            "years": time_horizons,
-                            "reason": [f"{reason} with : {col} = {alternative_val}"]
-                            * len(time_horizons),
-                        }
-                    )
-                    output_df = output_df.append(alt_output_df)
-
-        output_df["risk"] *= 100
-        output_df["years"] /= 365
-
-        fig = px.line(
-            output_df,
-            x="years",
-            y="risk",
-            # error_y="uncertainity",
-            color="reason",
-            line_dash="alternative",
-            labels={
-                "years": "Years to event",
-                "risk": "Risk probability",
-                "reason": "Risk",
-                "alternative": "Scenario",
-            },
-            template="simple_white",
-            title="Risk prediction",
+        fig.update_layout(
+            title="Predictions",
+            xaxis_title="Category",
+            yaxis_title="Probability",
+            legend_title="Categories",
         )
 
         return fig

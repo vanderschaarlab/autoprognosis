@@ -30,7 +30,7 @@ def InfoCard(info: str, subinfo: str, **kwargs: Any) -> dbc.Card:
     )
 
 
-def NamedInput(name: str, step: int = 1, **kwargs: Any) -> html.Div:
+def NamedInput(name: str, step: float = 1, **kwargs: Any) -> html.Div:
     result = html.Div(
         style={"padding": "20px 10px 25px 4px"},
         children=[
