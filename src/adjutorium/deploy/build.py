@@ -264,14 +264,9 @@ class Builder:
         self.status = STATUS_STARTED
         self.checkpoint = STATUS_STARTED
 
-        def done_cbk() -> None:
-            self.status = STATUS_DONE
-            self.progress.reset()
-            log.info("Building done")
-
         self._should_continue()
 
-        q.put((self._run, app_build_file, done_cbk))
+        self._run(app_build_file)
 
         return str(self.app_backup_file)
 
