@@ -2,12 +2,15 @@ name: Tutorials
 
 on:
   push:
-    branches: [main, release]
-  pull_request:
-    types: [opened, synchronize, reopened]
-  schedule:
-    - cron:  '0 0 * * 0'
-    
+    branches-ignore:
+      - '**'
+  #push:
+  #  branches: [main, release]
+  #pull_request:
+  #  types: [opened, synchronize, reopened]
+  #schedule:
+  #  - cron:  '0 0 * * 0'
+
 jobs:
   Tutorials:
     runs-on: ${{ matrix.os }}
