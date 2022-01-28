@@ -99,9 +99,10 @@ class BuilderProgress:
 
 
 class Builder:
-    def __init__(self, task: NewAppProto) -> None:
+    def __init__(self, task: NewAppProto, blocking: bool = True) -> None:
         self.task = task
 
+        self.blocking = blocking
         self.model_path = Path(self.task.model_path)
         self.working_path = self.model_path.parent
 
@@ -266,7 +267,15 @@ class Builder:
 
         self._should_continue()
 
-        self._run(app_build_file)
+        def done_cbk() -> None:
+            self.status = STATUS_DONE
+            self.progress.reset()
+            log.info("Building done")
+
+        if self.blocking:
+            self._run(app_build_file)
+        else:
+            q.put((self._run, app_build_file, done_cbk))
 
         return str(self.app_backup_file)
 

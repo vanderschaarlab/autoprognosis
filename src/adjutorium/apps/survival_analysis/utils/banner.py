@@ -17,42 +17,54 @@ from adjutorium.apps.survival_analysis.assets.styles import (
 def banner_template(title: str) -> html.Div:
     banner_content = dbc.Row(
         [
-            html.H2(
-                children=[
-                    html.A(
-                        title,
-                        href="/",
-                        style=page_banner_link_title_style,
-                    )
-                ],
-                style=page_banner_title_style,
+            dbc.Col(
+                html.H2(
+                    children=[
+                        html.A(
+                            title,
+                            href="/",
+                            style=page_banner_link_title_style,
+                        )
+                    ],
+                    style=page_banner_title_style,
+                )
             ),
-            html.A(
-                dbc.Button("Send Feedback"),
-                href="https://www.vanderschaar-lab.com/contact-us/",
-                target="_blank",
+            dbc.Col(
+                html.A(
+                    dbc.Button("Send Feedback"),
+                    href="https://www.vanderschaar-lab.com/contact-us/",
+                    target="_blank",
+                ),
+                width=1,
                 style=page_banner_button_style,
             ),
-            html.A(
-                dbc.Button("Learn more"),
-                href="https://www.vanderschaar-lab.com/",
-                target="_blank",
+            dbc.Col(
+                html.A(
+                    dbc.Button("Learn more"),
+                    href="https://www.vanderschaar-lab.com/",
+                    target="_blank",
+                ),
+                width=1,
                 style=page_banner_button_right_style,
             ),
-            html.A(
-                children=[
-                    html.Img(
-                        src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/04/transpLogo_long_plus.png",
-                        style={
-                            "height": "60px",
-                        },
-                    )
-                ],
-                href="https://www.vanderschaar-lab.com/",
-                target="_blank",
+            dbc.Col(
+                html.A(
+                    children=[
+                        html.Img(
+                            src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/04/transpLogo_long_plus.png",
+                            style={
+                                "height": "60px",
+                            },
+                        )
+                    ],
+                    href="https://www.vanderschaar-lab.com/",
+                    target="_blank",
+                ),
+                width=2,
                 style=page_banner_image_style,
             ),
-        ]
+        ],
+        style={"margin-top": "10px"},
     )
     return html.Div(
         children=[

@@ -18,7 +18,7 @@ from adjutorium.plugins.explainers import Explainers
 from adjutorium.studies._preprocessing import EncodersCallbacks
 
 external_stylesheets = [
-    "codepen.css",
+    "https://codepen.io/chriddyp/pen/bWLwgP.css",
     dbc.themes.BOOTSTRAP,
 ]
 
@@ -82,8 +82,8 @@ def survival_analysis_dashboard(
                 src_interpretation = raw_interpretation[src]
 
                 if src_interpretation.shape != (1, len(df.columns), len(time_horizons)):
-                    log.info(
-                        "Interpretation source provided an invalid output {src_interpretation.shape}"
+                    print(
+                        f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
                     )
                     continue
 
@@ -235,6 +235,7 @@ def survival_analysis_dashboard(
         try:
             xai_chart = update_interpretation(df)
         except BaseException as e:
+            print(e)
             log.error(f"failed to generate interpretation {e}")
             return risk_chart, []
         return risk_chart, xai_chart

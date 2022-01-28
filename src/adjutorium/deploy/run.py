@@ -60,7 +60,7 @@ def is_app_server_running(app_path: Path) -> bool:
     return False
 
 
-def start_app_server(app_path: Path) -> Tuple[BaseProcess, str]:
+def start_app_server(app_path: Path, daemon: bool = False) -> Tuple[BaseProcess, str]:
     output_url = "http://127.0.0.1:{}"
     process_name = get_app_name(app_path)
     current_pid = os.getpid()
@@ -86,7 +86,7 @@ def start_app_server(app_path: Path) -> Tuple[BaseProcess, str]:
 
     log.info(f"starting app name {process_name}, {port}")
     p = Process(
-        target=run_server, daemon=False, args=(app_path, port), name=process_name
+        target=run_server, daemon=daemon, args=(app_path, port), name=process_name
     )
 
     p.start()
