@@ -58,7 +58,7 @@ def run(output: Path, app: str) -> None:
 
     # Update requirements txt
     with open(output / "requirements.txt", "a") as f:
-        f.write(str(local_wheel.resolve()))
+        f.write(str(Path("third_party") / local_wheel.name))
         f.close()
 
 
