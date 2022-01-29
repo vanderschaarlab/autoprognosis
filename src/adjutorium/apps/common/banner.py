@@ -1,7 +1,3 @@
-# third party
-from dash import html
-import dash_bootstrap_components as dbc
-
 # adjutorium absolute
 from adjutorium.apps.common.assets.styles import (
     page_banner_body,
@@ -12,6 +8,18 @@ from adjutorium.apps.common.assets.styles import (
     page_banner_link_title_style,
     page_banner_title_style,
 )
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        from dash import html
+        import dash_bootstrap_components as dbc
+
+        break
+    except ImportError:
+        depends = ["dash", "dash_bootstrap_components"]
+        install(depends)
 
 
 def banner_template(title: str) -> html.Div:

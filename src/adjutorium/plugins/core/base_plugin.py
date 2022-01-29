@@ -8,15 +8,25 @@ from typing import Any, Dict, Generator, List, Type
 
 # third party
 import numpy as np
-from optuna.trial import Trial
 import pandas as pd
 
 # adjutorium absolute
 import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
+from adjutorium.utils.pip import install
 
 # adjutorium relative
 from .params import Params
+
+for retry in range(2):
+    try:
+        # third party
+        from optuna.trial import Trial
+
+        break
+    except ImportError:
+        depends = ["optuna"]
+        install(depends)
 
 
 class Plugin(metaclass=ABCMeta):
@@ -200,6 +210,9 @@ class PluginLoader:
     def list(self) -> List[str]:
         return list(self._plugins.keys())
 
+    def list_available(self) -> List[str]:
+        return list(self._available_plugins.keys())
+
     def types(self) -> List[Type]:
         return list(self._plugins.values())
 
@@ -229,6 +242,12 @@ class PluginLoader:
         return self._plugins[name](*args, **kwargs)
 
     def get_type(self, name: str) -> Type:
+        if name not in self._plugins and name not in self._available_plugins:
+            raise ValueError(f"Plugin {name} doesn't exist.")
+
+        if name not in self._plugins:
+            self._load_single_plugin(self._available_plugins[name])
+
         if name not in self._plugins:
             raise ValueError(f"Plugin {name} doesn't exist.")
 

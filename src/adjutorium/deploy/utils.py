@@ -5,8 +5,18 @@ from pathlib import Path
 import shutil
 import socket
 
-# third party
-import psutil
+# adjutorium absolute
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import psutil
+
+        break
+    except ImportError:
+        depends = ["psutil"]
+        install(depends)
 
 
 def get_ports(pid: int) -> list:

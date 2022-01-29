@@ -267,37 +267,6 @@ def evaluate_skurv_brier_score(
         )
 
 
-def sqrt_PEHE(y: np.ndarray, hat_y: np.ndarray) -> float:
-    """
-    Precision in Estimation of Heterogeneous Effect(Numpy version).
-    PEHE reflects the ability to capture individual variation in treatment effects.
-    Args:
-        y: expected outcome.
-        hat_y: estimated outcome difference.
-    """
-    return np.sqrt(np.mean(((y[:, 1] - y[:, 0]) - hat_y) ** 2))
-
-
-def ATE(y: np.ndarray, hat_y: np.ndarray) -> np.ndarray:
-    """
-    Average Treatment Effect.
-    ATE measures what is the expected causal effect of the treatment across all individuals in the population.
-    Args:
-        y: expected outcome.
-        hat_y: estimated outcome.
-    """
-    return np.abs(np.mean(y[:, 1] - y[:, 0]) - np.mean(hat_y))
-
-
-def treatments_score(y: np.ndarray, hat_y: np.ndarray, metric: str = "pehe") -> float:
-    if metric == "pehe":
-        return sqrt_PEHE(y, hat_y)
-    elif metric == "ate":
-        return ATE(y, hat_y)
-
-    raise ValueError(f"Invalid metric used {metric}")
-
-
 def generate_score(metric: np.ndarray) -> Tuple[float, float]:
     percentile_val = 1.96
     return (np.mean(metric), percentile_val * np.std(metric) / np.sqrt(len(metric)))

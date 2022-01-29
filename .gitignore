@@ -69,3 +69,4 @@ MANIFEST
 .conda*/
 datasets
 generated
+image_bin

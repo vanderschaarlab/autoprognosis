@@ -8,7 +8,7 @@ import pytest
 
 # adjutorium absolute
 from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.imputers.plugin_em import plugin
+from adjutorium.plugins.imputers.plugin_EM import plugin
 from adjutorium.plugins.utils.metrics import RMSE
 from adjutorium.plugins.utils.simulate import simulate_nan
 

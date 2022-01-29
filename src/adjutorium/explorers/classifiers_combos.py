@@ -4,7 +4,6 @@ from typing import List, Tuple
 
 # third party
 import numpy as np
-import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
@@ -24,10 +23,21 @@ from adjutorium.plugins.ensemble.classifiers import (
     StackingEnsemble,
     WeightedEnsemble,
 )
+from adjutorium.utils.pip import install
 from adjutorium.utils.tester import evaluate_estimator
 
 # adjutorium relative
 from .classifiers import ClassifierSeeker
+
+for retry in range(2):
+    try:
+        # third party
+        import optuna
+
+        break
+    except ImportError:
+        depends = ["optuna"]
+        install(depends)
 
 EPS = 1e-8
 

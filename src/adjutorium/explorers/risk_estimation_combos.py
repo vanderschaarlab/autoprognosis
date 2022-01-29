@@ -5,7 +5,6 @@ from typing import List
 
 # third party
 import numpy as np
-import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
@@ -20,10 +19,22 @@ from adjutorium.explorers.hooks import DefaultHooks
 from adjutorium.hooks import Hooks
 import adjutorium.logger as log
 from adjutorium.plugins.ensemble.risk_estimation import RiskEnsemble
+from adjutorium.utils.pip import install
 from adjutorium.utils.tester import evaluate_survival_estimator
 
 # adjutorium relative
 from .risk_estimation import RiskEstimatorSeeker
+
+for retry in range(2):
+    try:
+        # third party
+        import optuna
+
+        break
+    except ImportError:
+        depends = ["optuna"]
+        install(depends)
+
 
 EPS = 10 ** -8
 

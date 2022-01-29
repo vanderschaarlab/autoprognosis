@@ -2,13 +2,8 @@
 from typing import Any, Dict, List, Tuple
 
 # third party
-import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
-import plotly.express as px
 
 # adjutorium absolute
 from adjutorium.apps.common.banner import banner_template
@@ -16,6 +11,22 @@ import adjutorium.apps.common.dash_reusable_components as drc
 import adjutorium.logger as log
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.studies._preprocessing import EncodersCallbacks
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import dash
+        from dash import dcc, html
+        from dash.dependencies import Input, Output
+        import dash_bootstrap_components as dbc
+        import plotly.express as px
+
+        break
+    except ImportError:
+        depends = ["dash", "dash_bootstrap_components", "plotly"]
+        install(depends)
+
 
 external_stylesheets = [
     "https://codepen.io/chriddyp/pen/bWLwgP.css",

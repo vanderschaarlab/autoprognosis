@@ -31,9 +31,7 @@ def find_version() -> str:
 if __name__ == "__main__":
     try:
         setup(
-            install_requires=[
-                f"hyperimpute @ file://localhost{PKG_DIR}/third_party/hyperimpute-0.0.1-py3-none-any.whl"
-            ],
+            install_requires=[],
             version=find_version(),
         )
     except:  # noqa

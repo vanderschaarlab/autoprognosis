@@ -52,12 +52,15 @@ class Invalid:
 
 
 def test_load(ctx: Predictions) -> None:
-    assert len(ctx._plugins) > 0
-    assert len(ctx._plugins) == len(ctx)
+    assert len(ctx._plugins) == 0
+    ctx.get("xgboost")
+    assert len(ctx._plugins) == 1
 
 
 def test_list(ctx: Predictions) -> None:
+    ctx.get("bagging")
     assert "bagging" in ctx.list()
+    assert "catboost" not in ctx.list()
 
 
 def test_add_get(ctx: Predictions) -> None:

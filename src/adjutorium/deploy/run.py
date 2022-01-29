@@ -20,6 +20,7 @@ from adjutorium.utils.serialization import load_model_from_file
 
 try:
     port = os.getenv("PORT")
+    BASELINE_PORT = 9000
     if port:
         BASELINE_PORT = int(port)
 except BaseException:
@@ -29,6 +30,7 @@ except BaseException:
 def run_server(app_path: Path, port: int) -> None:
     app_params = load_model_from_file(app_path)
 
+    print("model ", app_params["models"]["Adjutorium model"].name())
     if app_params["type"] == "risk_estimation":
         app = survival_analysis_dashboard(
             app_params["title"],

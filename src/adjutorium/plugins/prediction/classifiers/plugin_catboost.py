@@ -55,7 +55,6 @@ class CatBoostPlugin(base.ClassifierPlugin):
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
-        print("!!! loading catboost")
         if model is not None:
             self.model = model
             return

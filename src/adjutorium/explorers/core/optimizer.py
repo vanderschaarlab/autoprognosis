@@ -1,12 +1,24 @@
 # stdlib
 from typing import Tuple
 
-# third party
-import optuna
-
 # adjutorium absolute
 import adjutorium.logger as log
+from adjutorium.utils.pip import install
 from adjutorium.utils.redis import backend
+
+for retry in range(2):
+    try:
+        # third party
+        import optuna
+
+        optuna.logging.set_verbosity(optuna.logging.FATAL)
+        optuna.logging.disable_propagation()
+        optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
+        break
+    except ImportError:
+        depends = ["optuna"]
+        install(depends)
+
 
 threshold = 40
 

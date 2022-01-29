@@ -25,7 +25,8 @@ for retry in range(2):
         from joblib import Parallel, delayed
 
         break
-    except ImportError:
+    except ImportError as e:
+        print("failed to install ", e)
         depends = ["combo", "joblib"]
         install(depends)
 

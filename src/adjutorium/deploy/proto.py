@@ -1,5 +1,15 @@
-# third party
-from pydantic import BaseModel
+# adjutorium absolute
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        from pydantic import BaseModel
+
+        break
+    except ImportError:
+        depends = ["pydantic"]
+        install(depends)
 
 
 class NewRiskEstimationAppProto(BaseModel):
