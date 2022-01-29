@@ -2,7 +2,6 @@
 from typing import Any, List
 
 # third party
-import lightgbm as lgbm
 import pandas as pd
 
 # adjutorium absolute
@@ -11,7 +10,18 @@ import adjutorium.plugins.prediction.classifiers.base as base
 from adjutorium.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        import lightgbm as lgbm
+
+        break
+    except ImportError:
+        depends = ["lightgbm"]
+        install(depends)
 
 
 class LightGBMPlugin(base.ClassifierPlugin):

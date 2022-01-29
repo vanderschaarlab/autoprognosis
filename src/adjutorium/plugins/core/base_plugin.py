@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 from importlib.abc import Loader
 import importlib.util
 from os.path import basename
+from pathlib import Path
 from typing import Any, Dict, Generator, List, Type
 
 # third party
@@ -162,14 +163,17 @@ class Plugin(metaclass=ABCMeta):
 class PluginLoader:
     def __init__(self, plugins: list, expected_type: Type) -> None:
         self._plugins: Dict[str, Type] = {}
-        self._plugin_list = plugins
+        self._available_plugins = {}
+        for plugin in plugins:
+            stem = Path(plugin).stem.split("plugin_")[-1]
+            self._available_plugins[stem] = plugin
+
         self._expected_type = expected_type
 
-        self._load_default_plugins(plugins)
-
-    def _load_default_plugins(self, plugins: list) -> None:
-        for plugin in plugins:
-            name = basename(plugin)
+    def _load_single_plugin(self, plugin: str) -> None:
+        name = basename(plugin)
+        failed = False
+        for retry in range(2):
             try:
                 spec = importlib.util.spec_from_file_location(name, plugin)
                 if not isinstance(spec.loader, Loader):
@@ -179,12 +183,19 @@ class PluginLoader:
                 spec.loader.exec_module(mod)
 
                 cls = mod.plugin  # type: ignore
+                failed = False
+                break
             except BaseException as e:
-                log.critical(f"module {name} load failed {e}")
-                continue
+                log.critical(f"load failed: {e}")
+                failed = True
+                break
 
-            log.debug(f"Loaded plugin {cls.type()} - {cls.name()}")
-            self.add(cls.name(), cls)
+        if failed:
+            log.critical(f"module {name} load failed")
+            return
+
+        log.debug(f"Loaded plugin {cls.type()} - {cls.name()}")
+        self.add(cls.name(), cls)
 
     def list(self) -> List[str]:
         return list(self._plugins.keys())
@@ -205,11 +216,17 @@ class PluginLoader:
 
         return self
 
-    def get(self, name: str, **kwargs: Any) -> Any:
-        if name not in self._plugins:
+    def get(self, name: str, *args: Any, **kwargs: Any) -> Any:
+        if name not in self._plugins and name not in self._available_plugins:
             raise ValueError(f"Plugin {name} doesn't exist.")
 
-        return self._plugins[name](**kwargs)
+        if name not in self._plugins:
+            self._load_single_plugin(self._available_plugins[name])
+
+        if name not in self._plugins:
+            raise ValueError(f"Plugin {name} cannot be loaded.")
+
+        return self._plugins[name](*args, **kwargs)
 
     def get_type(self, name: str) -> Type:
         if name not in self._plugins:
@@ -229,5 +246,4 @@ class PluginLoader:
 
     def reload(self) -> "PluginLoader":
         self._plugins = {}
-        self._load_default_plugins(self._plugin_list)
         return self

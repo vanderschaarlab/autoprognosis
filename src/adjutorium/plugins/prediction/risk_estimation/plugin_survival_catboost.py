@@ -2,7 +2,6 @@
 from typing import Any, List
 
 # third party
-from catboost import CatBoostRegressor, Pool
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -13,7 +12,18 @@ import adjutorium.plugins.prediction.risk_estimation.base as base
 from adjutorium.plugins.prediction.risk_estimation.plugin_weibull_aft import (
     WeibullAFTPlugin,
 )
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from catboost import CatBoostRegressor, Pool
+
+        break
+    except ImportError:
+        depends = ["catboost"]
+        install(depends)
 
 
 class StackedSurvivalCatboost:

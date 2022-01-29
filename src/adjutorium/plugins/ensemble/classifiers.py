@@ -4,9 +4,6 @@ import copy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # third party
-from combo.models.classifier_comb import SimpleClassifierAggregator
-from combo.models.classifier_stacking import Stacking
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
@@ -16,8 +13,21 @@ import adjutorium.logger as log
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.plugins.pipeline import Pipeline, PipelineMeta
 from adjutorium.utils.parallel import cpu_count
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
 from adjutorium.utils.tester import Eval
+
+for retry in range(2):
+    try:
+        # third party
+        from combo.models.classifier_comb import SimpleClassifierAggregator
+        from combo.models.classifier_stacking import Stacking
+        from joblib import Parallel, delayed
+
+        break
+    except ImportError:
+        depends = ["combo", "joblib"]
+        install(depends)
 
 dispatcher = Parallel(n_jobs=cpu_count())
 

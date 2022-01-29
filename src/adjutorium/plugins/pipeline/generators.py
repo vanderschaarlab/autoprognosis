@@ -3,12 +3,22 @@ from typing import Any, Callable, Dict, Tuple, Type
 
 # third party
 import numpy as np
-from optuna.trial import Trial
 import pandas as pd
 
 # adjutorium absolute
 import adjutorium.plugins.utils.decorators as decorators
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from optuna.trial import Trial
+
+        break
+    except ImportError:
+        depends = ["optuna"]
+        install(depends)
 
 
 def _generate_name_impl(plugins: Tuple[Type, ...]) -> Callable:

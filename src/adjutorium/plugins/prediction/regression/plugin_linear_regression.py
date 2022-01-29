@@ -23,6 +23,7 @@ class LinearRegressionPlugin(base.RegressionPlugin):
     """
 
     def __init__(self, model: Any = None, **kwargs: Any) -> None:
+
         super().__init__(**kwargs)
         if model is not None:
             self.model = model

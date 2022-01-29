@@ -1,12 +1,20 @@
 # stdlib
 from typing import Any, List
 
-# third party
-from hyperimpute.plugins.imputers.plugin_nop import plugin as base_model
-
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.imputers.base as base
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        from hyperimpute.plugins.imputers.plugin_nop import plugin as base_model
+
+        break
+    except ImportError:
+        depends = ["hyperimpute"]
+        install(depends)
 
 
 class NopPlugin(base.ImputerPlugin):

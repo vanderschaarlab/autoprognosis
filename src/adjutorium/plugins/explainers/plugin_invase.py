@@ -5,22 +5,33 @@ import itertools
 from typing import Any, Generator, List, Optional, Union
 
 # third party
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.utils import resample
-import torch
-from torch import nn
 
 # adjutorium absolute
 import adjutorium.logger as log
 from adjutorium.plugins.explainers.base import ExplainerPlugin
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        import torch
+        from torch import nn
+
+        break
+    except ImportError:
+        depends = ["matplotlib", "seaborn", "torch"]
+        install(depends)
+
 
 EPS = 1e-8
 
-DEVICE = torch.device("cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def sample(X: np.ndarray, nsamples: int = 100, random_state: int = 0) -> np.ndarray:

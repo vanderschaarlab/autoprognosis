@@ -3,12 +3,22 @@ import copy
 from typing import Any, List, Optional
 
 # third party
-import lime
 import numpy as np
 import pandas as pd
 
 # adjutorium absolute
 from adjutorium.plugins.explainers.base import ExplainerPlugin
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import lime
+
+        break
+    except ImportError:
+        depends = ["lime"]
+        install(depends)
 
 
 class LimePlugin(ExplainerPlugin):

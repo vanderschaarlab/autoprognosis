@@ -2,7 +2,6 @@
 from typing import Any
 
 # third party
-import hyperimpute.plugins.core.base_plugin as imputation_plugin
 import pandas as pd
 
 # adjutorium absolute
@@ -25,10 +24,10 @@ class ImputerPlugin(plugin.Plugin):
     If any method implementation is missing, the class constructor will fail.
     """
 
-    def __init__(self, model: imputation_plugin) -> None:
+    def __init__(self, model: Any) -> None:
         super().__init__()
 
-        if not isinstance(model, imputation_plugin.Plugin):
+        if not hasattr(model, "fit") or not hasattr(model, "transform"):
             raise RuntimeError("Invalid instance model type")
 
         self._model = model
