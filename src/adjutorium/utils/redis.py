@@ -1,21 +1,9 @@
 # stdlib
 import os
 
-# adjutorium absolute
-from adjutorium.utils.pip import install
-
-for retry in range(2):
-    # third party
-    try:
-        # third party
-        import optuna
-        import redis
-
-        break
-    except ImportError:
-        depends = ["optuna", "redis"]
-        install(depends)
-
+# third party
+import optuna
+import redis
 
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 

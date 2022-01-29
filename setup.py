@@ -31,7 +31,6 @@ def find_version() -> str:
 if __name__ == "__main__":
     try:
         setup(
-            install_requires=[],
             version=find_version(),
         )
     except:  # noqa

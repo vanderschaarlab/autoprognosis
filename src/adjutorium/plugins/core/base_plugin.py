@@ -8,25 +8,15 @@ from typing import Any, Dict, Generator, List, Type
 
 # third party
 import numpy as np
+from optuna.trial import Trial
 import pandas as pd
 
 # adjutorium absolute
 import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
-from adjutorium.utils.pip import install
 
 # adjutorium relative
 from .params import Params
-
-for retry in range(2):
-    try:
-        # third party
-        from optuna.trial import Trial
-
-        break
-    except ImportError:
-        depends = ["optuna"]
-        install(depends)
 
 
 class Plugin(metaclass=ABCMeta):

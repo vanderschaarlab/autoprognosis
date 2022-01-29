@@ -4,7 +4,9 @@ import traceback
 from typing import Any, Dict, List, Tuple
 
 # third party
+from joblib import Parallel, delayed
 import numpy as np
+import optuna
 import pandas as pd
 
 # adjutorium absolute
@@ -19,19 +21,8 @@ from adjutorium.explorers.hooks import DefaultHooks
 from adjutorium.hooks import Hooks
 import adjutorium.logger as log
 from adjutorium.utils.parallel import cpu_count
-from adjutorium.utils.pip import install
 from adjutorium.utils.tester import evaluate_survival_estimator
 
-for retry in range(2):
-    try:
-        # third party
-        from joblib import Parallel, delayed
-        import optuna
-
-        break
-    except ImportError:
-        depends = ["optuna", "joblib"]
-        install(depends)
 dispatcher = Parallel(n_jobs=cpu_count())
 
 

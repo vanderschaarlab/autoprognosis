@@ -1,6 +1,9 @@
 # stdlib
 from typing import Any, Dict, List, Tuple, Type, Union
 
+# third party
+from optuna.trial import Trial
+
 # adjutorium absolute
 from adjutorium.explorers.core.defaults import (
     default_feature_scaling_names,
@@ -13,18 +16,6 @@ from adjutorium.plugins.imputers import Imputers
 from adjutorium.plugins.pipeline import Pipeline, PipelineMeta
 from adjutorium.plugins.prediction import Predictions
 from adjutorium.plugins.preprocessors import Preprocessors
-from adjutorium.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from optuna.trial import Trial
-
-        break
-    except ImportError:
-        depends = ["optuna"]
-        install(depends)
-
 
 predefined_args = {
     "features_count": 10,

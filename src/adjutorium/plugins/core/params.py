@@ -4,19 +4,7 @@ from typing import Any, List, Tuple
 
 # third party
 import numpy as np
-
-# adjutorium absolute
-from adjutorium.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from optuna.trial import Trial
-
-        break
-    except ImportError:
-        depends = ["optuna"]
-        install(depends)
+from optuna.trial import Trial
 
 
 class Params(metaclass=ABCMeta):
