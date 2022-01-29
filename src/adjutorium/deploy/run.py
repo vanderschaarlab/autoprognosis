@@ -4,6 +4,7 @@ from multiprocessing import Process
 from multiprocessing.process import BaseProcess
 import os
 from pathlib import Path
+import re
 import time
 from typing import Tuple
 
@@ -16,6 +17,7 @@ from adjutorium.apps.survival_analysis.survival_analysis_template import (
 )
 from adjutorium.deploy.utils import get_ports, is_local_port_open
 import adjutorium.logger as log
+from adjutorium.plugins import Plugins
 from adjutorium.utils.serialization import load_model_from_file
 
 try:
@@ -26,8 +28,35 @@ try:
 except BaseException:
     BASELINE_PORT = 9000
 
+chars = r"A-Za-z0-9/\-:.,_$%'()[\]<> "
+shortest_run = 4
+
+regexp = "[%s]{%d,}" % (chars, shortest_run)
+regexp_b = regexp.encode()
+pattern = re.compile(regexp_b)
+
+
+def load_depends(app_path: Path) -> None:
+    seen = set()
+    with open(app_path, "rb") as f:
+        data = f.read()
+        strings = pattern.findall(data)
+        for string in strings:
+            decoded = string.decode()
+            if "plugin_" in decoded and "adjutorium" in decoded:
+                path = Path(decoded)
+                plugin = path.stem.split("plugin_")[1]
+
+                if plugin in seen:
+                    continue
+                seen.add(plugin)
+
+                Plugins().get_any_type(plugin)
+
 
 def run_server(app_path: Path, port: int) -> None:
+    load_depends(app_path)
+
     app_params = load_model_from_file(app_path)
 
     print("model ", app_params["models"]["Adjutorium model"].name())

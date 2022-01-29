@@ -4,6 +4,7 @@ import copy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # third party
+from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
@@ -22,12 +23,10 @@ for retry in range(2):
         # third party
         from combo.models.classifier_comb import SimpleClassifierAggregator
         from combo.models.classifier_stacking import Stacking
-        from joblib import Parallel, delayed
 
         break
-    except ImportError as e:
-        print("failed to install ", e)
-        depends = ["combo", "joblib"]
+    except ImportError:
+        depends = ["combo"]
         install(depends)
 
 dispatcher = Parallel(n_jobs=cpu_count())
