@@ -16,6 +16,7 @@ predefined = {
     "lightgbm": "lightgbm==3.3.1",
     "line": "lime==0.2.0.1",
     "catboost": "catboost==1.0.3",
+    "scipy": "scipy==1.7.3",
     "pycox": "pycox==0.2.2",
     "pytorch-tabnet": "pytorch-tabnet==3.1.1",
     "shap": "shap==0.40.0",

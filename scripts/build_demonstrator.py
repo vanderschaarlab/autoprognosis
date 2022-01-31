@@ -63,7 +63,7 @@ def build_app(
     else:
         raise RuntimeError(f"unsupported type {type}")
 
-    return task.run()
+    return Path(task.run())
 
 
 def build_wheel() -> Path:
@@ -119,17 +119,51 @@ def pack(app: Path, output: Path = Path("image_bin")) -> None:
 
 
 @click.command()
-@click.option("--name", type=str, default="new_demonstrator")
-@click.option("--task_type", type=str)
-@click.option("--dataset_path", type=str)
-@click.option("--model_path", type=str)
-@click.option("--time_column", type=str)
-@click.option("--target_column", type=str)
-@click.option("--horizons", type=str)
-@click.option("--explainers", type=str, default="kernel_shap")
-@click.option("--imputers", type=str, default="ice")
-@click.option("--plot_alternatives", type=str, default=[])
-@click.option("--output", type=str, default="image_bin")
+@click.option(
+    "--name", type=str, default="new_demonstrator", help="The title of the demonstrator"
+)
+@click.option("--task_type", type=str, help="classification/risk_estimation")
+@click.option("--dataset_path", type=str, help="Path to the dataset csv")
+@click.option(
+    "--model_path", type=str, help="Path to the model template, usually model.p"
+)
+@click.option(
+    "--time_column",
+    type=str,
+    help="Only for risk_estimation tasks. Which column in the dataset is used for time-to-event",
+)
+@click.option(
+    "--target_column", type=str, help="Which column in the dataset is the outcome"
+)
+@click.option(
+    "--horizons",
+    type=str,
+    help="Only for risk_estimation tasks. Which time horizons to plot.",
+)
+@click.option(
+    "--explainers",
+    type=str,
+    default="kernel_shap",
+    help="Which explainers to include. There can be multiple explainer names, separated by a comma. Available explainers: kernel_shap,invase,shap_permutation_sampler,lime.",
+)
+@click.option(
+    "--imputers",
+    type=str,
+    default="ice",
+    help="Which imputer to use. Available imputers: ['sinkhorn', 'EM', 'mice', 'ice', 'hyperimpute', 'most_frequent', 'median', 'missforest', 'softimpute', 'nop', 'mean', 'gain']",
+)
+@click.option(
+    "--plot_alternatives",
+    type=str,
+    default=[],
+    help="Only for risk_estimation. List of categorical columns by which to split the graphs. For example, plot outcome for different treatments available.",
+)
+@click.option(
+    "--output",
+    type=str,
+    default="image_bin",
+    help="Where to save the demonstrator files. The content of the folder can be directly used for deployments(for example, to Heroku).",
+)
 def build(
     name: str,
     task_type: str,

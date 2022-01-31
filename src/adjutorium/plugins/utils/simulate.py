@@ -7,8 +7,18 @@ from typing import List
 
 # third party
 import numpy as np
-from scipy import optimize
-from scipy.special import expit
+
+# adjutorium absolute
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        from scipy import optimize
+        from scipy.special import expit
+    except ImportError:
+        depends = ["scipy"]
+        install(depends)
 
 
 def pick_coeffs(
