@@ -4,10 +4,20 @@ from typing import Any, List, Optional, Union
 
 # third party
 import pandas as pd
-import shap
 
 # adjutorium absolute
 from adjutorium.plugins.explainers.base import ExplainerPlugin
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import shap
+
+        break
+    except ImportError:
+        depends = ["shap"]
+        install(depends)
 
 
 class ShapPermutationSamplerPlugin(ExplainerPlugin):

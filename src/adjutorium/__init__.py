@@ -17,9 +17,6 @@ optuna.logging.disable_default_handler()  # Stop showing logs in sys.stderr.
 logger.add(sink=sys.stderr, level="CRITICAL")
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings(
-    "ignore", category=optuna.exceptions.ExperimentalWarning, module="optuna"
-)
 
 os.environ["OMP_NUM_THREADS"] = "2"
 os.environ["OPENBLAS_NUM_THREADS"] = "2"

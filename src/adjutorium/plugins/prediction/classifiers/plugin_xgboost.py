@@ -3,7 +3,6 @@ from typing import Any, List, Optional
 
 # third party
 import pandas as pd
-from xgboost import XGBClassifier
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
@@ -11,7 +10,18 @@ import adjutorium.plugins.prediction.classifiers.base as base
 from adjutorium.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from xgboost import XGBClassifier
+
+        break
+    except ImportError:
+        depends = ["xgboost"]
+        install(depends)
 
 
 class XGBoostPlugin(base.ClassifierPlugin):

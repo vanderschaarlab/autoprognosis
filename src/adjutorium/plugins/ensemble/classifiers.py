@@ -4,8 +4,6 @@ import copy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # third party
-from combo.models.classifier_comb import SimpleClassifierAggregator
-from combo.models.classifier_stacking import Stacking
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
@@ -16,8 +14,20 @@ import adjutorium.logger as log
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.plugins.pipeline import Pipeline, PipelineMeta
 from adjutorium.utils.parallel import cpu_count
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
 from adjutorium.utils.tester import Eval
+
+for retry in range(2):
+    try:
+        # third party
+        from combo.models.classifier_comb import SimpleClassifierAggregator
+        from combo.models.classifier_stacking import Stacking
+
+        break
+    except ImportError:
+        depends = ["combo"]
+        install(depends)
 
 dispatcher = Parallel(n_jobs=cpu_count())
 
@@ -38,6 +48,14 @@ class BaseEnsemble(metaclass=ABCMeta):
     @abstractmethod
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         ...
+
+    def enable_explainer(
+        self,
+        explainer_plugins: list = [],
+        explanations_nepoch: int = 10000,
+    ) -> None:
+        self.explainer_plugins = explainer_plugins
+        self.explanations_nepoch = explanations_nepoch
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
         ev = Eval(metric)

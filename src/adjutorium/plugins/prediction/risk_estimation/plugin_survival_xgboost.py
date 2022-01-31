@@ -5,13 +5,23 @@ from typing import Any, List, Optional
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from xgbse import XGBSEDebiasedBCE, XGBSEStackedWeibull
-from xgbse.converters import convert_to_structured
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.risk_estimation.base as base
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from xgbse import XGBSEDebiasedBCE, XGBSEStackedWeibull
+        from xgbse.converters import convert_to_structured
+
+        break
+    except ImportError:
+        depends = ["xgbse"]
+        install(depends)
 
 
 class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):

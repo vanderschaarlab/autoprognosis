@@ -9,6 +9,8 @@ import re
 # third party
 from setuptools import setup
 
+PKG_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def read(fname: str) -> str:
     return open(os.path.join(os.path.dirname(__file__), fname)).read()

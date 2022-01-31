@@ -4,14 +4,25 @@ from typing import Any, List
 # third party
 import numpy as np
 import pandas as pd
-from pytorch_tabnet.tab_model import TabNetRegressor
 from sklearn.model_selection import train_test_split
-import torch
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.regression.base as base
+from adjutorium.utils.pip import install
 from adjutorium.utils.serialization import load_model, save_model
+
+for retry in range(2):
+    try:
+        # third party
+        from pytorch_tabnet.tab_model import TabNetRegressor
+        import torch
+
+        break
+    except ImportError:
+        depends = ["torch", "pytorch_tabnet"]
+        install(depends)
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

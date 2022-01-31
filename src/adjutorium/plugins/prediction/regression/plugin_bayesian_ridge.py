@@ -20,6 +20,7 @@ class BayesianRidgePlugin(base.RegressionPlugin):
         model: Any = None,
         **kwargs: Any
     ) -> None:
+
         super().__init__(**kwargs)
         if model is not None:
             self.model = model

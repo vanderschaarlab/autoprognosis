@@ -3,9 +3,21 @@ from abc import ABCMeta, abstractmethod
 from typing import Optional
 
 # third party
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+# adjutorium absolute
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import matplotlib.pyplot as plt
+
+        break
+    except ImportError:
+        depends = ["matplotlib"]
+        install(depends)
 
 
 class ExplainerPlugin(metaclass=ABCMeta):

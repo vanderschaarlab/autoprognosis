@@ -5,10 +5,20 @@ from typing import Any, List, Optional
 # third party
 import numpy as np
 import pandas as pd
-import shap
 
 # adjutorium absolute
 from adjutorium.plugins.explainers.base import ExplainerPlugin
+from adjutorium.utils.pip import install
+
+for retry in range(2):
+    try:
+        # third party
+        import shap
+
+        break
+    except ImportError:
+        depends = ["shap"]
+        install(depends)
 
 
 class KernelSHAPPlugin(ExplainerPlugin):
@@ -34,7 +44,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         y: pd.DataFrame,
         task_type: str = "classification",
         feature_names: Optional[List] = None,
-        subsample: int = 1000,
+        subsample: int = 10,
         prefit: bool = False,
         n_epoch: int = 10000,
         # risk estimation
@@ -49,7 +59,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         )
 
         X = pd.DataFrame(X, columns=self.feature_names)
-        X_summary = shap.sample(X, subsample)
+        X_summary = shap.kmeans(X, subsample)
         model = copy.deepcopy(estimator)
         self.task_type = task_type
 

@@ -50,11 +50,13 @@ class Invalid:
 
 
 def test_load(ctx: Preprocessors) -> None:
-    assert len(ctx._plugins) > 0
-    assert len(ctx._plugins) == len(ctx)
+    assert len(ctx._plugins) == 0
+    ctx.get("feature_normalizer")
+    assert len(ctx._plugins) == 1
 
 
 def test_list(ctx: Preprocessors) -> None:
+    ctx.get("nop")
     assert "nop" in ctx.list()
 
 

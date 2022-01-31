@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 # adjutorium absolute
 from adjutorium.plugins.explainers import Explainers  # noqa: F401,E402
@@ -15,14 +15,18 @@ from .core import base_plugin  # noqa: F401,E402
 class Plugins:
     def __init__(self) -> None:
         self._plugins: Dict[
-            str, Dict[str, Union[Imputers, Predictions, Preprocessors]]
+            str, Dict[str, Union[Imputers, Predictions, Preprocessors, Explainers]]
         ] = {
             "imputer": {
                 "default": Imputers(),
             },
             "prediction": {
                 "classifier": Predictions(category="classifier"),
+                "regressors": Predictions(category="regression"),
                 "risk_estimation": Predictions(category="risk_estimation"),
+            },
+            "explainer": {
+                "default": Explainers(),
             },
             "preprocessor": {
                 "feature_scaling": Preprocessors(category="feature_scaling"),
@@ -45,13 +49,21 @@ class Plugins:
 
         return self
 
-    def get(
-        self, cat: str, name: str, subtype: str, *args: Any, **kwargs: Any
-    ) -> base_plugin.Plugin:
+    def get(self, cat: str, subtype: str, name: str, *args: Any, **kwargs: Any) -> Any:
         return self._plugins[cat][subtype].get(name, *args, **kwargs)
 
     def get_type(self, cat: str, subtype: str, name: str) -> Type:
         return self._plugins[cat][subtype].get_type(name)
+
+    def get_any_type(self, name: str) -> Optional[Type]:
+        for cat in self._plugins:
+            for subcat in self._plugins[cat]:
+                try:
+                    loaded = self._plugins[cat][subcat].get_type(name)
+                    return loaded
+                except BaseException:
+                    continue
+        return None
 
 
 def group(names: List[str]) -> Tuple[Type, ...]:

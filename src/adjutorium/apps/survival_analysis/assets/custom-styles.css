@@ -1,0 +1,231 @@
+:root {
+  --background-dark: #23282D;
+  --background-light: white;
+  --background-medium: #e4e4e4;
+  --background-card: white;
+  --text-dark: #23282D;
+  --text-light: #fbf8f8;
+  --input-background: white;
+  --input-text: #1d3557;
+  --input-hover: #e4e4e4;
+  --input-text-hover: #23282D;
+}
+
+/* Scalable Container
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+#body {
+    background-color: var(--background-light);
+}
+
+.container.scalable {
+    margin-top: 20px;
+    width: 95%;
+    max-width: none;
+}
+
+.leftmenu{
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    border: 1px solid var(--background-dark);
+    vertical-align: 'middle';
+}
+
+/* Prediction
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.predictiontitle {
+    font-size: 2.5rem;
+    color: var(--text-dark);
+}
+.predictionsubtitle {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+/* Cards
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.infocard {
+    background-color: var(--background-card);
+    text-align: center;
+}
+.infocardwrapper {
+    background-color: var(--background-card);
+    text-align: center;
+    border: 1px solid var(--background-dark);
+    display: flex;
+}
+
+/* app-container
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+@media (min-width: 951px) {
+    #app-container {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
+/* Dropdowns
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.Select-control {
+    background-color: var(--input-background);
+    color: var(--input-text);
+}
+
+.Select {
+    background-color: var(--input-bakcground);
+    color: var(--text-light);
+}
+
+.Select-menu-outer {
+    background-color: var(--input-background);
+    color: var(--input-text);
+    border: 1px solid var(--input-text);
+}
+
+.Select div {
+    background-color: var(--input-background);
+    color: var(--input-text);
+}
+
+.Select-menu-outer div:hover {
+    background-color: var(--input-hover);
+    color: var(--input-text-hover);
+}
+
+.Select-value-label {
+    background-color: var(--input-background);
+    color: var(--input-text) !important;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+    border: 1px solid var(--text-light);
+    border-radius: 4px;
+}
+
+.card {
+    border: none;
+    width: 80%;
+    padding: 2rem 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#last-card {
+    border-bottom: none;
+}
+
+.graph-title {
+    font-size: 2rem;
+    margin: 15% 0 0 25%;
+}
+
+#button-zero-threshold {
+    color: var(--text-light);
+    border-color: var(--text-light);
+}
+
+#button-zero-threshold:hover {
+    border-color: var(--text-light);
+}
+
+#button-card {
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+}
+
+#first-card {
+    padding-top: 0;
+}
+
+@media (max-width: 1500px) {
+    .rc-slider-mark-text {
+        font-size: 0.7vw;
+    }
+}
+
+@media (max-width: 950px) {
+    .rc-slider-mark-text {
+        font-size: 1.5vw;
+    }
+}
+
+
+@media (max-width: 650px) {
+    .rc-slider-mark-text {
+        font-size: 2vw;
+    }
+}
+
+
+@media (min-width: 1301px) {
+    #left-column {
+        flex: 1 20%;
+        margin: 0 3rem 0 0;
+    }
+
+    .card {
+        padding-left: 2rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    #button-zero-threshold {
+        font-size: 0.8rem;
+        padding: 0
+    }
+}
+
+@media (max-width: 950px) {
+    #button-zero-threshold {
+        font-size: 1.0rem;
+        padding: 0
+    }
+}
+
+@media (max-width: 950px) {
+    #left-column {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        max-height: none;
+        max-width: none;
+    }
+}
+
+@media (max-width: 700px) {
+    #first-card {
+        margin: 0;
+        padding-right: 0;
+        padding-left: 0;
+    }
+}
+
+
+/* Graph container
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+
+@media (min-width: 951px) {
+    #div-graphs {
+        flex: 4 80%;
+        justify-content: center;
+        align-items: stretch;
+        vertical-align: top;
+        display: inline-block;
+    }
+}
+
+
+.inputinteger {
+    width: 100px;
+    height: 30px;
+    color: var(--input-text);
+    background-color: var(--background-light);
+    font-size: 12;
+    border-color: var(--input-text);
+    margin-left: 6px;
+}

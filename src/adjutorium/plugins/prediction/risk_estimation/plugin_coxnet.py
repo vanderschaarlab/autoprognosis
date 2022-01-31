@@ -4,15 +4,26 @@ from typing import Any, List
 # third party
 import numpy as np
 import pandas as pd
-from pycox.models import CoxPH
 from sklearn.model_selection import train_test_split
-import torch
-import torchtuples as tt
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.risk_estimation.base as base
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from pycox.models import CoxPH
+        import torch
+        import torchtuples as tt
+
+        break
+    except ImportError:
+        depends = ["torch", "pycox", "torchtuples"]
+        install(depends)
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

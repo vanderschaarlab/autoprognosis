@@ -5,7 +5,7 @@ import pytest
 
 # adjutorium absolute
 from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.imputers.plugin_most_freq import plugin
+from adjutorium.plugins.imputers.plugin_most_frequent import plugin
 
 
 def from_api() -> ImputerPlugin:

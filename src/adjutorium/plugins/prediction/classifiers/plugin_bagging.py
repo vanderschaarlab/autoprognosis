@@ -3,8 +3,6 @@ import copy
 from typing import Any, List
 
 # third party
-from catboost import CatBoostClassifier
-import lightgbm as lgbm
 import pandas as pd
 from sklearn.ensemble import BaggingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -15,6 +13,7 @@ import adjutorium.plugins.prediction.classifiers.base as base
 from adjutorium.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
 
 from sklearn.experimental import (  # noqa: F401,E402, isort:skip
@@ -22,6 +21,18 @@ from sklearn.experimental import (  # noqa: F401,E402, isort:skip
 )
 
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
+
+
+for retry in range(2):
+    try:
+        # third party
+        from catboost import CatBoostClassifier
+        import lightgbm as lgbm
+
+        break
+    except ImportError:
+        depends = ["catboost", "lightgbm"]
+        install(depends)
 
 
 class BaggingPlugin(base.ClassifierPlugin):

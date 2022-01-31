@@ -2,13 +2,23 @@
 from typing import Any, List, Optional
 
 # third party
-from catboost import CatBoostClassifier
 import pandas as pd
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.classifiers.base as base
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from catboost import CatBoostClassifier
+
+        break
+    except ImportError:
+        depends = ["catboost"]
+        install(depends)
 
 
 class CatBoostPlugin(base.ClassifierPlugin):

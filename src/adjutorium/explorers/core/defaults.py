@@ -18,7 +18,9 @@ default_imputers_names = [
     "mean",
     "most_frequent",
 ]
-default_feature_scaling_names = Preprocessors(category="feature_scaling").list()
+default_feature_scaling_names = Preprocessors(
+    category="feature_scaling"
+).list_available()
 default_feature_selection_names = ["nop", "variance_threshold", "pca", "fast_ica"]
 default_risk_estimation_names = [
     "survival_catboost",

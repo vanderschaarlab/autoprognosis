@@ -2,12 +2,12 @@
 from typing import Any, List
 
 # third party
-from hyperimpute.plugins.imputers.plugin_mean import plugin as mock_model
 import pytest
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 from adjutorium.plugins.imputers import ImputerPlugin, Imputers
+from adjutorium.plugins.imputers.plugin_mean import plugin as mock_model
 
 
 @pytest.fixture
@@ -36,11 +36,15 @@ class Invalid:
 
 
 def test_load(ctx: Imputers) -> None:
-    assert len(ctx._plugins) > 0
+    assert len(ctx._plugins) == 0
+    ctx.get("mean")
+    ctx.get("median")
+    assert len(ctx._plugins) == 2
     assert len(ctx._plugins) == len(ctx)
 
 
 def test_list(ctx: Imputers) -> None:
+    ctx.get("mean")
     assert "mean" in ctx.list()
 
 

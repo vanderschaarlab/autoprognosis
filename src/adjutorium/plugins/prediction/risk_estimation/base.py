@@ -7,7 +7,6 @@ import pandas as pd
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
-from adjutorium.plugins.explainers.plugin_invase import plugin as explainer
 import adjutorium.plugins.prediction.base as prediction_base
 import adjutorium.plugins.utils.cast as cast
 
@@ -27,7 +26,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
     def __init__(
         self,
         with_explanations: bool = False,
-        explanations_model: Optional[explainer] = None,
+        explanations_model: Optional[Any] = None,
         explanations_nepoch: int = 10000,
         explanations_nfolds: int = 5,
         **kwargs: Any,
@@ -62,6 +61,9 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         if self.with_explanations and self.explainer is None:
             if "eval_times" not in kwargs:
                 raise RuntimeError("fit requires eval_times")
+
+            # adjutorium absolute
+            from adjutorium.plugins.explainers.plugin_invase import plugin as explainer
 
             self.explainer = explainer(
                 copy.deepcopy(self),

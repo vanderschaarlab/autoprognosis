@@ -2,14 +2,24 @@
 from typing import Any, List
 
 # third party
-from lifelines import LogNormalAFTFitter
 import pandas as pd
 
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.risk_estimation.base as base
 import adjutorium.plugins.prediction.risk_estimation.helper_lifelines as helper_lifelines
+from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
+
+for retry in range(2):
+    try:
+        # third party
+        from lifelines import LogNormalAFTFitter
+
+        break
+    except ImportError:
+        depends = ["lifelines"]
+        install(depends)
 
 
 class LogNormalAFTPlugin(base.RiskEstimationPlugin):
