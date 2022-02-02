@@ -2,6 +2,7 @@
 from pathlib import Path
 import shutil
 import subprocess
+from typing import Optional
 
 # third party
 import click
@@ -118,6 +119,23 @@ def pack(app: Path, output: Path = Path("image_bin")) -> None:
         f.close()
 
 
+def upload_heroku(image_folder: Path, heroku_app: str) -> None:
+    print("uploading to heroku", heroku_app)
+    subprocess.run("heroku login", shell=True, check=True)
+    subprocess.run("git init", shell=True, check=True, cwd=image_folder)
+    subprocess.run(
+        f"heroku git:remote -a {heroku_app}", shell=True, check=True, cwd=image_folder
+    )
+    subprocess.run("git add .", shell=True, check=True, cwd=image_folder)
+    subprocess.run(
+        "git commit -am 'demonstrator update'",
+        shell=True,
+        check=True,
+        cwd=image_folder,
+    )
+    subprocess.run("git push heroku master", shell=True, check=True, cwd=image_folder)
+
+
 @click.command()
 @click.option(
     "--name", type=str, default="new_demonstrator", help="The title of the demonstrator"
@@ -164,6 +182,12 @@ def pack(app: Path, output: Path = Path("image_bin")) -> None:
     default="image_bin",
     help="Where to save the demonstrator files. The content of the folder can be directly used for deployments(for example, to Heroku).",
 )
+@click.option(
+    "--heroku_app",
+    type=str,
+    default=None,
+    help="Optional. If provided, the script tries to deploy the demonstrator to Heroku, to the specified Heroku app name.",
+)
 def build(
     name: str,
     task_type: str,
@@ -176,6 +200,7 @@ def build(
     imputers: str,
     plot_alternatives: str,
     output: Path,
+    heroku_app: Optional[str],
 ) -> None:
     app_path = build_app(
         name,
@@ -191,6 +216,9 @@ def build(
     )
 
     pack(app_path, output=output)
+
+    if heroku_app:
+        upload_heroku(output, heroku_app)
 
 
 if __name__ == "__main__":

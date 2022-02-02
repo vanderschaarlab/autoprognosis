@@ -147,7 +147,7 @@ if output.exists():
 ```
 ## Building a demonstrator
 
-After running a study, a model template will be available in the workspace, in the `model.p` file. 
+After running a study, a model template will be available in the workspace, in the `model.p` file.
 Based on this template, you can create a demonstrator using the `scripts/build_demonstrator.py` script.
 
 ```bash
@@ -211,7 +211,7 @@ python ./scripts/build_demonstrator.py \
   --time_column=time_to_event \
   --target_column=target \
   --horizons="14,27,41" # use your own time horizons here, separated by a comma
-  --task_type=risk_estimation 
+  --task_type=risk_estimation
 ```
 The result is a folder, `image_bin`, containing all the files necessary for running the demonstrator.
 You can start the demonstrator using
