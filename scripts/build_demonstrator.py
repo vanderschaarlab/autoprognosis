@@ -133,7 +133,9 @@ def upload_heroku(image_folder: Path, heroku_app: str) -> None:
         check=True,
         cwd=image_folder,
     )
-    subprocess.run("git push heroku master", shell=True, check=True, cwd=image_folder)
+    subprocess.run(
+        "git push heroku master --force", shell=True, check=True, cwd=image_folder
+    )
 
 
 @click.command()
