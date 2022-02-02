@@ -1,20 +1,12 @@
 # stdlib
 import multiprocessing
 from multiprocessing import Process
-from multiprocessing.process import BaseProcess
 import os
 from pathlib import Path
 import re
 import time
-from typing import Tuple
 
 # adjutorium absolute
-from adjutorium.apps.classification.classification_template import (
-    classification_dashboard,
-)
-from adjutorium.apps.survival_analysis.survival_analysis_template import (
-    survival_analysis_dashboard,
-)
 from adjutorium.deploy.utils import get_ports, is_local_port_open
 import adjutorium.logger as log
 from adjutorium.plugins import Plugins
@@ -54,13 +46,18 @@ def load_depends(app_path: Path) -> None:
                 Plugins().get_any_type(plugin)
 
 
-def run_server(app_path: Path, port: int) -> None:
+def run_server_dash(app_path: Path, port: int = 9000) -> None:
     load_depends(app_path)
 
     app_params = load_model_from_file(app_path)
 
     print("model ", app_params["models"]["Adjutorium model"].name())
     if app_params["type"] == "risk_estimation":
+        # adjutorium absolute
+        from adjutorium.apps.survival_analysis.survival_analysis_template import (
+            survival_analysis_dashboard,
+        )
+
         app = survival_analysis_dashboard(
             app_params["title"],
             app_params["banner_title"],
@@ -72,6 +69,11 @@ def run_server(app_path: Path, port: int) -> None:
             app_params["plot_alternatives"],
         )
     elif app_params["type"] == "classification":
+        # adjutorium absolute
+        from adjutorium.apps.classification.classification_template import (
+            classification_dashboard,
+        )
+
         app = classification_dashboard(
             app_params["title"],
             app_params["banner_title"],
@@ -89,6 +91,47 @@ def run_server(app_path: Path, port: int) -> None:
         host="0.0.0.0",
         port=port,
     )
+
+
+def run_server_streamlit(app_path: Path, port: int = 9000) -> None:
+    load_depends(app_path)
+
+    app_params = load_model_from_file(app_path)
+
+    print("model ", app_params["models"]["Adjutorium model"].name())
+    if app_params["type"] == "risk_estimation":
+        # adjutorium absolute
+        from adjutorium.apps.survival_analysis.survival_analysis_template_streamlit import (
+            survival_analysis_dashboard,
+        )
+
+        app = survival_analysis_dashboard(
+            app_params["title"],
+            app_params["banner_title"],
+            app_params["models"],
+            app_params["column_types"],
+            app_params["encoders"],
+            app_params["menu_components"],
+            app_params["time_horizons"],
+            app_params["plot_alternatives"],
+        )
+    elif app_params["type"] == "classification":
+        # adjutorium absolute
+        from adjutorium.apps.classification.classification_template_streamlit import (
+            classification_dashboard,
+        )
+
+        app = classification_dashboard(
+            app_params["title"],
+            app_params["banner_title"],
+            app_params["models"],
+            app_params["column_types"],
+            app_params["encoders"],
+            app_params["menu_components"],
+            app_params["plot_alternatives"],
+        )
+    else:
+        raise RuntimeError(f"unsupported task {app.type}")
 
 
 def get_app_name(app_path: Path) -> str:
@@ -112,8 +155,15 @@ def is_app_server_running(app_path: Path) -> bool:
     return False
 
 
-def start_app_server(app_path: Path, daemon: bool = False) -> Tuple[BaseProcess, str]:
-    output_url = "http://127.0.0.1:{}"
+def start_app_server(
+    app_path: Path, app_type: str = "streamlit", daemon: bool = False
+) -> None:
+    assert app_type in ["dash", "streamlit"]
+
+    if app_type == "streamlit":
+        run_server_streamlit(app_path)
+        return
+
     process_name = get_app_name(app_path)
     current_pid = os.getpid()
     current_ports = get_ports(current_pid)
@@ -130,7 +180,7 @@ def start_app_server(app_path: Path, daemon: bool = False) -> Tuple[BaseProcess,
             else:
                 log.info(f"app already running {app_path}, {p.pid}, {get_ports(p.pid)}")
 
-                return p, output_url.format(ports[0])
+                return
 
     port = BASELINE_PORT
     while is_local_port_open(port):
@@ -138,7 +188,7 @@ def start_app_server(app_path: Path, daemon: bool = False) -> Tuple[BaseProcess,
 
     log.info(f"starting app name {process_name}, {port}")
     p = Process(
-        target=run_server, daemon=daemon, args=(app_path, port), name=process_name
+        target=run_server_dash, daemon=daemon, args=(app_path, port), name=process_name
     )
 
     p.start()
@@ -149,7 +199,6 @@ def start_app_server(app_path: Path, daemon: bool = False) -> Tuple[BaseProcess,
         if port in ports:
             break
         time.sleep(0.5)
-    return p, output_url.format(port)
 
 
 def stop_app_server(app_path: Path) -> None:

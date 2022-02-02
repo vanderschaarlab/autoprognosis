@@ -252,6 +252,25 @@ python ./scripts/build_demonstrator.py \
 
 After the local build is done, the script will try to login to Heroku, and then upload the `image_bin` folder.
 
+### Uploading to HuggingFace spaces
+If you want to directly upload the demonstrator to HuggingFace space, you will need:
+ - The HuggingFace name you want to use. This is usually of form "<user>/<app_name>".
+
+For deploying, run:
+
+```bash
+python ./scripts/build_demonstrator.py \
+  --model_path=workspace/model.p  \
+  --dataset_path=dataset.csv \
+  --target_column=target \
+  --task_type=classification
+  --huggingface_app="user/adjutorium-demo" # replace with your app name
+```
+
+After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
+
+⚠️ The dataset is only used for training the encoding/decoding mappings, and it won't be uploaded to Heroku/HuggingFace.
+
 ## Tutorials
 
 ### Plugins
