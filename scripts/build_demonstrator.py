@@ -1,9 +1,8 @@
 # stdlib
-import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Any, Optional
+from typing import Optional
 
 # third party
 import click
@@ -11,16 +10,6 @@ import click
 # adjutorium absolute
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
-
-
-def copytree(src: Path, dst: Path, symlinks: bool = False, ignore: Any = None) -> None:
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 
 def build_app(
