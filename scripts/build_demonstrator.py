@@ -1,8 +1,9 @@
 # stdlib
+import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Optional
+from typing import Any, Optional
 
 # third party
 import click
@@ -10,6 +11,16 @@ import click
 # adjutorium absolute
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
+
+
+def copytree(src: Path, dst: Path, symlinks: bool = False, ignore: Any = None) -> None:
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
 
 
 def build_app(
@@ -86,7 +97,7 @@ def build_wheel() -> Path:
     return fn
 
 
-def pack(app: Path, output: Path = Path("image_bin")) -> None:
+def pack(app: Path, output: Path = Path("output/image_bin")) -> None:
     output = Path(output)
     output_data = output / "third_party"
     try:
@@ -113,11 +124,6 @@ def pack(app: Path, output: Path = Path("image_bin")) -> None:
     # Copy app
     shutil.copy(app, output / "app.p")
 
-    # Update requirements txt
-    with open(output / "requirements.txt", "a") as f:
-        f.write(str(Path("third_party") / local_wheel.name))
-        f.close()
-
 
 def upload_heroku(image_folder: Path, heroku_app: str) -> None:
     print("uploading to heroku", heroku_app)
@@ -135,6 +141,30 @@ def upload_heroku(image_folder: Path, heroku_app: str) -> None:
     )
     subprocess.run(
         "git push heroku master --force", shell=True, check=True, cwd=image_folder
+    )
+
+
+def upload_huggingface(image_folder: Path, app_name: str) -> None:
+    print("uploading to huggingface", app_name)
+    subprocess.run(
+        "git init && git checkout -b main", shell=True, check=True, cwd=image_folder
+    )
+    subprocess.run(
+        f"git remote add space https://huggingface.co/spaces/{app_name}",
+        shell=True,
+        check=True,
+        cwd=image_folder,
+    )
+
+    subprocess.run("git add .", shell=True, check=True, cwd=image_folder)
+    subprocess.run(
+        "git commit -am 'demonstrator update'",
+        shell=True,
+        check=True,
+        cwd=image_folder,
+    )
+    subprocess.run(
+        "git push --force space main", shell=True, check=True, cwd=image_folder
     )
 
 
@@ -181,7 +211,7 @@ def upload_heroku(image_folder: Path, heroku_app: str) -> None:
 @click.option(
     "--output",
     type=str,
-    default="image_bin",
+    default="output",
     help="Where to save the demonstrator files. The content of the folder can be directly used for deployments(for example, to Heroku).",
 )
 @click.option(
@@ -189,6 +219,12 @@ def upload_heroku(image_folder: Path, heroku_app: str) -> None:
     type=str,
     default=None,
     help="Optional. If provided, the script tries to deploy the demonstrator to Heroku, to the specified Heroku app name.",
+)
+@click.option(
+    "--huggingface_app",
+    type=str,
+    default=None,
+    help="Optional. If provided, the script tries to deploy the demonstrator to Huggingface, to the specified app name, using streamlit",
 )
 def build(
     name: str,
@@ -203,7 +239,15 @@ def build(
     plot_alternatives: str,
     output: Path,
     heroku_app: Optional[str],
+    huggingface_app: Optional[str],
 ) -> None:
+    output = Path(output)
+    try:
+        shutil.rmtree(output)
+    except BaseException:
+        pass
+    output.mkdir(parents=True, exist_ok=True)
+
     app_path = build_app(
         name,
         task_type,
@@ -217,10 +261,14 @@ def build(
         plot_alternatives,
     )
 
-    pack(app_path, output=output)
+    image_bin = Path(output) / "image_bin"
+    pack(app_path, output=image_bin)
 
     if heroku_app:
-        upload_heroku(output, heroku_app)
+        upload_heroku(image_bin, heroku_app)
+
+    if huggingface_app:
+        upload_huggingface(image_bin, huggingface_app)
 
 
 if __name__ == "__main__":
