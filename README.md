@@ -13,9 +13,6 @@
   <br>
 </h3>
 
-[![Tests](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test.yml)
-[![Tutorials](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/adjutorium-framework/actions/workflows/test_tutorials.yml)
-[![Docs](https://readthedocs.org/projects/adjutorium/badge/?version=latest)](https://adjutorium.readthedocs.io/en/latest/?badge=latest)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
 
@@ -150,7 +147,7 @@ if output.exists():
 ```
 ## Building a demonstrator
 
-After running a study, a model template will be available in the workspace, in the `model.p` file. 
+After running a study, a model template will be available in the workspace, in the `model.p` file.
 Based on this template, you can create a demonstrator using the `scripts/build_demonstrator.py` script.
 
 ```bash
@@ -180,6 +177,9 @@ Options:
   --output TEXT             Where to save the demonstrator files. The content
                             of the folder can be directly used for
                             deployments(for example, to Heroku).
+  --heroku_app TEXT         Optional. If provided, the script tries to deploy
+                            the demonstrator to Heroku, to the specified
+                            Heroku app name.
   --help                    Show this message and exit.
 ```
 ### Build a demonstrator for a classification task
@@ -211,7 +211,7 @@ python ./scripts/build_demonstrator.py \
   --time_column=time_to_event \
   --target_column=target \
   --horizons="14,27,41" # use your own time horizons here, separated by a comma
-  --task_type=risk_estimation 
+  --task_type=risk_estimation
 ```
 The result is a folder, `image_bin`, containing all the files necessary for running the demonstrator.
 You can start the demonstrator using
@@ -233,6 +233,25 @@ python ./scripts/build_demonstrator.py \
   --task_type=classification
   --explainers="invase,kernel_shap"
 ```
+
+### Uploading to Heroku
+If you want to directly upload the demonstrator to Heroku, you will need:
+ - The [`heroku` CLI tool](https://devcenter.heroku.com/articles/heroku-cli).
+ - The Heroku app name you want to use. This must be the exact name you created in the Heroku dashboard.
+
+For deploying, run:
+
+```bash
+python ./scripts/build_demonstrator.py \
+  --model_path=workspace/model.p  \
+  --dataset_path=dataset.csv \
+  --target_column=target \
+  --task_type=classification
+  --heroku_app=test-adjutorium-deploy # replace with your app name
+```
+
+After the local build is done, the script will try to login to Heroku, and then upload the `image_bin` folder.
+
 ## Tutorials
 
 ### Plugins
