@@ -269,6 +269,7 @@ python ./scripts/build_demonstrator.py \
 
 After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
 
+⚠️ The dataset is only used for training the encoding/decoding mappings, and it won't be uploaded to Heroku/HuggingFace.
 
 ## Tutorials
 
