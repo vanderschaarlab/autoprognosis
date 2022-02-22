@@ -70,7 +70,7 @@ def classification_dashboard(
             if item.type == "dropdown":
                 obj = st.selectbox(
                     name=item.name,
-                    options=[{"label": val, "value": val} for val in obj.val_range],
+                    options=[{"label": val, "value": val} for val in item.val_range],
                 )
                 inputs[name] = [obj]
             elif item.type == "slider_integer":
