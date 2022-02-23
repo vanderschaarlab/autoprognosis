@@ -24,7 +24,14 @@ def build_app(
     imputers: str,
     plot_alternatives: str,
 ) -> Path:
-    print(task_type)
+    def split_and_clean(raw: str) -> list:
+        lst = raw.split(",")
+        if "" in lst:
+            lst.remove("")
+
+        return lst
+
+    print(task_type, explainers)
     if task_type == "risk_estimation":
         parsed_horizons = []
         for tok in horizons.split(","):
@@ -40,8 +47,8 @@ def build_app(
                     "time_column": time_column,
                     "target_column": target_column,
                     "horizons": parsed_horizons,
-                    "explainers": explainers.split(","),
-                    "imputers": imputers.split(","),
+                    "explainers": split_and_clean(explainers),
+                    "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
                 }
             )
@@ -55,8 +62,8 @@ def build_app(
                     "dataset_path": dataset_path,
                     "model_path": model_path,
                     "target_column": target_column,
-                    "explainers": explainers.split(","),
-                    "imputers": imputers.split(","),
+                    "explainers": split_and_clean(explainers),
+                    "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
                 }
             )

@@ -191,16 +191,16 @@ python ./scripts/build_demonstrator.py \
   --target_column=target \
   --task_type=classification
 ```
-The result is a folder, `image_bin`, containing all the files necessary for running the demonstrator.
+The result is a folder, `output/image_bin`, containing all the files necessary for running the demonstrator.
 You can start the demonstrator using
 ```bash
-cd image_bin/
+cd output/image_bin/
 pip install -r ./requirements.txt
 python ./app.py
 ```
-The contents of the `image_bin` can be used for cloud deployments, for example, Heroku.
+The contents of the `output/image_bin` can be used for cloud deployments, for example, Heroku.
 
-Optionally, you can customize the `output` option to store the output files. The default is set to `image_bin`.
+Optionally, you can customize the `output` option to store the output files. The default is set to `output/image_bin`.
 
 ### Build a demonstrator for a survival analysis task
 For this task, the scripts needs access to the model template `workspace/model.p`(generated after running a study), the baseline dataset "dataset.csv", the target column `target` in the dataset, the time_to_event column `time_to_event`, and the plotted time horizons. Based on that, the demonstrator can be built using:
@@ -213,14 +213,14 @@ python ./scripts/build_demonstrator.py \
   --horizons="14,27,41" # use your own time horizons here, separated by a comma
   --task_type=risk_estimation
 ```
-The result is a folder, `image_bin`, containing all the files necessary for running the demonstrator.
+The result is a folder, `output/image_bin`, containing all the files necessary for running the demonstrator.
 You can start the demonstrator using
 ```bash
-cd image_bin/
+cd output/image_bin/
 pip install -r ./requirements.txt
 python ./app.py
 ```
-The contents of the `image_bin` can be used for cloud deployments, for example, Heroku.
+The contents of the `output/image_bin` can be used for cloud deployments, for example, Heroku.
 
 ### Customizing the demonstrator
 
@@ -250,7 +250,7 @@ python ./scripts/build_demonstrator.py \
   --heroku_app=test-adjutorium-deploy # replace with your app name
 ```
 
-After the local build is done, the script will try to login to Heroku, and then upload the `image_bin` folder.
+After the local build is done, the script will try to login to Heroku, and then upload the `output/image_bin` folder.
 
 ### Uploading to HuggingFace spaces
 If you want to directly upload the demonstrator to HuggingFace space, you will need:

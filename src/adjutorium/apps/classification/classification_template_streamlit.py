@@ -64,13 +64,13 @@ def classification_dashboard(
             columns.append(name)
             if item.type == "checkbox":
                 obj = st.checkbox(
-                    name=item.name,
+                    label=item.name,
                 )
                 inputs[name] = [obj]
             if item.type == "dropdown":
                 obj = st.selectbox(
-                    name=item.name,
-                    options=[{"label": val, "value": val} for val in obj.val_range],
+                    label=item.name,
+                    options=[val for val in item.val_range],
                 )
                 inputs[name] = [obj]
             elif item.type == "slider_integer":
@@ -160,8 +160,8 @@ def classification_dashboard(
         st.header("Risk estimation")
         st.markdown(CAUTION_STATEMENT)
 
-        encoded_df = pd.DataFrame.from_dict(inputs)
-        df = encoders_ctx.decode(encoded_df)
+        raw_df = pd.DataFrame.from_dict(inputs)
+        df = encoders_ctx.encode(raw_df)
 
-        update_predictions(encoded_df, df)
+        update_predictions(raw_df, df)
         update_interpretation(df)
