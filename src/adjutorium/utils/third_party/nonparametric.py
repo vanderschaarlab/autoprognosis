@@ -221,9 +221,9 @@ def kaplan_meier_estimator(
     .. [1] Kaplan, E. L. and Meier, P., "Nonparametric estimation from incomplete observations",
            Journal of The American Statistical Association, vol. 53, pp. 457-481, 1958.
     """
-    event, time_enter, time_exit = check_y_survival(
-        event, time_enter, time_exit, allow_all_censored=True
-    )
+    #event, time_enter, time_exit = check_y_survival(
+    #    event, time_enter, time_exit, allow_all_censored=True
+    #)
     check_consistent_length(event, time_enter, time_exit)
 
     if time_enter is None:
