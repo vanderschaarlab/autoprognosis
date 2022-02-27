@@ -1,4 +1,4 @@
-exclude: '^docs/conf.py|^src/adjutorium/utils/third_party'
+exclude: '^docs/conf.py|^src/adjutorium/utils/third_party|^third_party/image_template'
 
 repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks

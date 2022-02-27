@@ -12,25 +12,22 @@ for retry in range(2):
         install(depends)
 
 
-class NewRiskEstimationAppProto(BaseModel):
+class BaseAppProto(BaseModel):
     name: str
     type: str
+    dashboard_type: str
     dataset_path: str
     model_path: str
+    explainers: list
+    imputers: list
+    plot_alternatives: list
+
+
+class NewRiskEstimationAppProto(BaseAppProto):
     time_column: str
     target_column: str
     horizons: list
-    explainers: list
-    imputers: list
-    plot_alternatives: list
 
 
-class NewClassificationAppProto(BaseModel):
-    name: str
-    type: str
-    dataset_path: str
-    model_path: str
+class NewClassificationAppProto(BaseAppProto):
     target_column: str
-    explainers: list
-    imputers: list
-    plot_alternatives: list

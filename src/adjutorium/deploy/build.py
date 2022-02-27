@@ -11,7 +11,6 @@ from typing import Any, Optional, Tuple, Union
 import pandas as pd
 
 # adjutorium absolute
-from adjutorium.apps.common.pandas_to_streamlit import generate_menu
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 from adjutorium.deploy.utils import file_copy, file_md5
 from adjutorium.exceptions import BuildCancelled
@@ -308,7 +307,23 @@ class Builder:
         app_title = self.task.name
         banner_title = f"{app_title} study"
 
-        column_types = generate_menu(rawX, checkboxes)
+        if self.task.dashboard_type == "streamlit":
+            # adjutorium absolute
+            from adjutorium.apps.common.pandas_to_streamlit import (
+                generate_menu as generate_menu_with_streamlit,
+            )
+
+            column_types = generate_menu_with_streamlit(rawX, checkboxes)
+            menu_components = column_types
+        elif self.task.dashboard_type == "dash":
+            # adjutorium absolute
+            from adjutorium.apps.common.pandas_to_dash import (
+                generate_menu as generate_menu_with_dash,
+            )
+
+            menu_components, column_types = generate_menu_with_dash(rawX, checkboxes)
+        else:
+            raise RuntimeError("invalid dashboard type", self.task.dashboard_type)
 
         plot_alternatives: dict = {"Adjutorium model": {}}
         for col in self.task.plot_alternatives:
@@ -326,7 +341,7 @@ class Builder:
                     "models": app_models,
                     "column_types": column_types,
                     "encoders": encoders,
-                    "menu_components": column_types,
+                    "menu_components": menu_components,
                     "time_horizons": self.task.horizons,
                     "plot_alternatives": plot_alternatives,
                 },
@@ -341,7 +356,7 @@ class Builder:
                     "models": app_models,
                     "column_types": column_types,
                     "encoders": encoders,
-                    "menu_components": column_types,
+                    "menu_components": menu_components,
                     "plot_alternatives": plot_alternatives,
                 },
             )

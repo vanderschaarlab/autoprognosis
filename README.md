@@ -156,6 +156,7 @@ Usage: build_demonstrator.py [OPTIONS]
 Options:
   --name TEXT               The title of the demonstrator
   --task_type TEXT          classification/risk_estimation
+  --dashboard_type TEXT     streamlit or dash. Default: streamlit
   --dataset_path TEXT       Path to the dataset csv
   --model_path TEXT         Path to the model template, usually model.p
   --time_column TEXT        Only for risk_estimation tasks. Which column in
