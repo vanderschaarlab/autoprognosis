@@ -18,4 +18,5 @@ if __name__ == "__main__":
     # third party
     from run_demonstrator import run
 
-    run("app.p")
+    dashboard_type = "dash"
+    run("app.p", dashboard_type)
