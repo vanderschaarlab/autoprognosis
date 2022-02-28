@@ -135,7 +135,7 @@ def run_server_streamlit(app_path: Path, port: int = 9000) -> None:
 
 
 def get_app_name(app_path: Path) -> str:
-    app_path = Path(app_path)
+    app_path = Path(app_path).resolve()
     return app_path.parts[-2]
 
 
