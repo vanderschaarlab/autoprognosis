@@ -29,7 +29,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         estimator: model. The model to explain.
         X: dataframe. Training set
         y: dataframe. Training labels
-        task_type: str. classification of risk_estimation
+        task_type: str. classification or risk_estimation
         prefit: bool. If true, the estimator won't be trained.
         n_epoch: int. training epochs
         subsample: int. Number of samples to use.
