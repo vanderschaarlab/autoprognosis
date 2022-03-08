@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, List, Tuple
+from typing import Any, Tuple
 
 # third party
 from lifelines import CRCSplineFitter
@@ -27,52 +27,13 @@ def generate_dataset_for_horizon(
 
     """
 
-    event_horizon = (Y == 1) | (T >= horizon_days)
+    event_horizon = ((Y == 1) & (T <= horizon_days)) | ((Y == 0) & (T > horizon_days))
 
-    event_horizon.reset_index(drop=True, inplace=True)
-    X.reset_index(drop=True, inplace=True)
-    Y.reset_index(drop=True, inplace=True)
-    T.reset_index(drop=True, inplace=True)
-
-    X_horizon = X[event_horizon]
-    Y_horizon = (Y == 1) & (T < horizon_days)
-    Y_horizon = Y_horizon[event_horizon]
-    T_horizon = T[event_horizon]
+    X_horizon = X[event_horizon].reset_index(drop=True)
+    Y_horizon = Y[event_horizon].reset_index(drop=True)
+    T_horizon = T[event_horizon].reset_index(drop=True)
 
     return X_horizon, T_horizon, Y_horizon
-
-
-def generate_dataset_for_horizons(
-    X: pd.DataFrame, T: pd.DataFrame, Y: pd.DataFrame, horizons: List[int]
-) -> List[Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
-    """
-    Generate the dataset at a certain time horizon. Useful for classifiers.
-
-    Args:
-        X: pd.DataFrame, the feature set
-        T: pd.DataFrame, days to event or censoring
-        Y: pd.DataFrame, outcome or censoring
-        horizon_days: int, days to the expected horizon
-
-    Returns:
-        List of
-            X: the feature set for that horizon
-            T: days to event or censoring
-            Y: Outcome or censoring
-    """
-
-    results = []
-    for horizon_days in horizons:
-        event_horizon = (Y == 1) | (T >= horizon_days)
-
-        X_horizon = X[event_horizon]
-        Y_horizon = (Y == 1) & (T < horizon_days)
-        Y_horizon = Y_horizon[event_horizon]
-        T_horizon = T[event_horizon]
-
-        results.append((X_horizon, T_horizon, Y_horizon))
-
-    return results
 
 
 def survival_probability_calibration(
@@ -84,34 +45,12 @@ def survival_probability_calibration(
     ax: Any,
     color: str,
 ) -> Tuple:
-    r"""
+    """
     Smoothed calibration curves for time-to-event models. This is analogous to
     calibration curves for classification models, extended to handle survival probabilities
     and censoring. Produces a matplotlib figure and some metrics.
 
     We want to calibrate our model's prediction of :math:`P(T < \text{t0})` against the observed frequencies.
-
-    Parameters
-    -------------
-
-    model:
-        a fitted lifelines regression model to be evaluated
-    df: DataFrame
-        a DataFrame - if equal to the training data, then this is an in-sample calibration. Could also be an out-of-sample
-        dataset.
-    t0: float
-        the time to evaluate the probability of event occurring prior at.
-
-    Returns
-    ----------
-    ax:
-        mpl axes
-    ICI:
-        mean absolute difference between predicted and observed
-    E50:
-        median absolute difference between predicted and observed
-
-    https://onlinelibrary.wiley.com/doi/full/10.1002/sim.8570
 
     """
 

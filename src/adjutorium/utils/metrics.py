@@ -2,7 +2,6 @@
 from typing import Tuple, Union
 
 # third party
-from lifelines import KaplanMeierFitter
 import numpy as np
 import pandas as pd
 from sklearn.metrics import (
@@ -87,112 +86,10 @@ def evaluate_auc(
         aucprc = average_precision["micro"]
     else:
 
-        aucroc = roc_auc_score(np.ravel(y_test), y_pred_proba_tmp)
+        aucroc = roc_auc_score(np.ravel(y_test), y_pred_proba_tmp, multi_class="ovr")
         aucprc = average_precision_score(np.ravel(y_test), y_pred_proba_tmp)
 
     return aucroc, aucprc
-
-
-def censoring_probability(Y: np.ndarray, T: np.ndarray) -> np.ndarray:
-    Y = np.asarray(Y)
-    T = np.asarray(T)
-
-    T = T.reshape([-1])  # (N,) - np array
-    Y = Y.reshape([-1])  # (N,) - np array
-
-    kmf = KaplanMeierFitter()
-    kmf.fit(
-        T, event_observed=(Y == 0).astype(int)
-    )  # censoring prob = survival probability of event "censoring"
-    G = np.asarray(kmf.survival_function_.reset_index()).transpose()
-    G[1, G[1, :] == 0] = G[1, G[1, :] != 0][
-        -1
-    ]  # fill 0 with ZoH (to prevent nan values)
-
-    return G
-
-
-def evaluate_weighted_brier_score(
-    T_train: np.ndarray,
-    Y_train: np.ndarray,
-    Prediction: np.ndarray,
-    T_test: np.ndarray,
-    Y_test: np.ndarray,
-    Time: float,
-) -> np.ndarray:
-    censoring_probs = censoring_probability(Y_train, T_train)
-    Prediction = np.asarray(Prediction)
-    T_test = np.asarray(T_test)
-    Y_test = np.asarray(Y_test)
-
-    G = censoring_probs
-    N = len(Prediction)
-
-    W = np.zeros(len(Y_test))
-    Y_tilde = (T_test > Time).astype(float)
-
-    for i in range(N):
-        tmp_idx1 = np.where(G[0, :] >= T_test[i])[0]
-        tmp_idx2 = np.where(G[0, :] >= Time)[0]
-
-        if len(tmp_idx1) == 0:
-            G1 = G[1, -1]
-        else:
-            G1 = G[1, tmp_idx1[0]]
-
-        if len(tmp_idx2) == 0:
-            G2 = G[1, -1]
-        else:
-            G2 = G[1, tmp_idx2[0]]
-        W[i] = (1.0 - Y_tilde[i]) * float(Y_test[i]) / G1 + Y_tilde[i] / G2
-
-    return np.mean(W * (Y_tilde - (1.0 - Prediction)) ** 2)
-
-
-def evaluate_weighted_c_index(
-    T_train: np.ndarray,
-    Y_train: np.ndarray,
-    Prediction: np.ndarray,
-    T_test: np.ndarray,
-    Y_test: np.ndarray,
-    Time: float,
-) -> float:
-    censoring_probs = censoring_probability(Y_train, T_train)
-    Prediction = np.asarray(Prediction)
-    T_test = np.asarray(T_test)
-    Y_test = np.asarray(Y_test)
-
-    G = censoring_probs
-
-    N = len(Prediction)
-    A = np.zeros((N, N))
-    Q = np.zeros((N, N))
-    N_t = np.zeros((N, N))
-    Num = 0
-    Den = 0
-    for i in range(N):
-        tmp_idx = np.where(G[0, :] >= T_test[i])[0]
-
-        if len(tmp_idx) == 0:
-            W = (1.0 / G[1, -1]) ** 2
-        else:
-            W = (1.0 / G[1, tmp_idx[0]]) ** 2
-
-        A[i, np.where(T_test[i] < T_test)] = 1.0 * W
-        Q[i, np.where(Prediction[i] > Prediction)] = 1.0  # give weights
-
-        if T_test[i] <= Time and Y_test[i] == 1:
-            N_t[i, :] = 1.0
-
-    Num = np.sum(((A) * N_t) * Q)
-    Den = np.sum((A) * N_t)
-
-    if Num == 0 and Den == 0:
-        result = float(-1)  # not able to compute c-index!
-    else:
-        result = float(Num / Den)
-
-    return result
 
 
 def evaluate_skurv_c_index(
@@ -220,15 +117,10 @@ def evaluate_skurv_c_index(
         Y_test_structured, dtype=[("status", "bool"), ("time", "<f8")]
     )
 
-    try:
-        # concordance_index_ipcw expects risk scores
-        return concordance_index_ipcw(
-            Y_train_structured, Y_test_structured, Prediction, tau=Time
-        )
-    except BaseException:
-        return evaluate_weighted_c_index(
-            T_train, Y_train, Prediction, T_test, Y_test, Time
-        )
+    # concordance_index_ipcw expects risk scores
+    return concordance_index_ipcw(
+        Y_train_structured, Y_test_structured, Prediction, tau=Time
+    )
 
 
 def evaluate_skurv_brier_score(
@@ -257,14 +149,9 @@ def evaluate_skurv_brier_score(
     )
 
     # brier_score expects survival scores
-    try:
-        return brier_score(
-            Y_train_structured, Y_test_structured, 1 - Prediction, times=Time
-        )[0]
-    except BaseException:
-        return evaluate_weighted_brier_score(
-            T_train, Y_train, Prediction, T_test, Y_test, Time
-        )
+    return brier_score(
+        Y_train_structured, Y_test_structured, 1 - Prediction, times=Time
+    )[0]
 
 
 def generate_score(metric: np.ndarray) -> Tuple[float, float]:
