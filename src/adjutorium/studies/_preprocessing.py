@@ -124,7 +124,7 @@ def dataframe_remove_zeros(df: pd.DataFrame, column: str) -> pd.DataFrame:
 def dataframe_imputation(
     df: pd.DataFrame, method: str = "ice"
 ) -> Tuple[pd.DataFrame, Any]:
-    log.info(f"preprocess: dataset imputation using {method}")
+    log.debug(f"preprocess: dataset imputation using {method}")
     columns = df.columns
     imputer = Imputers().get(method)
 
@@ -155,20 +155,20 @@ def dataframe_encode(in_df: pd.DataFrame) -> Tuple[pd.DataFrame, EncodersCallbac
 
     for column in df.columns:
         if not _is_categorical(column):
-            log.info(f"handling continuous column {column}")
+            log.debug(f"handling continuous column {column}")
             continue
 
         if _is_missing(column):
-            log.info(f"handling categorical column with missingness {column}")
+            log.debug(f"handling categorical column with missingness {column}")
             target = _fillna(df, column)
         else:
-            log.info(f"handling categorical column {column}")
+            log.debug(f"handling categorical column {column}")
             target = df[column]
 
         unique_cnt = len(target.unique())
 
         if unique_cnt > ONEHOT_ENCODE_THRESHOLD:
-            log.info(f"preprocess: dataset label encoding for {column}")
+            log.debug(f"preprocess: dataset label encoding for {column}")
             le = LabelEncoder()
 
             target = pd.Series(le.fit_transform(target), index=df[column].index.copy())
@@ -176,7 +176,7 @@ def dataframe_encode(in_df: pd.DataFrame) -> Tuple[pd.DataFrame, EncodersCallbac
 
             encoders[column] = le
         else:
-            log.info(f"preprocess: dataset one-hot encoding for {column}")
+            log.debug(f"preprocess: dataset one-hot encoding for {column}")
             ohe = OneHotEncoder(handle_unknown="ignore", sparse=False)
             target = target.values.reshape(-1, 1)
             ohe.fit(target)
@@ -207,7 +207,7 @@ def dataframe_encode_and_impute(
 
 
 def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 5000) -> List:
-    log.info(f"preprocess: dataset subsampling {max_size}")
+    log.debug(f"preprocess: dataset subsampling {max_size}")
     df_limit = len(Y.unique()) * max_size
     ratio = df_limit / len(X)
 
@@ -222,7 +222,7 @@ def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 5000) -> 
 
 
 def dataframe_drop_low_variance(df: pd.DataFrame) -> pd.DataFrame:
-    log.info("preprocess: dataset drop column with low variance")
+    log.debug("preprocess: dataset drop column with low variance")
     plugin = Preprocessors(category="dimensionality_reduction").get(
         "variance_threshold"
     )

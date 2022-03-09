@@ -5,8 +5,8 @@ from typing import Any, Callable, Dict, List
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.metrics import mean_squared_error, roc_auc_score
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 
 # adjutorium absolute
 import adjutorium.logger as log
@@ -140,18 +140,15 @@ def evaluate_survival_estimator(
 
         results[metric] = np.zeros(n_folds)
 
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-    cv_idx = 0
-    for train_index, test_index in skf.split(X, Y):
-
-        X_train = X.loc[X.index[train_index]]
-        Y_train = Y.loc[Y.index[train_index]]
-        T_train = T.loc[T.index[train_index]]
-        X_test = X.loc[X.index[test_index]]
-        Y_test = Y.loc[Y.index[test_index]]
-        T_test = T.loc[T.index[test_index]]
-
+    def _get_surv_metrics(
+        cv_idx: int,
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        T_train: pd.DataFrame,
+        T_test: pd.DataFrame,
+        Y_train: pd.DataFrame,
+        Y_test: pd.DataFrame,
+    ) -> tuple:
         if pretrained:
             model = estimator[cv_idx]
         else:
@@ -163,6 +160,8 @@ def evaluate_survival_estimator(
         except BaseException as e:
             raise e
 
+        c_index = 0.0
+        brier_score = 0.0
         for k in range(len(time_horizons)):
 
             def get_score(fn: Callable) -> float:
@@ -178,55 +177,114 @@ def evaluate_survival_estimator(
                     / (len(time_horizons))
                 )
 
-            for metric in metrics:
-                if metric == "c_index":
-                    results[metric][cv_idx] += get_score(evaluate_skurv_c_index)
-                elif metric == "brier_score":
-                    results[metric][cv_idx] += get_score(evaluate_skurv_brier_score)
+            c_index += get_score(evaluate_skurv_c_index)
+            brier_score += get_score(evaluate_skurv_brier_score)
 
-        cv_idx += 1
+        return c_index, brier_score
 
-    for k in range(len(time_horizons)):
+    def _get_clf_metrics(
+        cv_idx: int,
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        T_train: pd.DataFrame,
+        T_test: pd.DataFrame,
+        Y_train: pd.DataFrame,
+        Y_test: pd.DataFrame,
+    ) -> float:
         cv_idx = 0
 
-        X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
-            X, T, Y, time_horizons[k]
+        if pretrained:
+            model = estimator[cv_idx]
+        else:
+            model = copy.deepcopy(estimator)
+            model.fit(X_train, T_train, Y_train)
+
+        try:
+            pred = model.predict(X_test, time_horizons).to_numpy()
+        except BaseException as e:
+            raise e
+
+        local_preds = pd.DataFrame(pred[:, k]).squeeze()
+
+        return roc_auc_score(Y_test, local_preds) / (len(time_horizons))
+
+    if n_folds == 1:
+        cv_idx = 0
+        X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(X, T, Y)
+
+        c_index, brier_score = _get_surv_metrics(
+            cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
         )
-        for train_index, test_index in skf.split(X_horizon, Y_horizon):
+        for metric in metrics:
+            if metric == "c_index":
+                results[metric][cv_idx] = c_index
+            elif metric == "brier_score":
+                results[metric][cv_idx] = brier_score
 
-            X_train = X_horizon.loc[X_horizon.index[train_index]]
-            Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
-            T_train = T_horizon.loc[T_horizon.index[train_index]]
-            X_test = X_horizon.loc[X_horizon.index[test_index]]
-            Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
-            T_test = T_horizon.loc[T_horizon.index[test_index]]
+        if "aucroc" in metrics:
+            for k in range(len(time_horizons)):
+                cv_idx = 0
 
-            if pretrained:
-                model = estimator[cv_idx]
-            else:
-                model = copy.deepcopy(estimator)
-                model.fit(X_train, T_train, Y_train)
+                X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
+                    X, T, Y, time_horizons[k]
+                )
+                X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
+                    X_horizon, T_horizon, Y_horizon
+                )
 
-            try:
-                pred = model.predict(X_test, time_horizons).to_numpy()
-            except BaseException as e:
-                raise e
+                metric = "aucroc"
 
-            metric = "aucroc"
+                results[metric][cv_idx] += _get_clf_metrics(
+                    cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
+                )
 
-            local_preds = pd.DataFrame(pred[:, k]).squeeze()
-            local_surv_pred = 1 - local_preds
+    else:
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
-            full_proba = []
-            full_proba.append(local_surv_pred.values)
-            full_proba.append(local_preds.values)
-            full_proba = pd.DataFrame(full_proba).T
+        cv_idx = 0
+        for train_index, test_index in skf.split(X, Y):
 
-            results[metric][cv_idx] += evaluate_auc(Y_test, full_proba)[0] / (
-                len(time_horizons)
+            X_train = X.loc[X.index[train_index]]
+            Y_train = Y.loc[Y.index[train_index]]
+            T_train = T.loc[T.index[train_index]]
+            X_test = X.loc[X.index[test_index]]
+            Y_test = Y.loc[Y.index[test_index]]
+            T_test = T.loc[T.index[test_index]]
+
+            c_index, brier_score = _get_surv_metrics(
+                cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
             )
+            for metric in metrics:
+                if metric == "c_index":
+                    results[metric][cv_idx] = c_index
+                elif metric == "brier_score":
+                    results[metric][cv_idx] = brier_score
 
             cv_idx += 1
+
+        if "aucroc" in metrics:
+            for k in range(len(time_horizons)):
+                cv_idx = 0
+
+                X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
+                    X, T, Y, time_horizons[k]
+                )
+                for train_index, test_index in skf.split(X_horizon, Y_horizon):
+
+                    X_train = X_horizon.loc[X_horizon.index[train_index]]
+                    Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
+                    T_train = T_horizon.loc[T_horizon.index[train_index]]
+                    X_test = X_horizon.loc[X_horizon.index[test_index]]
+                    Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
+                    T_test = T_horizon.loc[T_horizon.index[test_index]]
+
+                    metric = "aucroc"
+
+                    results[metric][cv_idx] += _get_clf_metrics(
+                        cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
+                    )
+
+                    cv_idx += 1
 
     output: dict = {
         "clf": {},
@@ -240,126 +298,6 @@ def evaluate_survival_estimator(
     return output
 
 
-def evaluate_survival_classifier(
-    estimator: Any,
-    X: pd.DataFrame,
-    T: pd.DataFrame,
-    Y: pd.DataFrame,
-    eval_time: float,
-    n_folds: int = 3,
-    seed: int = 0,
-    pretrained: bool = False,
-) -> dict:
-
-    metric_c_index = np.zeros(n_folds)
-    metric_brier_score = np.zeros(n_folds)
-    metric_aucroc = np.zeros(n_folds)
-
-    indx = 0
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-    for train_index, test_index in skf.split(X, Y):
-
-        X_train = X.loc[X.index[train_index]]
-        Y_train = Y.loc[Y.index[train_index]]
-        T_train = T.loc[T.index[train_index]]
-        X_test = X.loc[X.index[test_index]]
-        Y_test = Y.loc[Y.index[test_index]]
-        T_test = T.loc[T.index[test_index]]
-
-        if pretrained:
-            model = estimator[indx]
-        else:
-            model = copy.deepcopy(estimator)
-            model.fit(X_train, Y_train)
-
-        preds = model.predict_proba(X_test)
-        preds = np.asarray(preds)
-
-        metric_aucroc[indx] = evaluate_auc(Y_test, preds)[0]
-
-        metric_c_index[indx] = evaluate_skurv_c_index(
-            T_train, Y_train, preds[:, 1], T_test, Y_test, eval_time
-        )
-
-        metric_brier_score[indx] = evaluate_skurv_brier_score(
-            T_train, Y_train, preds[:, 1], T_test, Y_test, eval_time
-        )
-        indx += 1
-
-    output_cindex = generate_score(metric_c_index)
-    output_brier = generate_score(metric_brier_score)
-    output_roc = generate_score(metric_aucroc)
-
-    return {
-        "clf": {
-            "c_index": output_cindex,
-            "brier_score": output_brier,
-            "aucroc": output_roc,
-        },
-        "str": {
-            "c_index": print_score(output_cindex),
-            "brier_score": print_score(output_brier),
-            "aucroc": print_score(output_roc),
-        },
-    }
-
-
-def evaluate_treatments_model(
-    estimator: Any,
-    X: pd.DataFrame,
-    W: pd.DataFrame,
-    Y: pd.DataFrame,
-    Y_full: pd.DataFrame,
-    n_folds: int = 3,
-    seed: int = 0,
-    pretrained: bool = False,
-) -> dict:
-    X = np.asarray(X)
-    W = np.asarray(W)
-    Y = np.asarray(Y)
-    Y_full = np.asarray(Y_full)
-
-    metric_pehe = np.zeros(n_folds)
-    metric_ate = np.zeros(n_folds)
-
-    indx = 0
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-    for train_index, test_index in skf.split(X, Y):
-
-        X_train = X[train_index]
-        Y_train = Y[train_index]
-        W_train = W[train_index]
-
-        X_test = X[test_index]
-        Y_full_test = Y_full[test_index]
-
-        if pretrained:
-            model = estimator[indx]
-        else:
-            model = copy.deepcopy(estimator)
-            model.fit(X_train, W_train, Y_train)
-
-        metric_pehe[indx] = model.score(X_test, Y_full_test, metric="pehe")
-        metric_ate[indx] = model.score(X_test, Y_full_test, metric="ate")
-        indx += 1
-
-    output_pehe = generate_score(metric_pehe)
-    output_ate = generate_score(metric_ate)
-
-    return {
-        "clf": {
-            "pehe": output_pehe,
-            "ate": output_ate,
-        },
-        "str": {
-            "pehe": print_score(output_pehe),
-            "ate": print_score(output_ate),
-        },
-    }
-
-
 def score_classification_model(
     estimator: Any,
     X_train: pd.DataFrame,
@@ -369,20 +307,6 @@ def score_classification_model(
 ) -> float:
     model = copy.deepcopy(estimator)
     model.fit(X_train, y_train)
-
-    return model.score(X_test, y_test)
-
-
-def score_treatments_model(
-    estimator: Any,
-    X_train: pd.DataFrame,
-    X_test: pd.DataFrame,
-    y_train: pd.DataFrame,
-    y_test: pd.DataFrame,
-    T_train: pd.DataFrame,
-) -> float:
-    model = copy.deepcopy(estimator)
-    model.fit(X_train, T_train, y_train)
 
     return model.score(X_test, y_test)
 
