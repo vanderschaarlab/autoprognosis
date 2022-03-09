@@ -75,7 +75,9 @@ class RiskEffectSizePlugin(ExplainerPlugin):
                         "Invalid input for risk estimation interpretability"
                     )
 
-                res = pd.DataFrame(model.predict(X, eval_times), columns=eval_times)
+                res = pd.DataFrame(
+                    model.predict(X, eval_times).values, columns=eval_times
+                )
 
                 return pd.DataFrame(res[eval_times[0]])
 
@@ -98,7 +100,11 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         self,
         predict_cbk: Any,
         X: pd.DataFrame,
+        effect_size: Optional[float] = None,
     ) -> pd.DataFrame:
+        if not effect_size:
+            effect_size = self.effect_size
+
         def risk_to_cluster(row: pd.DataFrame) -> pd.DataFrame:
             output = row.copy()
 
@@ -126,7 +132,7 @@ class RiskEffectSizePlugin(ExplainerPlugin):
             heatmaps = pd.DataFrame([[0] * len(X.columns)], columns=X.columns)
 
             for key in diffs:
-                if diffs[key] < self.effect_size:
+                if diffs[key] < effect_size:
                     continue
 
                 heatmaps[key] = diffs[key]
@@ -184,10 +190,18 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         ax.hlines(draw_lines, *ax.get_ylim(), colors="blue")
         plt.show()
 
-    def explain(self, X: pd.DataFrame) -> np.ndarray:
+    def explain(
+        self, X: pd.DataFrame, effect_size: Optional[float] = None
+    ) -> np.ndarray:
+        if not effect_size:
+            effect_size = self.effect_size
         X = pd.DataFrame(X, columns=self.feature_names)
 
-        return self._get_population_shifts(self.predict_cbk, X)
+        shifts = self._get_population_shifts(self.predict_cbk, X, effect_size)
+
+        max_impact = shifts.max()
+
+        return max_impact[max_impact > effect_size].sort_values(ascending=False)
 
     @staticmethod
     def name() -> str:
