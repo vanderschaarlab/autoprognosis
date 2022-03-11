@@ -19,14 +19,8 @@ class JackknifePlugin(UncertaintyPlugin):
 
     Args:
         estimator: model. The model to explain.
-        X: dataframe. Training set
-        y: dataframe. Training labels
-        task_type: str. classification or risk_estimation
-        prefit: bool. If true, the estimator won't be trained.
-        n_epoch: int. training epochs
-        subsample: int. Number of samples to use.
-        time_to_event: dataframe. Used for risk estimation tasks.
-        eval_times: list. Used for risk estimation tasks.
+        n_folds: int. Number of folds.
+        random_seed: int. Random seed.
     """
 
     def __init__(
@@ -50,7 +44,10 @@ class JackknifePlugin(UncertaintyPlugin):
         for train_index, _ in kf.split(*args):
             fold_args = []
             for arg in args:
-                fold_args.append(arg[train_index])
+                if isinstance(arg, (pd.DataFrame, pd.Series)):
+                    fold_args.append(arg.loc[arg.index[train_index]])
+                else:
+                    fold_args.append(arg[train_index])
 
             fold_model = copy.deepcopy(self.estimator)
             self.models.append(fold_model.fit(*fold_args))
