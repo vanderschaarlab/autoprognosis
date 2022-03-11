@@ -24,6 +24,7 @@ predefined = {
     "torch": "torch==1.9.1",
     "xgboost": "xgboost==1.5.1",
     "xgbse": "xgbse==0.2.3",
+    "symbolic_pursuit": "git+https://github.com/vanderschaarlab/Symbolic-Pursuit",
 }
 
 
