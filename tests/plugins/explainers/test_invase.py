@@ -6,7 +6,7 @@ from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
 # adjutorium absolute
@@ -19,7 +19,7 @@ from adjutorium.plugins.preprocessors import Preprocessors
 
 
 def dataset() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_iris(return_X_y=True)
 
     X = pd.DataFrame(X)
     y = pd.Series(y)

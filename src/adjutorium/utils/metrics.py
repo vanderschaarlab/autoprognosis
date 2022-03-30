@@ -104,6 +104,7 @@ def evaluate_skurv_c_index(
     Y_train = pd.Series(Y_train)
     T_test = pd.Series(T_test)
     Y_test = pd.Series(Y_test)
+    Prediction = np.asarray(Prediction).squeeze()
 
     Y_train_structured = [
         (Y_train.iloc[i], T_train.iloc[i]) for i in range(len(Y_train))

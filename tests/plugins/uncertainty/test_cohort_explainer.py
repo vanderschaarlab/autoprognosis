@@ -4,7 +4,7 @@ from typing import Any
 # third party
 from lifelines.datasets import load_rossi
 import pytest
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
 # adjutorium absolute
@@ -28,30 +28,24 @@ def test_sanity(plugin: Any) -> None:
     assert uncert_model.task_type == "classification"
 
 
-@pytest.mark.parametrize(
-    "plugin", [plugin, UncertaintyQuantification().get_type("cohort_explainer")]
-)
-def test_fit(plugin: Any) -> None:
+def test_fit() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_iris(return_X_y=True)
 
     uncert_model.fit(X, y)
 
     assert len(uncert_model.cohort_calibration) == 1
 
 
-@pytest.mark.parametrize(
-    "plugin", [plugin, UncertaintyQuantification().get_type("cohort_explainer")]
-)
-def test_predict_classifier(plugin: Any) -> None:
+def test_predict_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     uncert_model.fit(X_train, y_train)
@@ -71,15 +65,12 @@ def test_predict_classifier(plugin: Any) -> None:
     print(confidence.head(2))
 
 
-@pytest.mark.parametrize(
-    "plugin", [plugin, UncertaintyQuantification().get_type("cohort_explainer")]
-)
-def test_predict_proba_classifier(plugin: Any) -> None:
+def test_predict_proba_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     uncert_model.fit(X_train, y_train)
@@ -90,10 +81,7 @@ def test_predict_proba_classifier(plugin: Any) -> None:
     assert len(confidence) == len(y_test)
 
 
-@pytest.mark.parametrize(
-    "plugin", [plugin, UncertaintyQuantification().get_type("cohort_explainer")]
-)
-def test_predict_survival(plugin: Any) -> None:
+def test_predict_survival() -> None:
     uncert_model = plugin(
         RiskEstimation().get("cox_ph"),
         task_type="risk_estimation",

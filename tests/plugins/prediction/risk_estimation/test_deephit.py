@@ -6,12 +6,7 @@ from sklearn.model_selection import train_test_split
 # adjutorium absolute
 from adjutorium.plugins.prediction import PredictionPlugin, Predictions
 from adjutorium.plugins.prediction.risk_estimation.plugin_deephit import plugin
-from adjutorium.utils.metrics import (
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
-    evaluate_weighted_brier_score,
-    evaluate_weighted_c_index,
-)
+from adjutorium.utils.metrics import evaluate_skurv_brier_score, evaluate_skurv_c_index
 
 
 def from_api() -> PredictionPlugin:
@@ -84,21 +79,10 @@ def test_deephit_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     )
 
     for e_idx, eval_time in enumerate(eval_time_horizons):
-        c_index = evaluate_weighted_c_index(
-            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
-        )
-        assert c_index > 0.5
-
         c_index = evaluate_skurv_c_index(
             T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
         )
-        print(c_index)
         assert c_index > 0.5
-
-        brier_score = evaluate_weighted_brier_score(
-            T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time
-        )
-        assert brier_score < 0.5
 
         brier_score = evaluate_skurv_brier_score(
             T_train, Y_train, y_pred[:, e_idx], T_test, Y_test, eval_time

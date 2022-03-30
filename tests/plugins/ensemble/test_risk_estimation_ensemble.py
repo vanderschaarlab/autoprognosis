@@ -6,12 +6,7 @@ from sklearn.model_selection import train_test_split
 # adjutorium absolute
 from adjutorium.plugins.ensemble.risk_estimation import RiskEnsemble
 from adjutorium.plugins.prediction import Predictions
-from adjutorium.utils.metrics import (
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
-    evaluate_weighted_brier_score,
-    evaluate_weighted_c_index,
-)
+from adjutorium.utils.metrics import evaluate_skurv_brier_score, evaluate_skurv_c_index
 
 
 def test_risk_estimation_ensemble_predict() -> None:
@@ -47,35 +42,6 @@ def test_risk_estimation_ensemble_predict() -> None:
         weights,
         eval_time_horizons,
     )
-
-    for test in [
-        Predictions(category="risk_estimation").get("loglogistic_aft"),
-        Predictions(category="risk_estimation").get("cox_ph"),
-        surv_ensemble,
-    ]:
-        test.fit(tr_X, tr_T, tr_Y)
-
-        for e_idx, eval_time in enumerate(eval_time_horizons):
-            y_pred = test.predict(te_X, [eval_time]).to_numpy()
-
-            c_index = evaluate_weighted_c_index(
-                tr_T, tr_Y, y_pred, te_T, te_Y, eval_time
-            )
-            assert c_index > 0.5
-
-            c_index = evaluate_skurv_c_index(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
-            assert c_index > 0.5
-
-            brier = evaluate_weighted_brier_score(
-                tr_T, tr_Y, y_pred, te_T, te_Y, eval_time
-            )
-            assert brier < 0.5
-
-            brier = evaluate_skurv_brier_score(
-                tr_T, tr_Y, y_pred, te_T, te_Y, eval_time
-            )
-            assert brier < 0.5
-            print("perf metrics ", test.name(), c_index, brier)
 
     for e_idx, eval_time in enumerate(eval_time_horizons):
         ind_est = (
