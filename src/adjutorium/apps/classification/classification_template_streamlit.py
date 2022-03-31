@@ -30,6 +30,26 @@ def classification_dashboard(
     menu_components: List,
     plot_alternatives: Dict,
 ) -> Any:
+    """
+    Streamlit helper for rendering the dashboard, using serialized models and menu components.
+
+    Args:
+        title:
+            Page title
+        banner_title:
+            The title used in the banner.
+        models:
+            The models used for evaluation and plots.
+        column_types: List
+            List of the dataset features and their distribution.
+        encoders_ctx: EncodersCallbacks,
+            List of encoders/decoders for the menu values < - > model input values.
+        menu_components: List
+            Type of menu item for each feature: checkbox, dropdown etc.
+        plot_alternatives: list
+            List of features where to plot alternative values. Example: if treatment == 0, it will plot alternative treatment == 1 as well, as a comparison.
+    """
+
     print(title)
     st.set_page_config(layout="wide", page_title=title)
 

@@ -1,5 +1,5 @@
 # stdlib
-from typing import Tuple, Union
+from typing import Tuple
 
 # third party
 import numpy as np
@@ -32,8 +32,8 @@ def get_y_pred_proba_hlpr(y_pred_proba: np.ndarray, nclasses: int) -> np.ndarray
 def evaluate_auc(
     y_test: np.ndarray,
     y_pred_proba: np.ndarray,
-    classes: Union[np.ndarray, None] = None,
 ) -> Tuple[float, float]:
+    """Helper for evaluating AUCROC/AUCPRC for any number of classes."""
 
     y_test = np.asarray(y_test)
     y_pred_proba = np.asarray(y_pred_proba)
@@ -44,6 +44,11 @@ def evaluate_auc(
         raise ValueError("nan in predictions. aborting")
 
     n_classes = len(set(np.ravel(y_test)))
+    classes = sorted(set(np.ravel(y_test)))
+    log.debug(
+        "warning: classes is none and more than two "
+        " (#{}), classes assumed to be an ordered set:{}".format(n_classes, classes)
+    )
 
     y_pred_proba_tmp = get_y_pred_proba_hlpr(y_pred_proba, n_classes)
 
@@ -57,15 +62,6 @@ def evaluate_auc(
         recall = dict()
         average_precision = dict()
         roc_auc: dict = dict()
-
-        if classes is None:
-            classes = sorted(set(np.ravel(y_test)))
-            log.debug(
-                "warning: classes is none and more than two "
-                " (#{}), classes assumed to be an ordered set:{}".format(
-                    n_classes, classes
-                )
-            )
 
         y_test = label_binarize(y_test, classes=classes)
 
@@ -100,6 +96,7 @@ def evaluate_skurv_c_index(
     Y_test: np.ndarray,
     Time: float,
 ) -> float:
+    """Helper for evaluating the C-INDEX metric."""
     T_train = pd.Series(T_train)
     Y_train = pd.Series(Y_train)
     T_test = pd.Series(T_test)
@@ -132,6 +129,7 @@ def evaluate_skurv_brier_score(
     Y_test: np.ndarray,
     Time: float,
 ) -> float:
+    """Helper for evaluating the Brier score."""
     T_train = pd.Series(T_train)
     Y_train = pd.Series(Y_train)
     T_test = pd.Series(T_test)

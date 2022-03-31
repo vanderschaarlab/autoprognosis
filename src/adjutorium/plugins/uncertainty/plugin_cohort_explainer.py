@@ -250,7 +250,12 @@ class CohortExplainerPlugin(UncertaintyPlugin):
     Uncertainty plugin based on Conformal Prediction and cohort analysis.
 
     Args:
-        model: model. The model to explain.
+        model: model.
+            The model to explain.
+        task_type: str
+            risk_estimation, regression, classification.
+        random_seed: int
+            Random seed
     """
 
     def __init__(

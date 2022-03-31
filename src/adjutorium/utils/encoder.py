@@ -7,6 +7,8 @@ import numpy as np
 
 
 class numpy_encoder(json.JSONEncoder):
+    """Helper for encoding jsons"""
+
     def default(self, obj: Any) -> Any:
         if isinstance(obj, np.integer):
             return int(obj)

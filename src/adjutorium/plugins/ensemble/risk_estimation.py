@@ -21,10 +21,14 @@ class RiskEnsemble:
     Weighted risk ensemble.
 
     Args:
-        models: list of base models.
-        weights: list of weights for each model and each time horizon.
-        time_horizons: list of time horizons used for evaluation.
-        explainer_plugins: list of explainers attached to the ensemble.
+        models: List [N]
+            List of base models.
+        weights: List [|time_horizons| x N]
+            list of weights for each model and each time horizon.
+        time_horizons: List
+            List of time horizons used for evaluation.
+        explainer_plugins: List
+            List of explainers attached to the ensemble.
     """
 
     def __init__(

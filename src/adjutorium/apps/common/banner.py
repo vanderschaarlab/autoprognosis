@@ -23,6 +23,7 @@ for retry in range(2):
 
 
 def banner_template(title: str) -> html.Div:
+    """Helper for generating the banner for the page."""
     banner_content = dbc.Row(
         [
             dbc.Col(

@@ -16,7 +16,7 @@ from adjutorium.plugins.pipeline import Pipeline, PipelineMeta
 from adjutorium.utils.parallel import cpu_count
 from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
-from adjutorium.utils.tester import Eval
+from adjutorium.utils.tester import classifier_evaluator
 
 for retry in range(2):
     try:
@@ -58,7 +58,7 @@ class BaseEnsemble(metaclass=ABCMeta):
         self.explanations_nepoch = explanations_nepoch
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
-        ev = Eval(metric)
+        ev = classifier_evaluator(metric)
         preds = self.predict_proba(X)
         return ev.score_proba(y, preds)
 

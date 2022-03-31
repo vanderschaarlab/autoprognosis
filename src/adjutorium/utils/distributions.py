@@ -7,10 +7,11 @@ import torch
 import torch.nn.functional as F
 
 
-def enable_reproducible_results() -> None:
-    np.random.seed(0)
-    torch.manual_seed(0)
-    random.seed(0)
+def enable_reproducible_results(seed: int = 0) -> None:
+    """Set fixed seed for all the libraries"""
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
 
 
 class GumbelSoftmax(torch.distributions.RelaxedOneHotCategorical):

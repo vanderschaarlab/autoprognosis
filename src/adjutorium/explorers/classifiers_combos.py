@@ -38,16 +38,27 @@ class EnsembleSeeker:
 
     Args:
         study_name: str.
-        num_iter: int. Number of optimization trials.
-        num_ensemble_iter: int. Number of optimization trials for the ensemble weights.
-        timeout: int. Max wait time(in seconds) for the optimization output.
-        CV: int. Number of folds to use for evaluation
-        ensemble_size: int. Number of base models for the ensemble.
-        metric: str. The metric to use for optimization. ["aucroc", "aucprc"]
-        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
-        classifiers: list. Plugins to use in the pipeline for prediction.
-        imputers: list. Plugins to use in the pipeline for imputation.
-        hooks: Hooks. Custom callbacks to be notified about the search progress.
+            Study ID, used for caching keys.
+        num_iter: int.
+            Number of optimization trials.
+        num_ensemble_iter: int.
+            Number of optimization trials for the ensemble weights.
+        timeout: int.
+            Max wait time(in seconds) for the optimization output.
+        CV: int.
+            Number of folds to use for evaluation
+        ensemble_size: int.
+            Number of base models for the ensemble.
+        metric: str.
+            The metric to use for optimization. ["aucroc", "aucprc"]
+        feature_scaling: list.
+            Plugins to use in the pipeline for preprocessing.
+        classifiers: list.
+            Plugins to use in the pipeline for prediction.
+        imputers: list.
+            Plugins to use in the pipeline for imputation.
+        hooks: Hooks.
+            Custom callbacks to be notified about the search progress.
     """
 
     def __init__(
