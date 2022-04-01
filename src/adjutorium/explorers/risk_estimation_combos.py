@@ -64,7 +64,7 @@ class RiskEnsembleSeeker:
         timeout: int = 360,
         CV: int = 3,
         estimators: List[str] = default_risk_estimation_names,
-        top_k: int = 1,
+        ensemble_size: int = 3,
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
         hooks: Hooks = DefaultHooks(),
@@ -73,7 +73,7 @@ class RiskEnsembleSeeker:
         self.num_ensemble_iter = num_ensemble_iter
         self.num_iter = num_iter
         self.timeout = timeout
-        self.top_k = top_k
+        self.ensemble_size = ensemble_size
         self.CV = CV
         self.hooks = hooks
 
@@ -84,7 +84,7 @@ class RiskEnsembleSeeker:
             time_horizons=time_horizons,
             num_iter=num_iter,
             CV=CV,
-            top_k=top_k,
+            top_k=ensemble_size,
             timeout=timeout,
             estimators=estimators,
             hooks=hooks,

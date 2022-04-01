@@ -166,7 +166,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
             params.Integer("dim_hidden", 10, 100, 10),
             params.Float("alpha", 0.0, 0.5),
             params.Float("sigma", 0.0, 0.5),
-            params.Float("dropout", 0.0, 0.5),
+            params.Float("dropout", 0.0, 0.2),
             params.Integer("patience", 10, 50),
         ]
 

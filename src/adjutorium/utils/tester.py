@@ -188,6 +188,10 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> tuple:
+        constant_cols = constant_columns(X_train)
+        X_train = X_train.drop(columns=constant_cols)
+        X_test = X_test.drop(columns=constant_cols)
+
         if pretrained:
             model = estimator[cv_idx]
         else:
@@ -230,6 +234,10 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> float:
+        constant_cols = constant_columns(X_train)
+        X_train = X_train.drop(columns=constant_cols)
+        X_test = X_test.drop(columns=constant_cols)
+
         cv_idx = 0
 
         if pretrained:
@@ -413,3 +421,14 @@ def score_classification_model(
     model.fit(X_train, y_train)
 
     return model.score(X_test, y_test)
+
+
+def constant_columns(dataframe: pd.DataFrame) -> list:
+    """
+    Drops constant value columns of pandas dataframe.
+    """
+    result = []
+    for column in dataframe.columns:
+        if len(dataframe[column].unique()) == 1:
+            result.append(column)
+    return result
