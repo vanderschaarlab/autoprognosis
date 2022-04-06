@@ -50,7 +50,6 @@ class CoxPHPlugin(base.RiskEstimationPlugin):
     def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         X = pd.DataFrame(X)
         X.columns = self.features
-        print("predicting cox ph")
         return self.model.predict(X, *args, **kwargs)
 
     @staticmethod
