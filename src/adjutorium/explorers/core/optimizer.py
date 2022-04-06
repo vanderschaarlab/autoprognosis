@@ -80,6 +80,21 @@ def create_study(
     storage_type: str = "redis",
     patience: int = threshold,
 ) -> Tuple[optuna.Study, ParamRepeatPruner]:
+    """Helper for creating a new study.
+
+    Args:
+        study_name: str
+            Study ID
+        direction: str
+            maximize/minimize
+        load_if_exists: bool
+            If True, it tries to load previous trials from the storage.
+        storage_type: str
+            redis/none
+        patience: int
+            How many trials without improvement to accept.
+
+    """
 
     storage_obj = None
     if storage_type == "redis":

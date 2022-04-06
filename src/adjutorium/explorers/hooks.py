@@ -7,6 +7,8 @@ import adjutorium.logger as log
 
 
 class DefaultHooks(Hooks):
+    """Default hook used by the explorers"""
+
     def cancel(self) -> bool:
         return False
 

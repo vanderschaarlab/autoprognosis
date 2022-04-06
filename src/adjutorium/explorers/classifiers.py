@@ -19,10 +19,9 @@ from adjutorium.explorers.core.selector import PipelineSelector
 from adjutorium.explorers.hooks import DefaultHooks
 from adjutorium.hooks import Hooks
 import adjutorium.logger as log
-from adjutorium.utils.parallel import cpu_count
 from adjutorium.utils.tester import evaluate_estimator
 
-dispatcher = Parallel(n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=2)
 
 
 class ClassifierSeeker:
@@ -31,14 +30,25 @@ class ClassifierSeeker:
 
     Args:
         study_name: str.
-        num_iter: int. Number of optimization trials.
-        metric: str. The metric to use for optimization. ["aucroc", "aucprc"]
-        CV: int. Number of folds to use for evaluation
-        timeout: int. Max wait time(in seconds) for the optimization output.
-        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
-        classifiers: list. Plugins to use in the pipeline for prediction.
-        imputers: list. Plugins to use in the pipeline for imputation.
-        hooks: Hooks. Custom callbacks to be notified about the search progress.
+            Study ID, used for caching.
+        num_iter: int.
+            Number of optimization trials.
+        metric: str.
+            The metric to use for optimization. ["aucroc", "aucprc"]
+        CV: int.
+            Number of folds to use for evaluation
+        top_k: int
+            Number of candidates to return
+        timeout: int.
+            Max wait time(in seconds) for the optimization output.
+        feature_scaling: list.
+            Plugins to use in the pipeline for preprocessing.
+        classifiers: list.
+            Plugins to use in the pipeline for prediction.
+        imputers: list.
+            Plugins to use in the pipeline for imputation.
+        hooks: Hooks.
+            Custom callbacks to be notified about the search progress.
     """
 
     def __init__(

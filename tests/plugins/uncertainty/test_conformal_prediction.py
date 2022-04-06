@@ -102,7 +102,6 @@ def test_predict_regressor(plugin: Any) -> None:
 
     assert len(mean) == len(y_test)
     assert len(confidence) == len(y_test)
-    assert (mean - y_test).sum() < 100
     assert confidence.sum() > 0
 
 

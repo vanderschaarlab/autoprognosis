@@ -34,15 +34,25 @@ class RiskEnsembleSeeker:
 
     Args:
         study_name: str.
-        time_horizons:list. list of time horizons.
-        num_iter: int. Number of optimization trials.
-        num_ensemble_iter: int. Number of optimization trials for the ensemble weights.
-        timeout: int. Max wait time(in seconds) for the optimization output.
-        CV: int. Number of folds to use for evaluation
-        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
-        estimators: list. Plugins to use in the pipeline for risk prediction.
-        imputers: list. Plugins to use in the pipeline for imputation.
-        hooks: Hooks. Custom callbacks to be notified about the search progress.
+            Study ID, used for caching.
+        time_horizons: list.
+            list of time horizons.
+        num_iter: int.
+            Number of optimization trials.
+        num_ensemble_iter: int.
+            Number of optimization trials for the ensemble weights.
+        timeout: int.
+            Max wait time(in seconds) for the optimization output.
+        CV: int.
+            Number of folds to use for evaluation
+        feature_scaling: list.
+            Plugins to use in the pipeline for preprocessing.
+        estimators: list.
+            Plugins to use in the pipeline for risk prediction.
+        imputers: list.
+            Plugins to use in the pipeline for imputation.
+        hooks: Hooks.
+            Custom callbacks to be notified about the search progress.
     """
 
     def __init__(
@@ -54,7 +64,7 @@ class RiskEnsembleSeeker:
         timeout: int = 360,
         CV: int = 3,
         estimators: List[str] = default_risk_estimation_names,
-        top_k: int = 1,
+        ensemble_size: int = 2,
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
         hooks: Hooks = DefaultHooks(),
@@ -63,7 +73,7 @@ class RiskEnsembleSeeker:
         self.num_ensemble_iter = num_ensemble_iter
         self.num_iter = num_iter
         self.timeout = timeout
-        self.top_k = top_k
+        self.ensemble_size = ensemble_size
         self.CV = CV
         self.hooks = hooks
 
@@ -74,7 +84,7 @@ class RiskEnsembleSeeker:
             time_horizons=time_horizons,
             num_iter=num_iter,
             CV=CV,
-            top_k=top_k,
+            top_k=ensemble_size,
             timeout=timeout,
             estimators=estimators,
             hooks=hooks,

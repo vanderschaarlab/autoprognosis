@@ -20,8 +20,8 @@ from adjutorium.utils.metrics import (
 from adjutorium.utils.risk_estimation import generate_dataset_for_horizon
 
 
-class Eval:
-    """Helper class for evaluating the performance of the models.
+class classifier_evaluator:
+    """Helper class for evaluating the performance of the classifier.
 
     Args:
         metric: str, default="aucroc"
@@ -76,6 +76,25 @@ def evaluate_estimator(
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
+    """Helper for evaluating classifiers.
+
+    Args:
+        estimator:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X:
+            The covariates
+        Y:
+            The labels
+        n_folds: int
+            corss-validation folds
+        metric: str
+            The metric to use: aucroc or aucprc
+        seed: int
+            Random seed
+        pretrained: bool
+            If the estimator was already trained or not.
+
+    """
     X = pd.DataFrame(X)
     Y = pd.DataFrame(Y)
 
@@ -86,7 +105,7 @@ def evaluate_estimator(
     indx = 0
     skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
-    ev = Eval(metric)
+    ev = classifier_evaluator(metric)
 
     for train_index, test_index in skf.split(X, Y):
 
@@ -130,6 +149,26 @@ def evaluate_survival_estimator(
     seed: int = 0,
     pretrained: bool = False,
 ) -> Dict:
+    """Helper for evaluating survival analysis tasks.
+
+    Args:
+        X: DataFrame
+            The covariates
+        T: Series
+            time to event
+        Y: Series
+            event or censored
+        time_horizons: list
+            Horizons where to evaluate the performance.
+        n_folds: int
+            Number of folds for cross validation
+        metrics: list
+            Available metrics: "c_index", "brier_score", "aucroc"
+        seed: int
+            Random seed
+        pretrained: bool
+            If the estimator was trained or not
+    """
 
     supported_metrics = ["c_index", "brier_score", "aucroc"]
     results = {}
@@ -149,6 +188,10 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> tuple:
+        constant_cols = constant_columns(X_train)
+        X_train = X_train.drop(columns=constant_cols)
+        X_test = X_test.drop(columns=constant_cols)
+
         if pretrained:
             model = estimator[cv_idx]
         else:
@@ -191,6 +234,10 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> float:
+        constant_cols = constant_columns(X_train)
+        X_train = X_train.drop(columns=constant_cols)
+        X_test = X_test.drop(columns=constant_cols)
+
         cv_idx = 0
 
         if pretrained:
@@ -298,19 +345,6 @@ def evaluate_survival_estimator(
     return output
 
 
-def score_classification_model(
-    estimator: Any,
-    X_train: pd.DataFrame,
-    X_test: pd.DataFrame,
-    y_train: pd.DataFrame,
-    y_test: pd.DataFrame,
-) -> float:
-    model = copy.deepcopy(estimator)
-    model.fit(X_train, y_train)
-
-    return model.score(X_test, y_test)
-
-
 def evaluate_regression(
     estimator: Any,
     X: pd.DataFrame,
@@ -321,6 +355,23 @@ def evaluate_regression(
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
+    """Helper for evaluating regression tasks.
+
+    Args:
+        estimator:
+            The regressor to evaluate
+        X:
+            covariates
+        Y:
+            outcomes
+        n_folds: int
+            Number of cross-validation folds
+        metric: str
+            rmse
+        seed: int
+            Random seed
+
+    """
     X = pd.DataFrame(X)
     Y = pd.DataFrame(Y)
 
@@ -357,3 +408,27 @@ def evaluate_regression(
             metric: print_score(output_clf),
         },
     }
+
+
+def score_classification_model(
+    estimator: Any,
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_train: pd.DataFrame,
+    y_test: pd.DataFrame,
+) -> float:
+    model = copy.deepcopy(estimator)
+    model.fit(X_train, y_train)
+
+    return model.score(X_test, y_test)
+
+
+def constant_columns(dataframe: pd.DataFrame) -> list:
+    """
+    Drops constant value columns of pandas dataframe.
+    """
+    result = []
+    for column in dataframe.columns:
+        if len(dataframe[column].unique()) == 1:
+            result.append(column)
+    return result

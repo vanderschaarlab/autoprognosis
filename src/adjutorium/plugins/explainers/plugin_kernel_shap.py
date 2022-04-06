@@ -77,28 +77,24 @@ class KernelSHAPPlugin(ExplainerPlugin):
                 model.fit(X, time_to_event, y)
 
             def model_fn(X: pd.DataFrame) -> pd.DataFrame:
-                out = np.asarray(model.predict(X, eval_times))
-
+                out = np.asarray(model.predict(X, eval_times))[:, -1]
                 return out
 
             self.explainer = shap.KernelExplainer(
                 model_fn, X_summary, feature_names=self.feature_names
             )
 
-    def plot(self, shap_values: Any, X: pd.DataFrame) -> None:  # type: ignore
-        X = pd.DataFrame(X, columns=self.feature_names)
+    def plot(self, X: pd.DataFrame) -> None:  # type: ignore
+        shap_values = self.explainer.shap_values(X)
         shap.summary_plot(shap_values, X)
 
     def explain(self, X: pd.DataFrame) -> np.ndarray:
         X = pd.DataFrame(X, columns=self.feature_names)
-        results = []
-        for index, row in X.iterrows():
-            importance = np.asarray(self.explainer.shap_values(row)).T
-            if self.task_type == "classification":
-                importance = importance[:, 1]
-            results.append(importance)
+        importance = np.asarray(self.explainer.shap_values(X))
+        if self.task_type == "classification":
+            importance = importance[:, 1]
 
-        return np.asarray(results)
+        return importance
 
     @staticmethod
     def name() -> str:

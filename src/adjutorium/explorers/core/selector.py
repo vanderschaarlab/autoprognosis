@@ -23,6 +23,24 @@ predefined_args = {
 
 
 class PipelineSelector:
+    """AutoML wrapper for pipelines
+
+    Args:
+        classifier: str
+            Last estimator of the pipeline, the final classifier.
+        calibration: int
+            Type of calibration to use. 0 - none, 1 - sigmoid, 2 - isotonic.
+        imputers: list
+            list of imputers to sample from.
+        feature_scaling: list
+            list of feature scaling transformers to sample from.
+        feature_selection: list
+            list of feature selection methods ti sample from
+        classifier_category: str
+            task type: "classifier" or "risk_estimation"
+
+    """
+
     def __init__(
         self,
         classifier: str,

@@ -32,19 +32,32 @@ class ClassifierStudy(Study):
     The output is an optimal model architecture, selected by the AutoML logic.
 
     Args:
-        dataset: DataFrame. The dataset to analyze.
-        target: str. The target column in the dataset.
-        num_iter: int. Number of optimization iteration.
-        num_study_iter: int. The number of study iterations.
-        timeout: int. Max wait time for each estimator hyperparameter search.
-        metric: str. The metric to use for optimization. ["aucroc", "aucprc"]
-        study_name: str. The name of the study, to be used in the caches.
-        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
-        classifiers: list. Plugins to use in the pipeline for prediction.
-        imputers: list. Plugins to use in the pipeline for imputation.
-        hooks: Hooks. Custom callbacks to be notified about the search progress.
-        workspace: Path. Where to store the output model.
-        score_threshold: float. The minimum metric score for a candidate.
+        dataset: DataFrame.
+            The dataset to analyze.
+        target: str.
+            The target column in the dataset.
+        num_iter: int.
+            Number of optimization iteration.
+        num_study_iter: int.
+            The number of study iterations.
+        timeout: int.
+            Max wait time for each estimator hyperparameter search.
+        metric: str.
+            The metric to use for optimization. ["aucroc", "aucprc"]
+        study_name: str.
+            The name of the study, to be used in the caches.
+        feature_scaling: list.
+            Plugins to use in the pipeline for preprocessing.
+        classifiers: list.
+            Plugins to use in the pipeline for prediction.
+        imputers: list.
+            Plugins to use in the pipeline for imputation.
+        hooks: Hooks.
+            Custom callbacks to be notified about the search progress.
+        workspace: Path.
+            Where to store the output model.
+        score_threshold: float.
+            The minimum metric score for a candidate.
     """
 
     def __init__(

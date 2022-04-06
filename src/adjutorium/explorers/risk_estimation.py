@@ -20,10 +20,9 @@ from adjutorium.explorers.core.selector import PipelineSelector
 from adjutorium.explorers.hooks import DefaultHooks
 from adjutorium.hooks import Hooks
 import adjutorium.logger as log
-from adjutorium.utils.parallel import cpu_count
 from adjutorium.utils.tester import evaluate_survival_estimator
 
-dispatcher = Parallel(n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=2)
 
 
 class RiskEstimatorSeeker:
@@ -32,14 +31,25 @@ class RiskEstimatorSeeker:
 
     Args:
         study_name: str.
-        time_horizons:list. list of time horizons.
-        num_iter: int. Number of optimization trials.
-        timeout: int. Max wait time(in seconds) for the optimization output.
-        CV: int. Number of folds to use for evaluation
-        feature_scaling: list. Plugins to use in the pipeline for preprocessing.
-        estimators: list. Plugins to use in the pipeline for risk prediction.
-        imputers: list. Plugins to use in the pipeline for imputation.
-        hooks: Hooks. Custom callbacks to be notified about the search progress.
+            Study ID, used for caching.
+        time_horizons:list.
+            list of time horizons.
+        num_iter: int.
+            Number of optimization trials.
+        timeout: int.
+            Max wait time(in seconds) for the optimization output.
+        CV: int.
+            Number of folds to use for evaluation
+        top_k: int
+            Number of candidates to return.
+        feature_scaling: list.
+            Plugins to use in the pipeline for preprocessing.
+        estimators: list.
+            Plugins to use in the pipeline for risk prediction.
+        imputers: list.
+            Plugins to use in the pipeline for imputation.
+        hooks: Hooks.
+            Custom callbacks to be notified about the search progress.
     """
 
     def __init__(

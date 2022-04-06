@@ -18,8 +18,6 @@ from adjutorium.utils.metrics import (
     evaluate_auc,
     evaluate_skurv_brier_score,
     evaluate_skurv_c_index,
-    evaluate_weighted_brier_score,
-    evaluate_weighted_c_index,
 )
 
 
@@ -260,16 +258,6 @@ def helper_eval_survival(
 
         y_pred = estimator.predict(hX_test, [eval_time]).to_numpy()
 
-        c_index = evaluate_weighted_c_index(
-            hT_train,
-            hY_train,
-            y_pred,
-            hT_test,
-            hY_test,
-            eval_time,
-        )
-        assert c_index > 0.5
-
         c_index = evaluate_skurv_c_index(
             hT_train,
             hY_train,
@@ -279,16 +267,6 @@ def helper_eval_survival(
             eval_time,
         )
         assert c_index > 0.5
-
-        brier = evaluate_weighted_brier_score(
-            hT_train,
-            hY_train,
-            y_pred,
-            hT_test,
-            hY_test,
-            eval_time,
-        )
-        assert brier < 0.5
 
         brier = evaluate_skurv_brier_score(
             hT_train,

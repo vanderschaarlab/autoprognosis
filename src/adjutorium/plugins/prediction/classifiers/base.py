@@ -8,7 +8,7 @@ import pandas as pd
 import adjutorium.plugins.core.base_plugin as plugin
 import adjutorium.plugins.prediction.base as prediction_base
 import adjutorium.plugins.utils.cast as cast
-from adjutorium.utils.tester import Eval
+from adjutorium.utils.tester import classifier_evaluator
 
 
 class ClassifierPlugin(prediction_base.PredictionPlugin):
@@ -42,7 +42,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         return self._fit(X, Y, **kwargs)
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
-        ev = Eval(metric)
+        ev = classifier_evaluator(metric)
 
         preds = self.predict_proba(X)
         return ev.score_proba(y, preds)
