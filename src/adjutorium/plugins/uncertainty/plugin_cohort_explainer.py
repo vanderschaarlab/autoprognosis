@@ -203,7 +203,9 @@ class CohortMgmt:
             "high_imbalance",
         ]
 
-    def diagnostics(self, X: pd.DataFrame, prediction: pd.DataFrame) -> dict:
+    def diagnostics(
+        self, X: pd.DataFrame, prediction: pd.DataFrame, cohort_limit: int = 2
+    ) -> dict:
         _rules = self.match_all(X)
 
         all_conf = []
@@ -227,9 +229,9 @@ class CohortMgmt:
         return {
             "global_confidence": global_conf,
             "avg_confidence": np.mean(all_conf),
-            "high_fn_rate": high_fn_rate,
-            "high_fp_rate": high_fp_rate,
-            "high_imbalance": high_imbalance,
+            "high_fn_rate": high_fn_rate[-cohort_limit:],
+            "high_fp_rate": high_fp_rate[-cohort_limit:],
+            "high_imbalance": high_imbalance[-cohort_limit:],
         }
 
     def diagnostics_df(self, X: pd.DataFrame, prediction: pd.DataFrame) -> dict:
