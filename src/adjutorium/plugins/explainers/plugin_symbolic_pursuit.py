@@ -127,7 +127,7 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
                 **std_args,
                 task_type="classification",
             )
-            self.explainer.fit(model_fn_factory(eval_times[0]), X)
+            self.explainer.fit(model_fn_factory(eval_times[-1]), X)
 
     def explain(self, X: pd.DataFrame) -> np.ndarray:
         X = pd.DataFrame(X, columns=self.feature_names)

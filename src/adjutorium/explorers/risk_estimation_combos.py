@@ -64,7 +64,7 @@ class RiskEnsembleSeeker:
         timeout: int = 360,
         CV: int = 3,
         estimators: List[str] = default_risk_estimation_names,
-        ensemble_size: int = 3,
+        ensemble_size: int = 2,
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
         hooks: Hooks = DefaultHooks(),

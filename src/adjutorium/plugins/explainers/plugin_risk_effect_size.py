@@ -3,7 +3,6 @@ import copy
 from typing import Any, List, Optional
 
 # third party
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -79,7 +78,7 @@ class RiskEffectSizePlugin(ExplainerPlugin):
                     model.predict(X, eval_times).values, columns=eval_times
                 )
 
-                return pd.DataFrame(res[eval_times[0]])
+                return pd.DataFrame(res[eval_times[-1]])
 
             self.predict_cbk = model_fn
 
@@ -105,22 +104,19 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         if not effect_size:
             effect_size = self.effect_size
 
-        def risk_to_cluster(row: pd.DataFrame) -> pd.DataFrame:
-            output = row.copy()
-
-            output[row < 0.2] = 0
-            output[(row >= 0.2) & (row < 0.5)] = 1
-            output[(row >= 0.5)] = 2
-
-            return output
-
         training_preds = predict_cbk(X)
-        buckets = training_preds.apply(risk_to_cluster)[training_preds.columns[0]]
+        bins = 2
+        buckets = pd.cut(
+            training_preds.values.squeeze(),
+            bins=bins,
+            duplicates="drop",
+            labels=range(bins),
+        )
         X = X.reset_index(drop=True)
 
         output = pd.DataFrame([], columns=X.columns)
         index = []
-        for bucket in range(0, 4):
+        for bucket in range(bins):
             curr_bucket = X[buckets == bucket]
             other_buckets = X[buckets > bucket]
 
@@ -142,26 +138,25 @@ class RiskEffectSizePlugin(ExplainerPlugin):
 
         output.index = index
         output = output.astype(float)
+        output = output.clip(upper=3)
 
         return output
 
-    def plot(self, X: pd.DataFrame) -> None:  # type: ignore
+    def plot(self, X: pd.DataFrame, ax: Any = None) -> None:
         output = self._get_population_shifts(self.predict_cbk, X)
         thresh_line = [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
-
-        cols = output.columns
-        cols = sorted(cols, key=lambda key: output[key].max(), reverse=True)
-
-        output = output[cols]
 
         ignore_empty = []
         for col in output.columns:
             if output[col].sum() == 0:
                 ignore_empty.append(col)
         output = output.drop(columns=ignore_empty)
+        if len(output.columns) == 0:
+            return
 
         draw_lines = []
         thresh_iter = 0
+
         for idx, col in enumerate(output.columns):
             if (
                 thresh_iter < len(thresh_line)
@@ -171,6 +166,11 @@ class RiskEffectSizePlugin(ExplainerPlugin):
                 draw_lines.append(idx)
         draw_lines.append(idx + 1)
 
+        cols = output.columns
+        cols = sorted(cols, key=lambda key: output[key].max(), reverse=True)
+
+        output = output[cols]
+
         renamed_cols = {}
         for idx, col in enumerate(output.columns):
             renamed_cols[col] = f"{col} {idx}"
@@ -178,17 +178,16 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         output = output.rename(columns=renamed_cols)
         output = output.transpose()
 
-        plt.figure(figsize=(4, int(len(output) * 0.5)))
-
-        ax = sns.heatmap(
+        sns.heatmap(
             output,
             cmap="Reds",
             linewidths=0.5,
             linecolor="black",
+            annot=True,
+            ax=ax,
         )
         ax.xaxis.set_ticks_position("top")
-        ax.hlines(draw_lines, *ax.get_ylim(), colors="blue")
-        plt.show()
+        # ax.hlines(draw_lines, *ax.get_ylim(), colors="blue")
 
     def explain(
         self, X: pd.DataFrame, effect_size: Optional[float] = None

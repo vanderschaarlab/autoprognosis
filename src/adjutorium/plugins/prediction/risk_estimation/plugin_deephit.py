@@ -33,7 +33,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         self,
         model: Any = None,
         num_durations: int = 10,
-        batch_size: int = 1024,
+        batch_size: int = 100,
         epochs: int = 5000,
         lr: float = 1e-2,
         dim_hidden: int = 300,
@@ -41,6 +41,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         sigma: float = 0.38,
         dropout: float = 0.2,
         patience: int = 20,
+        batch_norm: bool = False,
         hyperparam_search_iterations: Optional[int] = None,
         **kwargs: Any
     ) -> None:
@@ -63,6 +64,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         self.sigma = sigma
         self.patience = patience
         self.dropout = dropout
+        self.batch_norm = batch_norm
 
     def _fit(
         self, X: pd.DataFrame, *args: Any, **kwargs: Any
@@ -93,15 +95,12 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         net = torch.nn.Sequential(
             torch.nn.Linear(in_features, self.dim_hidden),
             torch.nn.ReLU(),
-            torch.nn.BatchNorm1d(self.dim_hidden),
             torch.nn.Dropout(self.dropout),
             torch.nn.Linear(self.dim_hidden, self.dim_hidden),
             torch.nn.ReLU(),
-            torch.nn.BatchNorm1d(self.dim_hidden),
             torch.nn.Dropout(self.dropout),
             torch.nn.Linear(self.dim_hidden, self.dim_hidden),
             torch.nn.ReLU(),
-            torch.nn.BatchNorm1d(self.dim_hidden),
             torch.nn.Dropout(self.dropout),
             torch.nn.Linear(self.dim_hidden, out_features),
         ).to(DEVICE)
@@ -161,7 +160,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Categorical("batch_size", [256, 512, 1024]),
+            params.Categorical("batch_size", [100, 200, 500]),
             params.Categorical("lr", [1e-2, 1e-3, 1e-4]),
             params.Integer("dim_hidden", 10, 100, 10),
             params.Float("alpha", 0.0, 0.5),

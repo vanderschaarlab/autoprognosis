@@ -189,7 +189,7 @@ def dataframe_encode_and_impute(
     return df, encoder_ctx
 
 
-def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 5000) -> List:
+def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 10000) -> List:
     log.debug(f"preprocess: dataset subsampling {max_size}")
     df_limit = len(Y.unique()) * max_size
     ratio = df_limit / len(X)
