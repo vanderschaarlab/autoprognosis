@@ -34,16 +34,22 @@ class LifelinesWrapper:
 
         time_horizons = args[0]
 
-        surv = self.model.predict_survival_function(X)
-        surv_times = np.asarray(surv.index).astype(int)
-        surv = np.asarray(surv.T)
-        preds_ = np.zeros([np.shape(surv)[0], len(time_horizons)])
+        chunks = int(len(X) / 1024) + 1
 
-        for t, eval_time in enumerate(time_horizons):
-            tmp_time = np.where(eval_time <= surv_times)[0]
-            if len(tmp_time) == 0:
-                preds_[:, t] = 1.0 - surv[:, 0]
-            else:
-                preds_[:, t] = 1.0 - surv[:, tmp_time[0]]
+        preds_ = []
+        for chunk in np.array_split(X, chunks):
+            local_preds_ = np.zeros([len(chunk), len(time_horizons)])
+            surv = self.model.predict_survival_function(chunk)
+            surv_times = np.asarray(surv.index).astype(int)
+            surv = np.asarray(surv.T)
 
-        return preds_
+            for t, eval_time in enumerate(time_horizons):
+                tmp_time = np.where(eval_time <= surv_times)[0]
+                if len(tmp_time) == 0:
+                    local_preds_[:, t] = 1.0 - surv[:, 0]
+                else:
+                    local_preds_[:, t] = 1.0 - surv[:, tmp_time[0]]
+
+            preds_.append(local_preds_)
+
+        return np.concatenate(preds_, axis=0)
