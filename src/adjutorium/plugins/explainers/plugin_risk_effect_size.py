@@ -3,6 +3,7 @@ import copy
 from typing import Any, List, Optional
 
 # third party
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -178,7 +179,10 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         output = output.rename(columns=renamed_cols)
         output = output.transpose()
 
-        sns.heatmap(
+        if ax is None:
+            plt.figure(figsize=(4, int(len(output) * 0.5)))
+
+        plot_ax = sns.heatmap(
             output,
             cmap="Reds",
             linewidths=0.5,
@@ -186,8 +190,7 @@ class RiskEffectSizePlugin(ExplainerPlugin):
             annot=True,
             ax=ax,
         )
-        ax.xaxis.set_ticks_position("top")
-        # ax.hlines(draw_lines, *ax.get_ylim(), colors="blue")
+        plot_ax.xaxis.set_ticks_position("top")
 
     def explain(
         self, X: pd.DataFrame, effect_size: Optional[float] = None
