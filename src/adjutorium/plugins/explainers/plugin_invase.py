@@ -430,7 +430,8 @@ class invaseRiskEstimation(invaseBase):
         self, estimator: Any, x: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
         baseline_proba = estimator.predict(
-            pd.DataFrame(x.detach().numpy(), columns=self.columns), self.eval_times
+            pd.DataFrame(x.detach().cpu().numpy(), columns=self.columns),
+            self.eval_times,
         )
         baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
 
@@ -448,7 +449,7 @@ class invaseRiskEstimation(invaseBase):
         return estimator.predict(x, self.eval_times)
 
     def _importance_init(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.zeros((x.shape[0], x.shape[1], len(self.eval_times)))
+        return torch.zeros((x.shape[0], x.shape[1], len(self.eval_times))).to(DEVICE)
 
     def _importance_test(
         self, estimator: Any, x: np.ndarray, y: np.ndarray
@@ -458,7 +459,7 @@ class invaseRiskEstimation(invaseBase):
 
         # get baseline importance
         for mask in bitmask_intervals(n_features, n_features - 1, n_features):
-            mask = torch.broadcast_to(mask, x.shape)
+            mask = torch.broadcast_to(mask, x.shape).to(DEVICE)
             masked_batch = self.masking([x, mask])
 
             baseline_loss = self._baseline_metric(estimator, masked_batch, y)
@@ -505,7 +506,7 @@ class invaseRiskEstimation(invaseBase):
         X = torch.from_numpy(X).float().to(DEVICE)
 
         gen_prob = self.critic(X).reshape(X.shape[0], X.shape[1], len(self.eval_times))
-        return gen_prob.detach().numpy()
+        return gen_prob.detach().cpu().numpy()
 
 
 class invaseCV:

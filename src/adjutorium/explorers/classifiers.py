@@ -19,10 +19,9 @@ from adjutorium.explorers.core.selector import PipelineSelector
 from adjutorium.explorers.hooks import DefaultHooks
 from adjutorium.hooks import Hooks
 import adjutorium.logger as log
-from adjutorium.utils.parallel import cpu_count
 from adjutorium.utils.tester import evaluate_estimator
 
-dispatcher = Parallel(n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=2)
 
 
 class ClassifierSeeker:

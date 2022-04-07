@@ -29,7 +29,7 @@ for retry in range(2):
         depends = ["combo"]
         install(depends)
 
-dispatcher = Parallel(n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=cpu_count())
 
 
 class BaseEnsemble(metaclass=ABCMeta):

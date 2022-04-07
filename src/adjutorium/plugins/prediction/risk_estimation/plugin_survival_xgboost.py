@@ -81,7 +81,7 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
             "tree_method": tree_method,
             "booster": XGBoostRiskEstimationPlugin.booster[booster],
             "random_state": random_state,
-            "n_jobs": 2,
+            "n_jobs": 4,
         }
         lr_params = {
             "C": 1e-3,
@@ -138,18 +138,19 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
 
         time_horizons = args[0]
 
-        # surv, upper_ci, lower_ci = self.model.predict(X, return_ci = True)
-        surv = self.model.predict(X)
-        surv = surv.loc[:, ~surv.columns.duplicated()]
+        chunks = int(len(X) / 1024) + 1
 
-        preds_ = np.zeros([np.shape(surv)[0], len(time_horizons)])
-
-        time_bins = surv.columns
-        for t, eval_time in enumerate(time_horizons):
-            nearest = self._find_nearest(time_bins, eval_time)
-            preds_[:, t] = np.asarray(1 - surv[nearest])
-
-        return preds_
+        preds_ = []
+        for chunk in np.array_split(X, chunks):
+            local_preds_ = np.zeros([len(chunk), len(time_horizons)])
+            surv = self.model.predict(chunk)
+            surv = surv.loc[:, ~surv.columns.duplicated()]
+            time_bins = surv.columns
+            for t, eval_time in enumerate(time_horizons):
+                nearest = self._find_nearest(time_bins, eval_time)
+                local_preds_[:, t] = np.asarray(1 - surv[nearest])
+            preds_.append(local_preds_)
+        return np.concatenate(preds_, axis=0)
 
     @staticmethod
     def name() -> str:

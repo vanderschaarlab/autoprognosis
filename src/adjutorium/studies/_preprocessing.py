@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Tuple
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 
 # adjutorium absolute
 import adjutorium.logger as log
@@ -165,30 +165,13 @@ def dataframe_encode(in_df: pd.DataFrame) -> Tuple[pd.DataFrame, EncodersCallbac
             log.debug(f"handling categorical column {column}")
             target = df[column]
 
-        unique_cnt = len(target.unique())
+        log.debug(f"preprocess: dataset label encoding for {column}")
+        le = LabelEncoder()
 
-        if unique_cnt > ONEHOT_ENCODE_THRESHOLD:
-            log.debug(f"preprocess: dataset label encoding for {column}")
-            le = LabelEncoder()
+        target = pd.Series(le.fit_transform(target), index=df[column].index.copy())
+        df.loc[:, column] = target
 
-            target = pd.Series(le.fit_transform(target), index=df[column].index.copy())
-            df.loc[:, column] = target
-
-            encoders[column] = le
-        else:
-            log.debug(f"preprocess: dataset one-hot encoding for {column}")
-            ohe = OneHotEncoder(handle_unknown="ignore", sparse=False)
-            target = target.values.reshape(-1, 1)
-            ohe.fit(target)
-            encoders[column] = ohe
-
-            encoded = pd.DataFrame(
-                ohe.transform(target),
-                columns=ohe.get_feature_names([column]),
-                index=df.index.copy(),
-            )
-            df = pd.concat([df, encoded], axis=1)
-            df.drop(columns=[column], inplace=True)
+        encoders[column] = le
 
     return df, EncodersCallbacks(encoders)
 
@@ -206,7 +189,7 @@ def dataframe_encode_and_impute(
     return df, encoder_ctx
 
 
-def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 5000) -> List:
+def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 10000) -> List:
     log.debug(f"preprocess: dataset subsampling {max_size}")
     df_limit = len(Y.unique()) * max_size
     ratio = df_limit / len(X)
