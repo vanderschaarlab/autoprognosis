@@ -188,14 +188,16 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> tuple:
-        constant_cols = constant_columns(X_train)
-        X_train = X_train.drop(columns=constant_cols)
-        X_test = X_test.drop(columns=constant_cols)
 
         if pretrained:
             model = estimator[cv_idx]
         else:
             model = copy.deepcopy(estimator)
+
+            constant_cols = constant_columns(X_train)
+            X_train = X_train.drop(columns=constant_cols)
+            X_test = X_test.drop(columns=constant_cols)
+
             model.fit(X_train, T_train, Y_train)
 
         try:
@@ -206,6 +208,7 @@ def evaluate_survival_estimator(
         c_index = 0.0
         brier_score = 0.0
         for k in range(len(time_horizons)):
+            eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
 
             def get_score(fn: Callable) -> float:
                 return (
@@ -215,7 +218,7 @@ def evaluate_survival_estimator(
                         pred[:, k],
                         T_test,
                         Y_test,
-                        time_horizons[k],
+                        eval_horizon,
                     )
                     / (len(time_horizons))
                 )
@@ -234,16 +237,17 @@ def evaluate_survival_estimator(
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
     ) -> float:
-        constant_cols = constant_columns(X_train)
-        X_train = X_train.drop(columns=constant_cols)
-        X_test = X_test.drop(columns=constant_cols)
-
         cv_idx = 0
 
         if pretrained:
             model = estimator[cv_idx]
         else:
             model = copy.deepcopy(estimator)
+
+            constant_cols = constant_columns(X_train)
+            X_train = X_train.drop(columns=constant_cols)
+            X_test = X_test.drop(columns=constant_cols)
+
             model.fit(X_train, T_train, Y_train)
 
         try:
