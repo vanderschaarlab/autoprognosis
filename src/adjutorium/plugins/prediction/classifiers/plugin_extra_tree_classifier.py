@@ -35,7 +35,12 @@ class ExtraTreeClassifierPlugin(base.ClassifierPlugin):
     criterions = ["gini", "entropy"]
 
     def __init__(
-        self, criterion: int = 0, calibration: int = 0, model: Any = None, **kwargs: Any
+        self,
+        criterion: int = 0,
+        calibration: int = 0,
+        random_state: int = 0,
+        model: Any = None,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:
@@ -43,7 +48,9 @@ class ExtraTreeClassifierPlugin(base.ClassifierPlugin):
             return
 
         model = ExtraTreeClassifier(
-            criterion=ExtraTreeClassifierPlugin.criterions[criterion], max_depth=6
+            criterion=ExtraTreeClassifierPlugin.criterions[criterion],
+            max_depth=6,
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 

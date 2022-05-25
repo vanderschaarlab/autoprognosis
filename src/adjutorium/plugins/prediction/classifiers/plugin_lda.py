@@ -28,7 +28,13 @@ class LinearDiscriminantAnalysisPlugin(base.ClassifierPlugin):
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class
     """
 
-    def __init__(self, calibration: int = 0, model: Any = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        calibration: int = 0,
+        model: Any = None,
+        random_state: int = 0,
+        **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         if model is not None:
             self.model = model

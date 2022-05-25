@@ -35,14 +35,21 @@ class RidgeClassifierPlugin(base.ClassifierPlugin):
     solvers = ["auto", "svd", "cholesky", "lsqr", "sparse_cg"]  # , "sag", "saga"]
 
     def __init__(
-        self, solver: int = 0, calibration: int = 0, model: Any = None, **kwargs: Any
+        self,
+        solver: int = 0,
+        calibration: int = 0,
+        random_state: int = 0,
+        model: Any = None,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:
             self.model = model
             return
 
-        model = RidgeClassifier(solver=RidgeClassifierPlugin.solvers[solver])
+        model = RidgeClassifier(
+            solver=RidgeClassifierPlugin.solvers[solver], random_state=random_state
+        )
         self.model = calibrated_model(model, calibration)
 
     @staticmethod

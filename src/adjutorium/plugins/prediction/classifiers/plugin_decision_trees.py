@@ -35,7 +35,12 @@ class DecisionTreePlugin(base.ClassifierPlugin):
     criterions = ["gini", "entropy"]
 
     def __init__(
-        self, criterion: int = 0, calibration: int = 0, model: Any = None, **kwargs: Any
+        self,
+        criterion: int = 0,
+        calibration: int = 0,
+        model: Any = None,
+        random_state: int = 0,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:
@@ -43,7 +48,8 @@ class DecisionTreePlugin(base.ClassifierPlugin):
             return
 
         model = DecisionTreeClassifier(
-            criterion=DecisionTreePlugin.criterions[criterion]
+            criterion=DecisionTreePlugin.criterions[criterion],
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 
