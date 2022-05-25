@@ -53,9 +53,6 @@ def test_dataframe_encode() -> None:
 
     actual, encoders = dataframe_encode(df)
 
-    for val in ["1", "2", "3"]:
-        assert "not_encoded_" + val in actual.columns
-
     assert "not_encoded" in encoders.encoders
 
 
@@ -64,22 +61,18 @@ def test_dataframe_encode_impute() -> None:
 
     actual, encoders = dataframe_encode_and_impute(df, imputation_method="mean")
 
-    for val in ["1", "2", "3"]:
-        assert "not_encoded_" + val in actual.columns
-
     assert "not_encoded" in encoders.encoders
 
     df = encoders.encode(df)
     assert not df.isnull().values.any()
-    assert len(df.columns) == 6
+    assert len(df.columns) == 2
 
     df = encoders.decode(df)
     assert "test" in df.columns
     assert "not_encoded" in df.columns
 
     df = encoders.encode(df)
-    assert len(df.columns) == 6
-    assert "not_encoded_1" in df.columns
+    assert len(df.columns) == 2
 
     df = encoders.numeric_decode(df)
     assert len(df.columns) == 2
@@ -116,7 +109,7 @@ def test_dataframe_preprocess() -> None:
     )
 
     assert not X.isnull().values.any()
-    assert len(X.columns) == 4
+    assert len(X.columns) == 2
     assert len(X) == 5
     assert len(others) == 1
     assert "not_encoded" in enc_ctx.encoders

@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.risk_estimation.base as base
+from adjutorium.utils.distributions import enable_reproducible_results
 from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
 
@@ -42,11 +43,13 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         dropout: float = 0.2,
         patience: int = 20,
         batch_norm: bool = False,
+        random_state: int = 0,
         hyperparam_search_iterations: Optional[int] = None,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
 
+        enable_reproducible_results(random_state)
         if model:
             self.model = model
             return

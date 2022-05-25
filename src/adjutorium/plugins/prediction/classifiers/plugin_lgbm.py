@@ -76,6 +76,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
         min_child_samples: int = 1,
         calibration: int = 0,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -94,6 +95,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
             subsample=subsample,
             num_leaves=num_leaves,
             min_child_samples=min_child_samples,
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 

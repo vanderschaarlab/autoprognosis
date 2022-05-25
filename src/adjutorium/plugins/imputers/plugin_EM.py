@@ -9,7 +9,7 @@ from adjutorium.utils.pip import install
 for retry in range(2):
     try:
         # third party
-        from hyperimpute.plugins.imputers.plugin_em import plugin as base_model
+        from hyperimpute.plugins.imputers.plugin_EM import plugin as base_model
 
         break
     except ImportError:
@@ -35,8 +35,8 @@ class EMPlugin(base.ImputerPlugin):
         3  2.000000  2.000000  2.000000  2.000000
     """
 
-    def __init__(self, **kwargs: Any) -> None:
-        model = base_model(**kwargs)
+    def __init__(self, random_state: int = 0, **kwargs: Any) -> None:
+        model = base_model(random_state=random_state, **kwargs)
 
         super().__init__(model)
 

@@ -41,7 +41,7 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         ratio_tol: float. A new term is added only if new_loss / old_loss < ratio_tol
         maxiter: float.  Maximum number of iterations for optimization
         eps: float. Number used for numerical stability
-        random_seed: float. Random seed for reproducibility
+        random_state: float. Random seed for reproducibility
     """
 
     def __init__(
@@ -62,8 +62,8 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         ratio_tol: float = 0.9,
         maxiter: int = 100,
         eps: float = 1.0e-5,
-        random_seed: int = 0,
         patience: int = 10,
+        random_state: int = 0,
     ) -> None:
         if task_type not in ["classification", "risk_estimation", "regression"]:
             raise RuntimeError("invalid task type")
@@ -80,12 +80,12 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         self.ratio_tol = ratio_tol
         self.maxiter = maxiter
         self.eps = eps
-        self.random_seed = random_seed
+        self.random_state = random_state
 
         std_args = {
             "loss_tol": loss_tol,
             "ratio_tol": ratio_tol,
-            "random_seed": random_seed,
+            "random_seed": random_state,
             "maxiter": maxiter,
             "patience": patience,
         }

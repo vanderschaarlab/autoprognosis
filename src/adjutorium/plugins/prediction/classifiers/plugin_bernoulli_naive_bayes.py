@@ -31,7 +31,12 @@ class BernoulliNaiveBayesPlugin(base.ClassifierPlugin):
     """
 
     def __init__(
-        self, alpha: float = 1.0, calibration: int = 0, model: Any = None, **kwargs: Any
+        self,
+        alpha: float = 1.0,
+        calibration: int = 0,
+        random_state: int = 0,
+        model: Any = None,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

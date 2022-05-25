@@ -9,6 +9,7 @@ import pandas as pd
 import adjutorium.logger as log
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.classifiers.base as base
+from adjutorium.utils.distributions import enable_reproducible_results
 from adjutorium.utils.pip import install
 from adjutorium.utils.serialization import load_model, save_model
 
@@ -62,8 +63,6 @@ class BasicNet(nn.Module):
         Batch size
     n_iter_print: int
         Number of iterations after which to print updates and check the validation loss.
-    seed: int
-        Seed used
     val_split_prop: float
         Proportion of samples used for validation split (can be 0)
     patience: int
@@ -86,7 +85,6 @@ class BasicNet(nn.Module):
         n_iter: int = 100,
         batch_size: int = 128,
         n_iter_print: int = 10,
-        seed: int = 0,
         patience: int = 10,
         n_iter_min: int = 100,
         dropout: float = 0.1,
@@ -145,7 +143,6 @@ class BasicNet(nn.Module):
         self.n_iter = n_iter
         self.batch_size = batch_size
         self.n_iter_print = n_iter_print
-        self.seed = seed
         self.patience = patience
         self.n_iter_min = n_iter_min
         self.clipping_value = clipping_value
@@ -252,7 +249,6 @@ class NeuralNetsPlugin(base.ClassifierPlugin):
         n_iter: int = 1000,
         batch_size: int = 128,
         n_iter_print: int = 10,
-        seed: int = 0,
         patience: int = 10,
         n_iter_min: int = 100,
         dropout: float = 0.1,
@@ -260,9 +256,12 @@ class NeuralNetsPlugin(base.ClassifierPlugin):
         batch_norm: bool = True,
         early_stopping: bool = True,
         hyperparam_search_iterations: Optional[int] = None,
+        random_state: int = 0,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
+
+        enable_reproducible_results(random_state)
 
         if hyperparam_search_iterations:
             n_iter = 5 * int(hyperparam_search_iterations)
@@ -275,7 +274,6 @@ class NeuralNetsPlugin(base.ClassifierPlugin):
         self.n_iter = n_iter
         self.batch_size = batch_size
         self.n_iter_print = n_iter_print
-        self.seed = seed
         self.patience = patience
         self.n_iter_min = n_iter_min
         self.dropout = dropout
@@ -318,7 +316,6 @@ class NeuralNetsPlugin(base.ClassifierPlugin):
             n_iter=self.n_iter,
             batch_size=self.batch_size,
             n_iter_print=self.n_iter_print,
-            seed=self.seed,
             patience=self.patience,
             n_iter_min=self.n_iter_min,
             dropout=self.dropout,

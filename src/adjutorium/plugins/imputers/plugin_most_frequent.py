@@ -9,7 +9,9 @@ from adjutorium.utils.pip import install
 for retry in range(2):
     try:
         # third party
-        from hyperimpute.plugins.imputers.plugin_most_freq import plugin as base_model
+        from hyperimpute.plugins.imputers.plugin_most_frequent import (
+            plugin as base_model,
+        )
 
         break
     except ImportError:
@@ -35,8 +37,8 @@ class MostFrequentPlugin(base.ImputerPlugin):
         3  2.0  2.0  2.0  2.0
     """
 
-    def __init__(self, **kwargs: Any) -> None:
-        model = base_model(**kwargs)
+    def __init__(self, random_state: int = 0, **kwargs: Any) -> None:
+        model = base_model(random_state=random_state, **kwargs)
 
         super().__init__(model)
 

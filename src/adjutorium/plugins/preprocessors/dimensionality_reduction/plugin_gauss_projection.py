@@ -46,12 +46,16 @@ class GaussianRandomProjectionPlugin(base.PreprocessorPlugin):
         [150 rows x 2 columns]
     """
 
-    def __init__(self, model: Any = None, n_components: int = 2) -> None:
+    def __init__(
+        self, random_state: int = 0, model: Any = None, n_components: int = 2
+    ) -> None:
         super().__init__()
         if model:
             self.model = model
             return
-        self.model = GaussianRandomProjection(n_components=n_components)
+        self.model = GaussianRandomProjection(
+            n_components=n_components, random_state=random_state
+        )
 
     @staticmethod
     def name() -> str:

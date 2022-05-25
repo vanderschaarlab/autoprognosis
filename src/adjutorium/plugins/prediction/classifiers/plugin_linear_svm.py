@@ -35,7 +35,12 @@ class LinearSVMPlugin(base.ClassifierPlugin):
     penalties = ["l1", "l2"]
 
     def __init__(
-        self, penalty: int = 1, calibration: int = 0, model: Any = None, **kwargs: Any
+        self,
+        penalty: int = 1,
+        calibration: int = 0,
+        model: Any = None,
+        random_state: int = 0,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:
@@ -43,7 +48,10 @@ class LinearSVMPlugin(base.ClassifierPlugin):
             return
 
         model = LinearSVC(
-            penalty=LinearSVMPlugin.penalties[penalty], dual=False, max_iter=10000
+            penalty=LinearSVMPlugin.penalties[penalty],
+            dual=False,
+            max_iter=10000,
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 

@@ -12,7 +12,10 @@ import adjutorium.plugins.preprocessors.base as base
 class NopPlugin(base.PreprocessorPlugin):
     """Preprocessing plugin that doesn't alter the dataset."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        random_state: int = 0,
+    ) -> None:
         super().__init__()
 
     @staticmethod

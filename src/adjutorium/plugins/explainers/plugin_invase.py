@@ -13,6 +13,7 @@ from sklearn.utils import resample
 # adjutorium absolute
 import adjutorium.logger as log
 from adjutorium.plugins.explainers.base import ExplainerPlugin
+from adjutorium.utils.distributions import enable_reproducible_results
 from adjutorium.utils.pip import install
 
 for retry in range(2):
@@ -580,7 +581,9 @@ class INVASEPlugin(ExplainerPlugin):
         task_type: str = "classification",
         samples: int = 2000,
         prefit: bool = False,
+        random_state: int = 0,
     ) -> None:
+        enable_reproducible_results(random_state)
         if task_type not in [
             "classification",
             "risk_estimation",

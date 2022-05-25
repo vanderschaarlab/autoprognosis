@@ -44,6 +44,7 @@ class GradientBoostingPlugin(base.ClassifierPlugin):
         max_depth: int = 6,
         calibration: int = 0,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -52,7 +53,10 @@ class GradientBoostingPlugin(base.ClassifierPlugin):
             return
 
         model = GradientBoostingClassifier(
-            n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth
+            n_estimators=n_estimators,
+            learning_rate=learning_rate,
+            max_depth=max_depth,
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 

@@ -78,6 +78,7 @@ class BaggingPlugin(base.ClassifierPlugin):
         base_estimator: int = 0,
         calibration: int = 0,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -91,6 +92,7 @@ class BaggingPlugin(base.ClassifierPlugin):
             max_features=max_features,
             max_samples=max_samples,
             base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[base_estimator]),
+            random_state=random_state,
             n_jobs=2,
         )
         self.model = calibrated_model(model, calibration)

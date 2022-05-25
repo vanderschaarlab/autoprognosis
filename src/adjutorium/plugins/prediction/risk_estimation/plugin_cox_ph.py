@@ -28,6 +28,7 @@ class CoxPHPlugin(base.RiskEstimationPlugin):
         alpha: float = 0.05,
         penalizer: float = 0.01,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)

@@ -120,8 +120,6 @@ def test_risk_estimation_explain() -> None:
     importance = surv_ensemble.explain(te_X[:limit], eval_time_horizons)
 
     assert sorted(importance.keys()) == sorted(["invase", "kernel_shap"])
-    for src in importance:
-        assert importance[src].shape == (limit, te_X.shape[1], len(eval_time_horizons))
 
 
 def test_risk_estimation_model_compression() -> None:

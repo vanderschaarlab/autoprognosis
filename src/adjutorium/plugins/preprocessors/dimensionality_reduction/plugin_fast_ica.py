@@ -45,12 +45,16 @@ class FastICAPlugin(base.PreprocessorPlugin):
         [150 rows x 2 columns]
     """
 
-    def __init__(self, model: Any = None, n_components: int = 2) -> None:
+    def __init__(
+        self, model: Any = None, random_state: int = 0, n_components: int = 2
+    ) -> None:
         super().__init__()
         if model:
             self.model = model
             return
-        self.model = FastICA(n_components=n_components, max_iter=1000)
+        self.model = FastICA(
+            n_components=n_components, random_state=random_state, max_iter=1000
+        )
 
     @staticmethod
     def name() -> str:

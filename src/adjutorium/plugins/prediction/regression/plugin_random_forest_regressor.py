@@ -52,6 +52,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         min_samples_leaf: int = 2,
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -71,6 +72,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
             n_jobs=3,
+            random_state=random_state,
         )
 
     @staticmethod

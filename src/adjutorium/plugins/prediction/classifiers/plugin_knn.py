@@ -52,6 +52,7 @@ class KNNPlugin(base.ClassifierPlugin):
         p: int = 2,
         calibration: int = 0,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)

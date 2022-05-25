@@ -37,11 +37,11 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
         min_child_weight: int = 50,
         tree_method: str = "hist",
         booster: int = 2,
-        random_state: int = 0,
         objective: str = "aft",  # "aft", "cox"
         strategy: str = "weibull",  # "weibull", "debiased_bce"
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
+        random_state: int = 0,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)

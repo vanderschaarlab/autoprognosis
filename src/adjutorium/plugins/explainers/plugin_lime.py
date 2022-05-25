@@ -14,6 +14,7 @@ for retry in range(2):
     try:
         # third party
         import lime
+        import lime.lime_tabular
 
         break
     except ImportError:
@@ -48,6 +49,7 @@ class LimePlugin(ExplainerPlugin):
         # Risk estimation
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
+        random_state: int = 0,
     ) -> None:
         if task_type not in ["classification", "risk_estimation"]:
             raise RuntimeError("invalid task type")

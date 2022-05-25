@@ -42,7 +42,7 @@ class MaxAbsScalerPlugin(base.PreprocessorPlugin):
         [150 rows x 4 columns]
     """
 
-    def __init__(self, model: Any = None) -> None:
+    def __init__(self, random_state: int = 0, model: Any = None) -> None:
         super().__init__()
         if model:
             self.model = model

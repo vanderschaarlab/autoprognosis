@@ -56,6 +56,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -75,6 +76,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
             n_jobs=3,
+            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 

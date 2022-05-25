@@ -48,7 +48,7 @@ def test_sanity() -> None:
         ratio_tol=2,
         maxiter=10,
         eps=1e-3,
-        random_seed=1,
+        random_state=1,
     )
 
     assert explainer.loss_tol == 100
@@ -56,7 +56,7 @@ def test_sanity() -> None:
     assert explainer.ratio_tol == 2
     assert explainer.maxiter == 10
     assert explainer.eps == 1e-3
-    assert explainer.random_seed == 1
+    assert explainer.random_state == 1
 
 
 @pytest.mark.slow

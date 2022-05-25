@@ -54,6 +54,7 @@ class TabNetRegressorPlugin(base.RegressionPlugin):
         n_iter: int = 1000,
         patience: int = 50,
         batch_size: int = 50,
+        random_state: int = 0,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -78,6 +79,7 @@ class TabNetRegressorPlugin(base.RegressionPlugin):
             scheduler_fn=torch.optim.lr_scheduler.StepLR,
             epsilon=epsilon,
             verbose=0,
+            seed=random_state,
         )
 
     @staticmethod

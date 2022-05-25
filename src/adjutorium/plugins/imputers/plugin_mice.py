@@ -46,8 +46,8 @@ class MicePlugin(base.ImputerPlugin):
         3  2.000000  2.00000  2.000000  2.000000
     """
 
-    def __init__(self, **kwargs: Any) -> None:
-        model = base_model(**kwargs)
+    def __init__(self, random_state: int = 0, **kwargs: Any) -> None:
+        model = base_model(random_state=random_state, **kwargs)
 
         super().__init__(model)
 

@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.risk_estimation.base as base
+from adjutorium.utils.distributions import enable_reproducible_results
 from adjutorium.utils.pip import install
 import adjutorium.utils.serialization as serialization
 
@@ -40,6 +41,7 @@ class CoxnetRiskEstimationPlugin(base.RiskEstimationPlugin):
         patience: int = 50,
         batch_size: int = 128,
         verbose: bool = False,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         """
@@ -56,6 +58,8 @@ class CoxnetRiskEstimationPlugin(base.RiskEstimationPlugin):
             verbose: bool. Enable debug logs
         """
         super().__init__(**kwargs)
+
+        enable_reproducible_results(random_state)
 
         self.num_nodes = [hidden_dim] * hidden_len
 

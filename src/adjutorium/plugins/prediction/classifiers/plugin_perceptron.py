@@ -43,6 +43,7 @@ class PerceptronPlugin(base.ClassifierPlugin):
         alpha: float = 0.0001,
         calibration: int = 0,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -50,7 +51,11 @@ class PerceptronPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
-        model = Perceptron(penalty=PerceptronPlugin.penalties[penalty], alpha=alpha)
+        model = Perceptron(
+            penalty=PerceptronPlugin.penalties[penalty],
+            alpha=alpha,
+            random_state=random_state,
+        )
         self.model = calibrated_model(model, calibration)
 
     @staticmethod

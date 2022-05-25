@@ -46,7 +46,9 @@ class VarianceThresholdPlugin(base.PreprocessorPlugin):
         [150 rows x 1 columns]
     """
 
-    def __init__(self, model: Any = None, threshold: float = 0.001) -> None:
+    def __init__(
+        self, random_state: int = 0, model: Any = None, threshold: float = 0.001
+    ) -> None:
         super().__init__()
         if model:
             self.model = model

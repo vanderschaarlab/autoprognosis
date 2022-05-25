@@ -51,6 +51,7 @@ class CatBoostPlugin(base.ClassifierPlugin):
         depth: int = 5,
         grow_policy: int = 0,
         model: Any = None,
+        random_state: int = 0,
         hyperparam_search_iterations: Optional[int] = None,
         **kwargs: Any
     ) -> None:
@@ -68,6 +69,7 @@ class CatBoostPlugin(base.ClassifierPlugin):
             allow_writing_files=False,
             used_ram_limit="6gb",
             n_estimators=n_estimators,
+            random_state=random_state,
             grow_policy=CatBoostPlugin.grow_policies[grow_policy],
         )
 

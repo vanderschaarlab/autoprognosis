@@ -22,7 +22,7 @@ class LinearRegressionPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class
     """
 
-    def __init__(self, model: Any = None, **kwargs: Any) -> None:
+    def __init__(self, model: Any = None, random_state: int = 0, **kwargs: Any) -> None:
 
         super().__init__(**kwargs)
         if model is not None:
