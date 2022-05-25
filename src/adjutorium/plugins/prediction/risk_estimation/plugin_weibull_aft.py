@@ -24,7 +24,12 @@ for retry in range(2):
 
 class WeibullAFTPlugin(base.RiskEstimationPlugin):
     def __init__(
-        self, alpha: float = 0.05, l1_ratio: float = 0, model: Any = None, **kwargs: Any
+        self,
+        alpha: float = 0.05,
+        l1_ratio: float = 0,
+        model: Any = None,
+        random_state: int = 0,
+        **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
 

@@ -18,6 +18,7 @@ class BayesianRidgePlugin(base.RegressionPlugin):
         tol: float = 0.001,
         hyperparam_search_iterations: Optional[int] = None,
         model: Any = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
 

@@ -74,6 +74,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
         learning_rate: float = 0.1,
         calibration: int = 0,
         model: Any = None,
+        seed: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -88,6 +89,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
             ),
             n_estimators=n_estimators,
             learning_rate=learning_rate,
+            random_state=seed,
         )
         self.model = calibrated_model(model, calibration)
 

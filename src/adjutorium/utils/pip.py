@@ -10,20 +10,6 @@ current_dir = Path(__file__).parent
 
 predefined = {
     "combo": "git+https://github.com/yzhao062/combo",
-    "hyperimpute": str(
-        current_dir.parent / "third_party/hyperimpute-0.0.1-py3-none-any.whl"
-    ),
-    "lightgbm": "lightgbm==3.3.1",
-    "line": "lime==0.2.0.1",
-    "catboost": "catboost==1.0.3",
-    "scipy": "scipy==1.7.3",
-    "pycox": "pycox==0.2.2",
-    "pytorch-tabnet": "pytorch-tabnet==3.1.1",
-    "shap": "shap==0.40.0",
-    "sklearn_pandas": "sklearn_pandas==2.2.0",
-    "torch": "torch==1.9.1",
-    "xgboost": "xgboost==1.5.1",
-    "xgbse": "xgbse==0.2.3",
     "symbolic_pursuit": "git+https://github.com/vanderschaarlab/Symbolic-Pursuit",
 }
 

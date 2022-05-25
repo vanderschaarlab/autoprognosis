@@ -23,7 +23,6 @@ default_feature_scaling_names = Preprocessors(
 ).list_available()
 default_feature_selection_names = ["nop", "variance_threshold", "pca", "fast_ica"]
 default_risk_estimation_names = [
-    "survival_catboost",
     "survival_xgboost",
     "loglogistic_aft",
     "deephit",

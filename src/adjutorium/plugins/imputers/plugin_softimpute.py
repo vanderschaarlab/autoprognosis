@@ -35,8 +35,8 @@ class SoftImputePlugin(base.ImputerPlugin):
         3  2.000000e+00  2.000000e+00  2.000000e+00  2.000000e+00
     """
 
-    def __init__(self, **kwargs: Any) -> None:
-        model = base_model(**kwargs)
+    def __init__(self, random_state: int = 0, **kwargs: Any) -> None:
+        model = base_model(random_state=random_state, **kwargs)
 
         super().__init__(model)
 

@@ -44,6 +44,7 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
         n_estimators: int = 100,
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
+        random_state: int = 0,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -61,6 +62,7 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
             used_ram_limit="6gb",
             n_estimators=n_estimators,
             grow_policy=CatBoostRegressorPlugin.grow_policies[grow_policy],
+            random_state=random_state,
         )
 
     @staticmethod

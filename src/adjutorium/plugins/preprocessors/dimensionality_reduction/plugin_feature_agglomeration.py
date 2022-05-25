@@ -44,7 +44,9 @@ class FeatureAgglomerationPlugin(base.PreprocessorPlugin):
         149  3.300000  5.9
     """
 
-    def __init__(self, model: Any = None, n_clusters: int = 2) -> None:
+    def __init__(
+        self, model: Any = None, random_state: int = 0, n_clusters: int = 2
+    ) -> None:
         super().__init__()
         if model:
             self.model = model
