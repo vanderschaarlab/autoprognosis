@@ -9,7 +9,7 @@ from adjutorium.utils.pip import install
 for retry in range(2):
     try:
         # third party
-        from hyperimpute.plugins.imputers.plugin_em import plugin as base_model
+        from hyperimpute.plugins.imputers.plugin_EM import plugin as base_model
 
         break
     except ImportError:

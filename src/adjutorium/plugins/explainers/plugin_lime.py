@@ -14,6 +14,7 @@ for retry in range(2):
     try:
         # third party
         import lime
+        import lime.lime_tabular
 
         break
     except ImportError:

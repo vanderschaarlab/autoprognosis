@@ -17,14 +17,14 @@ def test_sanity() -> None:
         time_horizons=[2],
         num_iter=3,
         CV=5,
-        top_k=2,
+        ensemble_size=2,
         timeout=10,
     )
 
     assert sq.time_horizons == [2]
     assert sq.num_iter == 3
     assert sq.CV == 5
-    assert sq.top_k == 2
+    assert sq.ensemble_size == 2
     assert sq.timeout == 10
 
 
@@ -48,7 +48,7 @@ def test_search() -> None:
         num_iter=15,
         num_ensemble_iter=3,
         CV=3,
-        top_k=3,
+        ensemble_size=3,
         timeout=10,
         estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
     )
@@ -127,7 +127,7 @@ def test_hooks() -> None:
         num_iter=15,
         num_ensemble_iter=3,
         CV=3,
-        top_k=3,
+        ensemble_size=3,
         timeout=10,
         estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
         hooks=hooks,

@@ -85,7 +85,7 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         std_args = {
             "loss_tol": loss_tol,
             "ratio_tol": ratio_tol,
-            "random_state": random_state,
+            "random_seed": random_state,
             "maxiter": maxiter,
             "patience": patience,
         }

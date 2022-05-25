@@ -66,7 +66,6 @@ class KNNPlugin(base.ClassifierPlugin):
             algorithm=KNNPlugin.algorithms[algorithm],
             leaf_size=leaf_size,
             p=p,
-            random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)
 
