@@ -73,7 +73,6 @@ def test_dataframe_encode_impute() -> None:
 
     df = encoders.encode(df)
     assert len(df.columns) == 2
-    assert "not_encoded_1" in df.columns
 
     df = encoders.numeric_decode(df)
     assert len(df.columns) == 2
