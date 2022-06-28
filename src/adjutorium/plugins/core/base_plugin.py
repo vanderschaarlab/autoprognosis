@@ -10,6 +10,7 @@ from typing import Any, Dict, Generator, List, Type
 import numpy as np
 from optuna.trial import Trial
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # adjutorium absolute
 import adjutorium.logger as log
@@ -38,6 +39,7 @@ class Plugin(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         self.output = pd.DataFrame
+        self._backup_encoders: Dict[str, LabelEncoder] = {}
 
     def change_output(self, output: str) -> None:
         if output not in ["pandas", "numpy"]:
@@ -128,6 +130,16 @@ class Plugin(metaclass=ABCMeta):
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
         X = cast.to_dataframe(X)
+
+        for col in X.columns:
+            if X[col].dtype != "object":
+                continue
+
+            encoder = LabelEncoder()
+            X[col] = encoder.fit_transform(X[col])
+
+            self._backup_encoders[col] = encoder
+
         return self._fit(X, *args, **kwargs)
 
     @abstractmethod
@@ -136,6 +148,8 @@ class Plugin(metaclass=ABCMeta):
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = cast.to_dataframe(X)
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -144,6 +158,8 @@ class Plugin(metaclass=ABCMeta):
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         X = cast.to_dataframe(X)
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod

@@ -373,6 +373,7 @@ def brier_score(survival_train: np.ndarray, survival_test: np.ndarray, estimate:
            Statistics in Medicine, vol. 18, no. 17-18, pp. 2529–2545, 1999.
     """
     test_event, test_time = check_y_survival(survival_test)
+    train_event, train_time = check_y_survival(survival_train)
     estimate, times = _check_estimate_2d(estimate, test_time, times)
     if estimate.ndim == 1 and times.shape[0] == 1:
         estimate = estimate.reshape(-1, 1)

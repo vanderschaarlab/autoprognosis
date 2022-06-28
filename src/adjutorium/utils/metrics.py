@@ -159,4 +159,4 @@ def generate_score(metric: np.ndarray) -> Tuple[float, float]:
 
 
 def print_score(score: Tuple[float, float]) -> str:
-    return str(round(score[0], 4)) + " +/- " + str(round(score[1], 4))
+    return str(round(score[0], 3)) + " +/- " + str(round(score[1], 3))
