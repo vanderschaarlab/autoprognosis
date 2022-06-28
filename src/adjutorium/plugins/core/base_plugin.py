@@ -15,6 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 # adjutorium absolute
 import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
+from adjutorium.plugins.utils.utils import constant_columns
 
 # adjutorium relative
 from .params import Params
@@ -40,6 +41,7 @@ class Plugin(metaclass=ABCMeta):
     def __init__(self) -> None:
         self.output = pd.DataFrame
         self._backup_encoders: Dict[str, LabelEncoder] = {}
+        self._drop_features: List[str] = []
 
     def change_output(self, output: str) -> None:
         if output not in ["pandas", "numpy"]:
@@ -139,6 +141,8 @@ class Plugin(metaclass=ABCMeta):
             X[col] = encoder.fit_transform(X[col])
 
             self._backup_encoders[col] = encoder
+        self._drop_features = constant_columns(X)
+        X = X.drop(columns=self._drop_features)
 
         return self._fit(X, *args, **kwargs)
 
@@ -150,6 +154,7 @@ class Plugin(metaclass=ABCMeta):
         X = cast.to_dataframe(X)
         for col in self._backup_encoders:
             X[col] = self._backup_encoders[col].transform(X[col])
+        X = X.drop(columns=self._drop_features)
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -160,6 +165,7 @@ class Plugin(metaclass=ABCMeta):
         X = cast.to_dataframe(X)
         for col in self._backup_encoders:
             X[col] = self._backup_encoders[col].transform(X[col])
+        X = X.drop(columns=self._drop_features)
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod
