@@ -15,6 +15,7 @@ from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimation
 from adjutorium.deploy.utils import file_copy, file_md5
 from adjutorium.exceptions import BuildCancelled
 import adjutorium.logger as log
+from adjutorium.plugins.prediction import Predictions
 from adjutorium.studies._preprocessing import dataframe_encode_and_impute
 from adjutorium.utils.serialization import load_model_from_file, save_model_to_file
 
@@ -102,12 +103,16 @@ class Builder:
         self,
         task: Union[NewRiskEstimationAppProto, NewClassificationAppProto],
         blocking: bool = True,
+        use_cache: bool = False,
+        comparative_models: list = [],
     ) -> None:
         self.task = task
+        self.use_cache = use_cache
 
         self.blocking = blocking
         self.model_path = Path(self.task.model_path)
         self.working_path = self.model_path.parent
+        self.comparative_models = comparative_models
 
         self.trained_model_path = self.working_path / "trained_models.p"
         self.app_backup_file = self.working_path / "app.p"
@@ -245,6 +250,13 @@ class Builder:
             DISPLAY_NAME: model,
         }
 
+        plugins = Predictions(category="risk_estimation")
+        for name, comparative in self.comparative_models:
+            ref_model = plugins.get(comparative)
+            ref_model.fit(X, T, Y)
+
+            app_models[name] = ref_model
+
         self._should_continue()
         save_model_to_file(output_path, app_models)
 
@@ -371,7 +383,7 @@ class Builder:
 
         app_build_file = self.working_path / f"app_{model_version}.p"
 
-        if app_build_file.exists():
+        if app_build_file.exists() and self.use_cache:
             self.status = STATUS_DONE
             self.checkpoint = STATUS_DONE
 

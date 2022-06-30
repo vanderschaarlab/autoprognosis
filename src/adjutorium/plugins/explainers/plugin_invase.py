@@ -55,7 +55,7 @@ def bitmasks(n: int, m: int) -> Generator:
         yield [1] * n
 
 
-def bitmask_intervals(n: int, low: int, high: int) -> torch.Tensor:
+def bitmask_intervals(n: int, low: int, high: int) -> Generator:
     for k in range(low, high):
         for result in bitmasks(n, k):
             yield torch.from_numpy(np.asarray(result))

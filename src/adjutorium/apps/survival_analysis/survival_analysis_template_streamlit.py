@@ -22,6 +22,10 @@ for retry in range(2):
         install(depends)
 
 
+LOGO_URL = "https://www.vanderschaar-lab.com/wp-content/uploads/2020/04/transpLogo_long_plus.png"
+SITE_URL = "https://www.vanderschaar-lab.com/"
+
+
 def survival_analysis_dashboard(
     title: str,
     banner_title: str,
@@ -55,15 +59,31 @@ def survival_analysis_dashboard(
     """
     st.set_page_config(layout="wide", page_title=title)
 
-    hide_footer_style = """
+    base_style = """
         <style>
+        body {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
         .reportview-container .main footer {visibility: hidden;}
+        </style>
         """
-    st.markdown(hide_footer_style, unsafe_allow_html=True)
+    st.markdown(
+        base_style,
+        unsafe_allow_html=True,
+    )
 
     with st.container():
         st.markdown(
-            f"<h1 style='margin-top: -70px;'>{title}</h1>", unsafe_allow_html=True
+            f"""
+            <div style="float:left;margin-top: -40px;"><h1>{title}</h1></div>
+            <div style="float:right;margin-top: -40px;">
+                <a href="{SITE_URL}">
+                    <img align='left' height='70px' src='{LOGO_URL}'/>
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         st.markdown("---")
 
@@ -121,38 +141,60 @@ def survival_analysis_dashboard(
                 pretty_name = Explainers().get_type(src).pretty_name()
                 src_interpretation = raw_interpretation[src]
 
-                if src_interpretation.shape != (1, len(df.columns), len(time_horizons)):
-                    print(
-                        f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
+                if src_interpretation.shape == (1, len(df.columns), len(time_horizons)):
+                    display_interpretation = []
+
+                    for idx, h in enumerate(time_horizons):
+                        interpretation_df = pd.DataFrame(
+                            src_interpretation[0, :, idx].reshape(1, -1),
+                            columns=df.columns,
+                            index=df.index.copy(),
+                        )
+                        interpretation_df = encoders_ctx.numeric_decode(
+                            interpretation_df
+                        )
+                        display_interpretation.append(interpretation_df.values)
+                    interpretation = np.asarray(display_interpretation).T.squeeze()
+                    interpretation = (interpretation - interpretation.min()) / (
+                        interpretation.max() - interpretation.min() + 1e-8
                     )
-                    continue
 
-                display_interpretation = []
-
-                for idx, h in enumerate(time_horizons):
+                    fig = px.imshow(
+                        interpretation,
+                        y=interpretation_df.columns,
+                        x=np.asarray(time_horizons) / 365,
+                        labels=dict(x="Years", y="Feature", color="Feature importance"),
+                        color_continuous_scale="OrRd",
+                    )
+                    st.header(
+                        f"Feature importance for the '{reason}' risk plot using {pretty_name}"
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                elif src_interpretation.shape == (1, len(df.columns)):
                     interpretation_df = pd.DataFrame(
-                        src_interpretation[0, :, idx].reshape(1, -1),
+                        src_interpretation[0, :].reshape(1, -1),
                         columns=df.columns,
                         index=df.index.copy(),
                     )
                     interpretation_df = encoders_ctx.numeric_decode(interpretation_df)
-                    display_interpretation.append(interpretation_df.values)
-                interpretation = np.asarray(display_interpretation).T.squeeze()
-                interpretation = (interpretation - interpretation.min()) / (
-                    interpretation.max() - interpretation.min() + 1e-8
-                )
 
-                fig = px.imshow(
-                    interpretation,
-                    y=interpretation_df.columns,
-                    x=np.asarray(time_horizons) / 365,
-                    labels=dict(x="Years", y="Feature", color="Feature importance"),
-                    color_continuous_scale="OrRd",
-                )
-                st.header(
-                    f"Feature importance for the '{reason}' risk plot using {pretty_name}"
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                    fig = px.imshow(
+                        interpretation_df,
+                        labels=dict(
+                            x="Feature", y="Source", color="Feature importance"
+                        ),
+                        color_continuous_scale="Blues",
+                        height=250,
+                    )
+                    st.header(
+                        f"Feature importance for the '{reason}' risk plot using {pretty_name}"
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    print(
+                        f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
+                    )
+                    continue
 
     def update_predictions(raw_df: pd.DataFrame, df: pd.DataFrame) -> None:
         output_df = pd.DataFrame(

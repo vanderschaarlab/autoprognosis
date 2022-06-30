@@ -1,5 +1,6 @@
 # stdlib
 import random
+from typing import Any
 
 # third party
 import numpy as np
@@ -24,7 +25,7 @@ class GumbelSoftmax(torch.distributions.RelaxedOneHotCategorical):
     [2] Categorical Reparametrization with Gumbel-Softmax (Jang et al, 2017)
     """
 
-    def sample(self, sample_shape: torch.Tensor = torch.Size()) -> torch.Tensor:
+    def sample(self, sample_shape: Any = torch.Size()) -> torch.Tensor:
         """Gumbel-softmax sampling. Note rsample is inherited from RelaxedOneHotCategorical"""
         u = torch.empty(
             self.logits.size(),
@@ -34,7 +35,7 @@ class GumbelSoftmax(torch.distributions.RelaxedOneHotCategorical):
         noisy_logits = self.logits - torch.log(-torch.log(u))
         return torch.argmax(noisy_logits, dim=-1)
 
-    def rsample(self, sample_shape: torch.Tensor = torch.Size()) -> torch.Tensor:
+    def rsample(self, sample_shape: Any = torch.Size()) -> torch.Tensor:
         """
         Gumbel-softmax resampling using the Straight-Through trick.
         https://gist.github.com/yzh119/fd2146d2aeb329d067568a493b20172f

@@ -53,7 +53,8 @@ def build_app(
                     "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
                 }
-            )
+            ),
+            comparative_models=[("Cox PH", "cox_ph")],
         )
     elif task_type == "classification":
         task = Builder(
@@ -120,7 +121,10 @@ def pack(
     # Copy server template
     if dashboard_type == "streamlit":
         for fn in Path("third_party/image_template/streamlit").glob("*"):
-            shutil.copy(fn, output / fn.name)
+            if Path(fn).is_file():
+                shutil.copy(fn, output / fn.name)
+            else:
+                shutil.copytree(fn, output / fn.name)
     elif dashboard_type == "dash":
         for fn in Path("third_party/image_template/dash").glob("*"):
             shutil.copy(fn, output / fn.name)
