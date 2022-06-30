@@ -7,7 +7,6 @@ import pandas as pd
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.base as prediction_base
-import adjutorium.plugins.utils.cast as cast
 
 
 class RegressionPlugin(prediction_base.PredictionPlugin):
@@ -42,7 +41,7 @@ class RegressionPlugin(prediction_base.PredictionPlugin):
         if len(args) < 1:
             raise ValueError("Invalid input for fit. Expecting X and Y.")
 
-        X = cast.to_dataframe(X)
+        X = self._fit_input(X)
         self._fit(X, *args, **kwargs)
 
         return self

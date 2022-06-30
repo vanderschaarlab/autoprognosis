@@ -7,7 +7,6 @@ import pandas as pd
 
 # adjutorium absolute
 import adjutorium.plugins.core.base_plugin as plugin
-import adjutorium.plugins.utils.cast as cast
 
 
 class PredictionPlugin(plugin.Plugin):
@@ -44,7 +43,7 @@ class PredictionPlugin(plugin.Plugin):
         raise NotImplementedError(f"Explainer not implemented for {self.name()}")
 
     def predict_proba(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        X = cast.to_dataframe(X)
+        X = self._transform_input(X)
         return pd.DataFrame(self._predict_proba(X, *args, **kwargs))
 
     @abstractmethod

@@ -15,7 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 # adjutorium absolute
 import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
-from adjutorium.plugins.utils.utils import constant_columns
+from adjutorium.utils.tester import constant_columns
 
 # adjutorium relative
 from .params import Params
@@ -130,8 +130,10 @@ class Plugin(metaclass=ABCMeta):
     def fit_predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return pd.DataFrame(self.fit(X, *args, *kwargs).predict(X))
 
-    def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
-        X = cast.to_dataframe(X)
+    def _fit_input(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = cast.to_dataframe(X).copy()
+        self._backup_encoders = {}
+        self._drop_features = []
 
         for col in X.columns:
             if X[col].dtype != "object":
@@ -142,7 +144,17 @@ class Plugin(metaclass=ABCMeta):
 
             self._backup_encoders[col] = encoder
         self._drop_features = constant_columns(X)
-        X = X.drop(columns=self._drop_features)
+        return X.drop(columns=self._drop_features)
+
+    def _transform_input(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = cast.to_dataframe(X).copy()
+
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
+        return X.drop(columns=self._drop_features)
+
+    def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
+        X = self._fit_input(X)
 
         return self._fit(X, *args, **kwargs)
 
@@ -151,10 +163,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        X = cast.to_dataframe(X)
-        for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
-        X = X.drop(columns=self._drop_features)
+        X = self._transform_input(X)
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -162,10 +171,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        X = cast.to_dataframe(X)
-        for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
-        X = X.drop(columns=self._drop_features)
+        X = self._transform_input(X)
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod
