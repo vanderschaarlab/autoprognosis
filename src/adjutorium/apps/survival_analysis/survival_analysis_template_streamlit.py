@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 # third party
 import numpy as np
@@ -24,6 +24,24 @@ for retry in range(2):
 
 LOGO_URL = "https://www.vanderschaar-lab.com/wp-content/uploads/2020/04/transpLogo_long_plus.png"
 SITE_URL = "https://www.vanderschaar-lab.com/"
+NO_MARGIN = {
+    "l": 0,  # left margin
+    "r": 0,  # right margin
+    "t": 0,  # top margin
+    "b": 0,  # bottom margin
+}
+STATEMENT_SIZE = 16
+
+PREDICTION_TEMPLATE = {
+    "font": {
+        "size": STATEMENT_SIZE,
+    },
+    "margin": NO_MARGIN,
+}
+CAUTION_STATEMENT = "This tool predicts your most likely outcomes based on current knowledge and data, but will never provide a 100% accurate prediction for any individual. We recommend that you discuss the results with your own specialist in a more personalised context."
+
+PLOT_STATEMENT = "The following graphs show diagnostic risk predictions up to 10 years, using Adjutorium and other benchmark models."
+PLOT_BACKGROUND = "#262730"
 
 
 def survival_analysis_dashboard(
@@ -35,6 +53,7 @@ def survival_analysis_dashboard(
     menu_components: List,
     time_horizons: List,
     plot_alternatives: Dict,
+    extras_cbk: Callable = None,
 ) -> Any:
     """
     Streamlit helper for rendering the dashboard, using serialized models and menu components.
@@ -61,10 +80,7 @@ def survival_analysis_dashboard(
 
     base_style = """
         <style>
-        body {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
+        #root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 3rem;}
         .reportview-container .main footer {visibility: hidden;}
         </style>
         """
@@ -76,8 +92,8 @@ def survival_analysis_dashboard(
     with st.container():
         st.markdown(
             f"""
-            <div style="float:left;margin-top: -40px;"><h1>{title}</h1></div>
-            <div style="float:right;margin-top: -40px;">
+            <div style="float:left;"><h1>{title}</h1></div>
+            <div style="float:right;">
                 <a href="{SITE_URL}">
                     <img align='left' height='70px' src='{LOGO_URL}'/>
                 </a>
@@ -86,8 +102,6 @@ def survival_analysis_dashboard(
             unsafe_allow_html=True,
         )
         st.markdown("---")
-
-    CAUTION_STATEMENT = "This tool predicts your most likely outcomes based on current knowledge and data, but will never provide a 100% accurate prediction for any individual. We recommend that you discuss the results with your own specialist in a more personalised context."
 
     menu, predictions = st.columns([1, 4])
 
@@ -112,7 +126,7 @@ def survival_analysis_dashboard(
                 obj = st.slider(
                     item.name,
                     min_value=int(item.min),
-                    value=int(item.min),
+                    value=int(item.mean),
                     max_value=int(item.max),
                     step=1,
                 )
@@ -121,7 +135,7 @@ def survival_analysis_dashboard(
                 obj = st.slider(
                     item.name,
                     min_value=float(item.min),
-                    value=float(item.min),
+                    value=float(item.mean),
                     max_value=float(item.max),
                     step=0.1,
                 )
@@ -153,7 +167,10 @@ def survival_analysis_dashboard(
                         interpretation_df = encoders_ctx.numeric_decode(
                             interpretation_df
                         )
-                        display_interpretation.append(interpretation_df.values)
+                        display_interpretation = pd.concat(
+                            [display_interpretation, interpretation_df]
+                        )
+
                     interpretation = np.asarray(display_interpretation).T.squeeze()
                     interpretation = (interpretation - interpretation.min()) / (
                         interpretation.max() - interpretation.min() + 1e-8
@@ -166,6 +183,9 @@ def survival_analysis_dashboard(
                         labels=dict(x="Years", y="Feature", color="Feature importance"),
                         color_continuous_scale="OrRd",
                     )
+                    fig.update_layout(
+                        **PREDICTION_TEMPLATE,
+                    )
                     st.header(
                         f"Feature importance for the '{reason}' risk plot using {pretty_name}"
                     )
@@ -176,19 +196,32 @@ def survival_analysis_dashboard(
                         columns=df.columns,
                         index=df.index.copy(),
                     )
+
                     interpretation_df = encoders_ctx.numeric_decode(interpretation_df)
+                    interpretation_df = interpretation_df.sort_values(
+                        by=list(interpretation_df.index)[0], axis=1, ascending=False
+                    )
+                    cols = interpretation_df.columns
+                    if len(cols) > 10:
+                        cols = cols[:10]
 
                     fig = px.imshow(
-                        interpretation_df,
+                        interpretation_df[cols],
                         labels=dict(
-                            x="Feature", y="Source", color="Feature importance"
+                            x="Feature", y="Importance", color="Feature importance"
                         ),
-                        color_continuous_scale="Blues",
-                        height=250,
+                        color_continuous_scale="OrRd",
+                        height=190,
                     )
-                    st.header(
+
+                    fig.update_layout(
+                        **PREDICTION_TEMPLATE,
+                    )
+
+                    st.subheader(
                         f"Feature importance for the '{reason}' risk plot using {pretty_name}"
                     )
+
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     print(
@@ -213,14 +246,14 @@ def survival_analysis_dashboard(
 
             local_output_df = pd.DataFrame(
                 {
-                    "alternative": "(for the selected parameters)",
+                    "alternative": "",
                     "risk": risk_estimation,
                     # "uncertainity": uncertainity_estimation,
                     "years": time_horizons,
                     "reason": [reason] * len(time_horizons),
                 }
             )
-            output_df = output_df.append(local_output_df)
+            output_df = pd.concat([output_df, local_output_df])
 
         for reason in models:
             if reason not in plot_alternatives:
@@ -257,9 +290,8 @@ def survival_analysis_dashboard(
                             * len(time_horizons),
                         }
                     )
-                    output_df = output_df.append(alt_output_df)
+                    output_df = pd.concat([output_df, alt_output_df])
 
-        output_df["risk"] *= 100
         output_df["years"] /= 365
 
         fig = px.line(
@@ -271,24 +303,48 @@ def survival_analysis_dashboard(
             line_dash="alternative",
             labels={
                 "years": "Years to event",
-                "risk": "Risk probability",
+                "risk": "CVD Risk probability [0 - 1]",
                 "reason": "Risk",
                 "alternative": "Scenario",
             },
-            template="simple_white",
-            title="Risk prediction",
+            template="plotly_dark",
+            color_discrete_sequence=[
+                "#e41a1c",
+                "#ff7f00",
+                "#377eb8",
+                "#4daf4a",
+                "#984ea3",
+                "#a65628",
+                "#f781bf",
+            ],
+            markers=True,
         )
+        fig.update_layout(
+            legend_title="Prediction Model",
+            hovermode="x unified",
+            **PREDICTION_TEMPLATE,
+        )
+        fig.update_traces(line=dict(width=3))
 
-        st.header("Predictions")
+        st.subheader("Predictions")
+
+        st.markdown(
+            f'<p style="font-size: {STATEMENT_SIZE}px;">' + PLOT_STATEMENT + "</p>",
+            unsafe_allow_html=True,
+        )
         st.plotly_chart(fig, use_container_width=True)
 
     with predictions:
-        print(inputs)
         st.header("Risk estimation")
-        st.markdown(CAUTION_STATEMENT)
+        st.markdown(
+            f'<p style="font-size: {STATEMENT_SIZE}px;">' + CAUTION_STATEMENT + "</p>",
+            unsafe_allow_html=True,
+        )
 
         raw_df = pd.DataFrame.from_dict(inputs)
         df = encoders_ctx.encode(raw_df)
 
         update_predictions(raw_df, df)
+        if extras_cbk is not None:
+            extras_cbk(raw_df, df)
         update_interpretation(df)

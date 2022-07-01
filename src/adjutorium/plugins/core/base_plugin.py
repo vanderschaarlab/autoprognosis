@@ -151,7 +151,11 @@ class Plugin(metaclass=ABCMeta):
 
         for col in self._backup_encoders:
             X[col] = self._backup_encoders[col].transform(X[col])
-        return X.drop(columns=self._drop_features)
+        for col in self._drop_features:
+            if col not in X.columns:
+                continue
+            X = X.drop(columns=[col])
+        return X
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
         X = self._fit_input(X)

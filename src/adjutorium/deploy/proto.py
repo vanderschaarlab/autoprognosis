@@ -1,3 +1,6 @@
+# stdlib
+from typing import Callable, Optional
+
 # adjutorium absolute
 from adjutorium.utils.pip import install
 
@@ -27,6 +30,8 @@ class NewRiskEstimationAppProto(BaseAppProto):
     time_column: str
     target_column: str
     horizons: list
+    comparative_models: list
+    extras_cbk: Optional[Callable]
 
 
 class NewClassificationAppProto(BaseAppProto):

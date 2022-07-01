@@ -18,6 +18,7 @@ import adjutorium.logger as log
 from adjutorium.plugins.prediction import Predictions
 from adjutorium.studies._preprocessing import dataframe_encode_and_impute
 from adjutorium.utils.serialization import load_model_from_file, save_model_to_file
+from adjutorium.utils.tester import constant_columns
 
 STATUS_KEY = "build_status"
 CHECKPOINT_KEY = "checkpoint"
@@ -104,7 +105,6 @@ class Builder:
         task: Union[NewRiskEstimationAppProto, NewClassificationAppProto],
         blocking: bool = True,
         use_cache: bool = False,
-        comparative_models: list = [],
     ) -> None:
         self.task = task
         self.use_cache = use_cache
@@ -112,7 +112,6 @@ class Builder:
         self.blocking = blocking
         self.model_path = Path(self.task.model_path)
         self.working_path = self.model_path.parent
-        self.comparative_models = comparative_models
 
         self.trained_model_path = self.working_path / "trained_models.p"
         self.app_backup_file = self.working_path / "app.p"
@@ -124,7 +123,8 @@ class Builder:
         self._should_continue()
         self.checkpoint = CHECKPOINT_DATASET_LOADING
 
-        data = pd.read_csv(self.task.dataset_path)
+        data = pd.read_csv(self.task.dataset_path).sample(15000)
+        data = data.drop(columns=constant_columns(data))
         imputation_method: Optional[str] = None
         # we treat binary columns as checkboxes
         checkboxes: list = []
@@ -166,7 +166,7 @@ class Builder:
                 else:
                     other_cols.append(col)
 
-            rawX = rawX[checkboxes + other_cols]
+            # rawX = rawX[checkboxes + other_cols]
             X = encoders.encode(rawX)
             rawX = encoders.decode(X.dropna())
             log.info(f"Loaded dataset final encoding {X.shape} {T.shape} {Y.shape}")
@@ -237,27 +237,33 @@ class Builder:
     ) -> dict:
         self._should_continue()
         log.info(f"Creating model with explainers {explainers}")
+
+        if output_path.exists():
+            return load_model_from_file(output_path)
+
         model = load_model_from_file(self.task.model_path)
         model.enable_explainer(explainer_plugins=explainers, explanations_nepoch=500)
         log.info(f"Loaded model {model.name()}")
 
-        self.checkpoint = CHECKPOINT_TRAIN_MODEL
         self._should_continue()
         model.fit(X, T, Y)
 
+        self.checkpoint = CHECKPOINT_TRAIN_MODEL
         self._should_continue()
+
         app_models = {
             DISPLAY_NAME: model,
         }
 
         plugins = Predictions(category="risk_estimation")
-        for name, comparative in self.comparative_models:
+        for name, comparative in self.task.comparative_models:
             ref_model = plugins.get(comparative)
             ref_model.fit(X, T, Y)
 
             app_models[name] = ref_model
 
         self._should_continue()
+
         save_model_to_file(output_path, app_models)
 
         return app_models
@@ -356,6 +362,7 @@ class Builder:
                     "menu_components": menu_components,
                     "time_horizons": self.task.horizons,
                     "plot_alternatives": plot_alternatives,
+                    "extras_cbk": self.task.extras_cbk,
                 },
             )
         elif self.task.type == "classification":

@@ -8,6 +8,7 @@ from typing import Optional
 import click
 
 # adjutorium absolute
+from adjutorium.apps.extras.biobank_cvd import extras_cbk
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 
@@ -32,7 +33,6 @@ def build_app(
 
         return lst
 
-    print(task_type, explainers)
     if task_type == "risk_estimation":
         parsed_horizons = []
         for tok in horizons.split(","):
@@ -52,9 +52,10 @@ def build_app(
                     "explainers": split_and_clean(explainers),
                     "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
+                    "comparative_models": [("Cox PH", "cox_ph")],
+                    "extras_cbk": extras_cbk,
                 }
             ),
-            comparative_models=[("Cox PH", "cox_ph")],
         )
     elif task_type == "classification":
         task = Builder(

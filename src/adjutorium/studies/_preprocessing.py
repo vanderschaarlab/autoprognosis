@@ -35,6 +35,8 @@ class EncodersCallbacks:
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             target = _fillna(output, col)
             if hasattr(enc, "get_feature_names"):
@@ -70,6 +72,8 @@ class EncodersCallbacks:
     def decode(self, df: pd.DataFrame) -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             if hasattr(enc, "get_feature_names"):
                 columns = enc.get_feature_names([col])
@@ -77,7 +81,7 @@ class EncodersCallbacks:
                 columns = [col]
 
             decoded = pd.DataFrame(
-                enc.inverse_transform(output[columns].astype(int).values),
+                enc.inverse_transform(output[columns].astype(int).values.squeeze()),
                 columns=[col],
                 index=output.index.copy(),
             )
@@ -93,6 +97,8 @@ class EncodersCallbacks:
     def numeric_decode(self, df: pd.DataFrame, strategy: str = "max") -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             if hasattr(enc, "get_feature_names"):
                 columns = enc.get_feature_names([col])

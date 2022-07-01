@@ -114,6 +114,7 @@ def run_server_streamlit(app_path: Path, port: int = 9000) -> None:
             app_params["menu_components"],
             app_params["time_horizons"],
             app_params["plot_alternatives"],
+            app_params["extras_cbk"],
         )
     elif app_params["type"] == "classification":
         # adjutorium absolute
