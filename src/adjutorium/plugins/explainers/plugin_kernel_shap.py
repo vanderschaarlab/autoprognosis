@@ -78,6 +78,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
                 model.fit(X, time_to_event, y)
 
             def model_fn(X: pd.DataFrame) -> pd.DataFrame:
+                X = pd.DataFrame(X, columns=self.feature_names)
                 out = np.asarray(model.predict(X, eval_times))[:, -1]
                 return out
 

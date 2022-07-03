@@ -236,7 +236,6 @@ def survival_analysis_dashboard(
         return figs
 
     def update_predictions(raw_df: pd.DataFrame, df: pd.DataFrame) -> None:
-        print("predict", df)
         output_df = pd.DataFrame(
             {
                 "alternative": [],
@@ -336,18 +335,16 @@ def survival_analysis_dashboard(
         return fig
 
     with predictions:
-        gif_runner = st.image("assets/loading.gif")
+        # Evaluation
+        with st.spinner("Evaluating input..."):
+            raw_df = pd.DataFrame.from_dict(inputs)
+            df = encoders_ctx.encode(raw_df)
 
-        raw_df = pd.DataFrame.from_dict(inputs)
-        df = encoders_ctx.encode(raw_df)
-
-        prediction_fig = update_predictions(raw_df, df)
-        extras_type, extras_data = None, None
-        if extras_cbk is not None:
-            extras_type, extras_data = extras_cbk(raw_df, df)
-        xai_figs = update_interpretation(df)
-
-        gif_runner.empty()
+            prediction_fig = update_predictions(raw_df, df)
+            extras_type, extras_data = None, None
+            if extras_cbk is not None:
+                extras_type, extras_data = extras_cbk(raw_df)
+            xai_figs = update_interpretation(df)
 
         # Title
         st.header("Risk estimation")
