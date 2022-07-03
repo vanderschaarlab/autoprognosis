@@ -123,7 +123,7 @@ class Builder:
         self._should_continue()
         self.checkpoint = CHECKPOINT_DATASET_LOADING
 
-        data = pd.read_csv(self.task.dataset_path).sample(15000)
+        data = pd.read_csv(self.task.dataset_path)
         data = data.drop(columns=constant_columns(data))
         imputation_method: Optional[str] = None
         # we treat binary columns as checkboxes
