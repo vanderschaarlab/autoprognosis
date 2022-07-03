@@ -20,21 +20,21 @@ class CheckboxColumn:
 
 
 class SliderInt:
-    def __init__(self, name: str, minval: int, maxval: int) -> None:
+    def __init__(self, name: str, minval: int, maxval: int, median: float) -> None:
         self.type = "slider_integer"
         self.name = name
         self.min = minval
         self.max = maxval
-        self.mean = int((minval + maxval) / 2)
+        self.median = median
 
 
 class SliderFloat:
-    def __init__(self, name: str, minval: float, maxval: float) -> None:
+    def __init__(self, name: str, minval: float, maxval: float, median: float) -> None:
         self.type = "slider_float"
         self.name = name
         self.min = float(minval)
         self.max = float(maxval)
-        self.mean = float((minval + maxval) / 2)
+        self.median = median
 
 
 def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
@@ -56,7 +56,10 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
                 column_types.append((col, dtype))
                 continue
 
-            dtype = SliderInt(f"{col} ({int(minval)} - {int(maxval)})", minval, maxval)
+            median = X[col].median()
+            dtype = SliderInt(
+                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval, mediam=median
+            )
             column_types.append((col, dtype))
 
         elif is_float_dtype(X[col].dtype):  # in ["float64", "float"]:
@@ -69,8 +72,12 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
                 column_types.append((col, dtype))
                 continue
 
+            median = X[col].median()
             dtype = SliderFloat(
-                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval
+                f"{col} ({int(minval)} - {int(maxval)})",
+                minval,
+                maxval,
+                median=median,
             )
             column_types.append((col, dtype))
         else:

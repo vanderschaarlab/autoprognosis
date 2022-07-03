@@ -211,7 +211,6 @@ class Builder:
                 else:
                     other_cols.append(col)
 
-            rawX = rawX[checkboxes + other_cols]
             X = encoders.encode(rawX)
             rawX = encoders.decode(X.dropna())
             log.info(f"Loaded dataset final encoding {X.shape} {Y.shape}")

@@ -56,8 +56,15 @@ class EncodersCallbacks:
                     index=output.index.copy(),
                 )
 
+            orig_cols = list(output)
+            old_col_idx = orig_cols.index(col)
+
             output.drop(columns=[col], inplace=True)
+            l_cols, r_cols = output.columns[:old_col_idx], output.columns[old_col_idx:]
+
+            out_cols = list(l_cols) + list(encoded.columns) + list(r_cols)
             output = pd.concat([output, encoded], axis=1)
+            output = output[out_cols]
 
         if self.imputer:
             columns = output.columns
@@ -86,8 +93,15 @@ class EncodersCallbacks:
                 index=output.index.copy(),
             )
 
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
             output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
             output = pd.concat([output, decoded], axis=1)
+            out_cols = list(l_cols) + list(decoded.columns) + list(r_cols)
+            output = output[out_cols]
 
         if output.isnull().values.any():
             raise RuntimeError("Imputation returned null")
@@ -108,8 +122,18 @@ class EncodersCallbacks:
                 vals = output[columns].max(axis=1)
             else:
                 raise ValueError(f"unknown strategy {strategy}")
+
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
             output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
             output[col] = vals
+
+            out_cols = list(l_cols) + [col] + list(r_cols)
+            output = output[out_cols]
+
         if output.isnull().values.any():
             raise RuntimeError("Imputation returned null")
         return output

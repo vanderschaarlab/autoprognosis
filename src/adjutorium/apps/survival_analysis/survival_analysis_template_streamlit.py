@@ -126,7 +126,7 @@ def survival_analysis_dashboard(
                 obj = st.slider(
                     item.name,
                     min_value=int(item.min),
-                    value=int(item.mean),
+                    value=int(item.median),
                     max_value=int(item.max),
                     step=1,
                 )
@@ -135,13 +135,14 @@ def survival_analysis_dashboard(
                 obj = st.slider(
                     item.name,
                     min_value=float(item.min),
-                    value=float(item.mean),
+                    value=float(item.median),
                     max_value=float(item.max),
                     step=0.1,
                 )
                 inputs[name] = [obj]
 
     def update_interpretation(df: pd.DataFrame) -> None:
+        figs = []
         for reason in models:
             if not hasattr(models[reason], "explain"):
                 continue
@@ -186,10 +187,12 @@ def survival_analysis_dashboard(
                     fig.update_layout(
                         **PREDICTION_TEMPLATE,
                     )
-                    st.header(
-                        f"Feature importance for the '{reason}' risk plot using {pretty_name}"
+                    figs.append(
+                        (
+                            f"Feature importance for the '{reason}' risk plot using {pretty_name}",
+                            fig,
+                        )
                     )
-                    st.plotly_chart(fig, use_container_width=True)
                 elif src_interpretation.shape == (1, len(df.columns)):
                     interpretation_df = pd.DataFrame(
                         src_interpretation[0, :].reshape(1, -1),
@@ -218,18 +221,22 @@ def survival_analysis_dashboard(
                         **PREDICTION_TEMPLATE,
                     )
 
-                    st.subheader(
-                        f"Feature importance for the '{reason}' risk plot using {pretty_name}"
+                    figs.append(
+                        (
+                            f"Feature importance for the '{reason}' risk plot using {pretty_name}",
+                            fig,
+                        )
                     )
 
-                    st.plotly_chart(fig, use_container_width=True)
                 else:
                     print(
                         f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
                     )
                     continue
+        return figs
 
     def update_predictions(raw_df: pd.DataFrame, df: pd.DataFrame) -> None:
+        print("predict", df)
         output_df = pd.DataFrame(
             {
                 "alternative": [],
@@ -326,25 +333,43 @@ def survival_analysis_dashboard(
         )
         fig.update_traces(line=dict(width=3))
 
-        st.subheader("Predictions")
-
-        st.markdown(
-            f'<p style="font-size: {STATEMENT_SIZE}px;">' + PLOT_STATEMENT + "</p>",
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        return fig
 
     with predictions:
+        gif_runner = st.image("assets/loading.gif")
+
+        raw_df = pd.DataFrame.from_dict(inputs)
+        df = encoders_ctx.encode(raw_df)
+
+        prediction_fig = update_predictions(raw_df, df)
+        extras_type, extras_data = None, None
+        if extras_cbk is not None:
+            extras_type, extras_data = extras_cbk(raw_df, df)
+        xai_figs = update_interpretation(df)
+
+        gif_runner.empty()
+
+        # Title
         st.header("Risk estimation")
         st.markdown(
             f'<p style="font-size: {STATEMENT_SIZE}px;">' + CAUTION_STATEMENT + "</p>",
             unsafe_allow_html=True,
         )
 
-        raw_df = pd.DataFrame.from_dict(inputs)
-        df = encoders_ctx.encode(raw_df)
+        # Charts
+        st.subheader("Predictions")
 
-        update_predictions(raw_df, df)
-        if extras_cbk is not None:
-            extras_cbk(raw_df, df)
-        update_interpretation(df)
+        st.markdown(
+            f'<p style="font-size: {STATEMENT_SIZE}px;">' + PLOT_STATEMENT + "</p>",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(prediction_fig, use_container_width=True)
+
+        # Other benchmarks
+        st.table(extras_data)
+
+        # XAI data
+        for xai_title, xai_fig in xai_figs:
+            st.subheader(xai_title)
+
+            st.plotly_chart(xai_fig, use_container_width=True)
