@@ -142,41 +142,9 @@ def generate_interpretation_plots(
             src_interpretation = raw_interpretation[src]
 
             if src_interpretation.shape == (1, len(df.columns), len(time_horizons)):
-                display_interpretation = []
+                src_interpretation = np.mean(src_interpretation, axis=2)
 
-                for idx, h in enumerate(time_horizons):
-                    interpretation_df = pd.DataFrame(
-                        src_interpretation[0, :, idx].reshape(1, -1),
-                        columns=df.columns,
-                        index=df.index.copy(),
-                    )
-                    interpretation_df = encoders_ctx.numeric_decode(interpretation_df)
-                    display_interpretation = pd.concat(
-                        [display_interpretation, interpretation_df]
-                    )
-
-                interpretation = np.asarray(display_interpretation).T.squeeze()
-                interpretation = (interpretation - interpretation.min()) / (
-                    interpretation.max() - interpretation.min() + 1e-8
-                )
-
-                fig = px.imshow(
-                    interpretation,
-                    y=interpretation_df.columns,
-                    x=np.asarray(time_horizons) / 365,
-                    labels=dict(x="Years", y="Feature", color="Feature importance"),
-                    color_continuous_scale="OrRd",
-                )
-                fig.update_layout(
-                    **PREDICTION_TEMPLATE,
-                )
-                figs.append(
-                    (
-                        f"Feature importance for the '{reason}' risk plot using {pretty_name}",
-                        fig,
-                    )
-                )
-            elif src_interpretation.squeeze().shape == (len(df.columns),):
+            if src_interpretation.squeeze().shape == (len(df.columns),):
                 interpretation_df = pd.DataFrame(
                     src_interpretation[0, :].reshape(1, -1),
                     columns=df.columns,
@@ -197,12 +165,12 @@ def generate_interpretation_plots(
                         x="Feature", y="Importance", color="Feature importance"
                     ),
                     color_continuous_scale="OrRd",
-                    height=250,
+                    height=300,
                 )
-
                 fig.update_layout(
                     **PREDICTION_TEMPLATE,
                 )
+                fig.update_layout(showlegend=False)
 
                 figs.append(
                     (

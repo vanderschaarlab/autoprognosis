@@ -18,5 +18,4 @@ if __name__ == "__main__":
     # third party
     from run_demonstrator import run
 
-    dashboard_type = "streamlit"
-    run("app.p", dashboard_type)
+    run("app.p")
