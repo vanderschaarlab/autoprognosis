@@ -8,7 +8,7 @@ from typing import Optional
 import click
 
 # adjutorium absolute
-from adjutorium.apps.extras.biobank_cvd import extras_cbk
+from adjutorium.apps.extras.biobank_cvd import extras_cbk as biobank_cvd_extras_cbk
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 
@@ -25,6 +25,7 @@ def build_app(
     explainers: str,
     imputers: str,
     plot_alternatives: str,
+    extras: str,
 ) -> Path:
     def split_and_clean(raw: str) -> list:
         lst = raw.split(",")
@@ -32,6 +33,10 @@ def build_app(
             lst.remove("")
 
         return lst
+
+    extras_cbk = None
+    if extras == "biobank_cvd":
+        extras_cbk = biobank_cvd_extras_cbk
 
     if task_type == "risk_estimation":
         parsed_horizons = []
@@ -52,7 +57,10 @@ def build_app(
                     "explainers": split_and_clean(explainers),
                     "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
-                    "comparative_models": [("Cox PH", "cox_ph")],
+                    "comparative_models": [
+                        ("Cox PH", "coxnet"),
+                        ("Survival XGB", "survival_xgboost"),
+                    ],
                     "extras_cbk": extras_cbk,
                 }
             ),
@@ -224,6 +232,12 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     help="Only for risk_estimation. List of categorical columns by which to split the graphs. For example, plot outcome for different treatments available.",
 )
 @click.option(
+    "--extras",
+    type=str,
+    default="",
+    help="Task specific callback, like biobank_cvd or biobank_diabetes.",
+)
+@click.option(
     "--output",
     type=str,
     default="output",
@@ -253,6 +267,7 @@ def build(
     explainers: str,
     imputers: str,
     plot_alternatives: str,
+    extras: str,
     output: Path,
     heroku_app: Optional[str],
     huggingface_app: Optional[str],
@@ -276,6 +291,7 @@ def build(
         explainers,
         imputers,
         plot_alternatives,
+        extras,
     )
 
     image_bin = Path(output) / "image_bin"
