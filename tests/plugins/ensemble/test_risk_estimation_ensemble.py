@@ -165,4 +165,4 @@ def test_risk_estimation_cv_fit_predict(src: str) -> None:
     mean, uncert = surv_ensemble.predict_with_uncertainty(X, eval_time_horizons)
 
     assert mean.shape == (len(X), len(eval_time_horizons))
-    assert uncert.shape == (len(X), 1)
+    assert uncert.shape == (len(X), len(eval_time_horizons))

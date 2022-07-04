@@ -18,7 +18,6 @@ for retry in range(2):
 class BaseAppProto(BaseModel):
     name: str
     type: str
-    dashboard_type: str
     dataset_path: str
     model_path: str
     explainers: list
@@ -32,6 +31,7 @@ class NewRiskEstimationAppProto(BaseAppProto):
     horizons: list
     comparative_models: list
     extras_cbk: Optional[Callable]
+    auth: bool = False
 
 
 class NewClassificationAppProto(BaseAppProto):

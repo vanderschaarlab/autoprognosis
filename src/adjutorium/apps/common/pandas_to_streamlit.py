@@ -37,11 +37,27 @@ class SliderFloat:
         self.median = median
 
 
-def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
+class Header:
+    def __init__(self, name: str) -> None:
+        self.type = "header"
+        self.name = name
+
+
+def generate_menu(X: pd.DataFrame, checkboxes: List, sections: list) -> list:
     dtype: Any
     column_types: List[Any] = []
 
-    for col in X.columns:
+    current_section_idx = 0
+
+    for idx, col in enumerate(X.columns):
+        if (
+            len(sections) > current_section_idx
+            and sections[current_section_idx][0] == idx
+        ):
+            section = sections[current_section_idx][1]
+            dtype = Header(section)
+            column_types.append((section, dtype))
+            current_section_idx += 1
         if is_integer_dtype(X[col].dtype):  # in ["int64", "integer", "int"]:
             unique_vals = X[col].unique()
             minval = X[col].min()

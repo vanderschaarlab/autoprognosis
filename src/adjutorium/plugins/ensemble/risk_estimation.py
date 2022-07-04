@@ -224,7 +224,7 @@ class RiskEnsembleCV(RiskEnsemble):
         explainer_plugins: List = [],
         explanations_model: Optional[Dict] = None,
         explanations_nepoch: int = 10000,
-        n_folds: int = 5,
+        n_folds: int = 3,
         hooks: Hooks = DefaultHooks(),
     ) -> None:
         if ensemble is None and models is None:
@@ -266,9 +266,9 @@ class RiskEnsembleCV(RiskEnsemble):
         cv_idx = 0
         for train_index, test_index in skf.split(X, Y):
             self._should_continue()
-            X_train = X.loc[train_index]
-            T_train = T.loc[train_index]
-            Y_train = Y.loc[train_index]
+            X_train = X.iloc[train_index]
+            T_train = T.iloc[train_index]
+            Y_train = Y.iloc[train_index]
 
             self.models[cv_idx].fit(X_train, T_train, Y_train)
             cv_idx += 1
@@ -283,7 +283,7 @@ class RiskEnsembleCV(RiskEnsemble):
             log.info(f"[RiskEnsemble]: train explainer {exp}")
             exp_model = Explainers().get(
                 exp,
-                copy.deepcopy(self),
+                copy.deepcopy(self.models[0]),
                 X,
                 Y,
                 time_to_event=T,
@@ -303,6 +303,8 @@ class RiskEnsembleCV(RiskEnsemble):
     ) -> pd.DataFrame:
         results, _ = self.predict_with_uncertainty(X_, eval_time_horizons)
 
+        return results
+
     def predict_with_uncertainty(
         self,
         X_: pd.DataFrame,
@@ -317,9 +319,7 @@ class RiskEnsembleCV(RiskEnsemble):
         calibrated_result = np.mean(results, axis=0)
         uncertainity = 1.96 * np.std(results, axis=0) / np.sqrt(len(results))
 
-        return pd.DataFrame(calibrated_result), pd.DataFrame(uncertainity[:, 0])
-
-        results, _ = self.predict_with_uncertainty(X_, eval_time_horizons)
+        return pd.DataFrame(calibrated_result), pd.DataFrame(uncertainity)
 
     def name(self, short: bool = False) -> str:
         return f"Calibrated  {self.models[0].name()}"

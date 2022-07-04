@@ -16,7 +16,6 @@ from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimation
 def build_app(
     name: str,
     task_type: str,
-    dashboard_type: str,
     dataset_path: str,
     model_path: str,
     time_column: str,
@@ -26,6 +25,7 @@ def build_app(
     imputers: str,
     plot_alternatives: str,
     extras: str,
+    auth: bool,
 ) -> Path:
     def split_and_clean(raw: str) -> list:
         lst = raw.split(",")
@@ -48,7 +48,6 @@ def build_app(
                 **{
                     "name": name,
                     "type": task_type,
-                    "dashboard_type": dashboard_type,
                     "dataset_path": dataset_path,
                     "model_path": model_path,
                     "time_column": time_column,
@@ -62,6 +61,7 @@ def build_app(
                         ("Survival XGB", "survival_xgboost"),
                     ],
                     "extras_cbk": extras_cbk,
+                    "auth": auth,
                 }
             ),
         )
@@ -71,7 +71,6 @@ def build_app(
                 **{
                     "name": name,
                     "type": task_type,
-                    "dashboard_type": dashboard_type,
                     "dataset_path": dataset_path,
                     "model_path": model_path,
                     "target_column": target_column,
@@ -109,7 +108,6 @@ def build_wheel() -> Path:
 def pack(
     app: Path,
     output: Path = Path("output/image_bin"),
-    dashboard_type: str = "streamlit",
 ) -> None:
     output = Path(output)
     output_data = output / "third_party"
@@ -128,17 +126,11 @@ def pack(
             shutil.copy(fn, output_data / fn.name)
 
     # Copy server template
-    if dashboard_type == "streamlit":
-        for fn in Path("third_party/image_template/streamlit").glob("*"):
-            if Path(fn).is_file():
-                shutil.copy(fn, output / fn.name)
-            else:
-                shutil.copytree(fn, output / fn.name)
-    elif dashboard_type == "dash":
-        for fn in Path("third_party/image_template/dash").glob("*"):
+    for fn in Path("third_party/image_template/streamlit").glob("*"):
+        if Path(fn).is_file():
             shutil.copy(fn, output / fn.name)
-    else:
-        raise RuntimeError("invalid dashboard type", dashboard_type)
+        else:
+            shutil.copytree(fn, output / fn.name)
 
     # Copy server runner
     shutil.copy("scripts/run_demonstrator.py", output / "run_demonstrator.py")
@@ -195,7 +187,6 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     "--name", type=str, default="new_demonstrator", help="The title of the demonstrator"
 )
 @click.option("--task_type", type=str, help="classification/risk_estimation")
-@click.option("--dashboard_type", type=str, default="streamlit", help="streamlit/dash")
 @click.option("--dataset_path", type=str, help="Path to the dataset csv")
 @click.option(
     "--model_path", type=str, help="Path to the model template, usually model.p"
@@ -255,10 +246,15 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     default=None,
     help="Optional. If provided, the script tries to deploy the demonstrator to Huggingface, to the specified app name, using streamlit",
 )
+@click.option(
+    "--auth",
+    type=bool,
+    default=False,
+    help="Optional. If provided, the dashboard will be protected by a password.",
+)
 def build(
     name: str,
     task_type: str,
-    dashboard_type: str,
     dataset_path: str,
     model_path: str,
     time_column: str,
@@ -271,6 +267,7 @@ def build(
     output: Path,
     heroku_app: Optional[str],
     huggingface_app: Optional[str],
+    auth: bool,
 ) -> None:
     output = Path(output)
     try:
@@ -282,7 +279,6 @@ def build(
     app_path = build_app(
         name,
         task_type,
-        dashboard_type,
         dataset_path,
         model_path,
         time_column,
@@ -292,10 +288,11 @@ def build(
         imputers,
         plot_alternatives,
         extras,
+        auth=auth,
     )
 
     image_bin = Path(output) / "image_bin"
-    pack(app_path, output=image_bin, dashboard_type=dashboard_type)
+    pack(app_path, output=image_bin)
 
     if heroku_app:
         upload_heroku(image_bin, heroku_app)

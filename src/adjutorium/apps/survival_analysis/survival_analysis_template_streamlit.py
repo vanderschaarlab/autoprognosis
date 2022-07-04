@@ -6,6 +6,12 @@ import numpy as np
 import pandas as pd
 
 # adjutorium absolute
+from adjutorium.apps.common.login import (
+    clean_blocks,
+    generate_login_block,
+    is_authenticated,
+    login,
+)
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.studies._preprocessing import EncodersCallbacks
 from adjutorium.utils.pip import install
@@ -44,7 +50,7 @@ PLOT_STATEMENT = "The following graphs show diagnostic risk predictions up to 10
 PLOT_BACKGROUND = "#262730"
 
 
-def generate_banner(title):
+def generate_page_config(title):
     st.set_page_config(layout="wide", page_title=title)
 
     base_style = """
@@ -80,6 +86,10 @@ def generate_menu_items(menu_components):
     st.header("Patient info")
 
     for name, item in menu_components:
+        if item.type == "header":
+            st.markdown("---")
+            st.markdown("##### " + item.name)
+            continue
         columns.append(name)
         if item.type == "checkbox":
             obj = st.checkbox(
@@ -187,7 +197,7 @@ def generate_interpretation_plots(
                         x="Feature", y="Importance", color="Feature importance"
                     ),
                     color_continuous_scale="OrRd",
-                    height=190,
+                    height=250,
                 )
 
                 fig.update_layout(
@@ -227,13 +237,14 @@ def generate_predictions_plots(
     )
 
     for reason in models:
-        predictions = models[reason].predict(df, time_horizons)
+        predictions, uncertainity_estimation = models[reason].predict_with_uncertainty(
+            df, time_horizons
+        )
         risk_estimation = predictions.values[0]
-        uncertainity_estimation = [0.0001] * len(risk_estimation)
+        uncertainity_estimation = np.asarray(uncertainity_estimation).squeeze()
 
         local_output_df = pd.DataFrame(
             {
-                "alternative": "",
                 "risk": risk_estimation,
                 "uncertainity": uncertainity_estimation,
                 "years": time_horizons,
@@ -241,43 +252,6 @@ def generate_predictions_plots(
             }
         )
         output_df = pd.concat([output_df, local_output_df])
-
-    for reason in models:
-        if reason not in plot_alternatives:
-            continue
-
-        for col in plot_alternatives[reason]:
-
-            if col not in raw_df.columns:
-                print("unknown column provided", col)
-                continue
-
-            current_val = raw_df[col].values[0]
-            for alternative_val in plot_alternatives[reason][col]:
-                if alternative_val == current_val:
-                    continue
-
-                alt_raw_df = raw_df.copy()
-                alt_raw_df[col] = alternative_val
-
-                try:
-                    alt_df = encoders_ctx.encode(alt_raw_df)
-                except BaseException as e:
-                    print("failed to encode", str(e))
-                    continue
-                predictions = models[reason].predict(alt_df, time_horizons)
-                alt_risk_estimation = predictions.values[0]
-
-                alt_output_df = pd.DataFrame(
-                    {
-                        "alternative": "(alternative)",
-                        "risk": alt_risk_estimation,
-                        "years": time_horizons,
-                        "reason": [f"{reason} with : {col} = {alternative_val}"]
-                        * len(time_horizons),
-                    }
-                )
-                output_df = pd.concat([output_df, alt_output_df])
 
     output_df["years"] /= 365
 
@@ -287,12 +261,10 @@ def generate_predictions_plots(
         y="risk",
         error_y="uncertainity",
         color="reason",
-        line_dash="alternative",
         labels={
             "years": "Years to event",
-            "risk": "CVD Risk probability [0 - 1]",
-            "reason": "Risk",
-            "alternative": "Scenario",
+            "risk": "Risk probability [0 - 1]",
+            "reason": "Model",
         },
         template="plotly_dark",
         color_discrete_sequence=[
@@ -316,7 +288,7 @@ def generate_predictions_plots(
     return fig
 
 
-def survival_analysis_dashboard(
+def generate_survival_analysis_dashboard(
     title: str,
     banner_title: str,
     models: Dict,
@@ -348,8 +320,6 @@ def survival_analysis_dashboard(
         plot_alternatives: list
             List of features where to plot alternative values. Example: if treatment == 0, it will plot alternative treatment == 1 as well, as a comparison.
     """
-
-    generate_banner(title)
 
     menu, predictions = st.columns([1, 4])
 
@@ -402,3 +372,50 @@ def survival_analysis_dashboard(
                 st.subheader(xai_title)
 
                 st.plotly_chart(xai_fig, use_container_width=True)
+
+
+def survival_analysis_dashboard(
+    title: str,
+    banner_title: str,
+    models: Dict,
+    column_types: List,
+    encoders_ctx: EncodersCallbacks,
+    menu_components: List,
+    time_horizons: List,
+    plot_alternatives: Dict,
+    extras_cbk: Callable = None,
+    auth: bool = False,
+) -> Any:
+    generate_page_config(title)
+
+    if not auth:
+        return generate_survival_analysis_dashboard(
+            title=title,
+            banner_title=banner_title,
+            models=models,
+            column_types=column_types,
+            encoders_ctx=encoders_ctx,
+            menu_components=menu_components,
+            time_horizons=time_horizons,
+            plot_alternatives=plot_alternatives,
+            extras_cbk=extras_cbk,
+        )
+
+    login_blocks = generate_login_block()
+    password = login(login_blocks)
+
+    if is_authenticated(password):
+        clean_blocks(login_blocks)
+        generate_survival_analysis_dashboard(
+            title=title,
+            banner_title=banner_title,
+            models=models,
+            column_types=column_types,
+            encoders_ctx=encoders_ctx,
+            menu_components=menu_components,
+            time_horizons=time_horizons,
+            plot_alternatives=plot_alternatives,
+            extras_cbk=extras_cbk,
+        )
+    elif password:
+        st.info("Please enter a valid password")
