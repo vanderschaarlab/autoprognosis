@@ -181,7 +181,6 @@ class Builder:
                 else:
                     other_cols.append(col)
 
-            # rawX = rawX[checkboxes + other_cols]
             X = encoders.encode(rawX)
             rawX = encoders.decode(X.dropna())
             log.info(f"Loaded dataset final encoding {X.shape} {T.shape} {Y.shape}")
@@ -264,7 +263,7 @@ class Builder:
             explainer_plugins=explainers,
             explanations_nepoch=500,
         )
-        log.info(f"Loaded model {model.name()}")
+        log.info(f"Train Adjutorium model: model {model.name()}")
 
         self._should_continue()
         model.fit(X, T, Y)
@@ -277,8 +276,9 @@ class Builder:
         }
 
         plugins = Predictions(category="risk_estimation")
-        for name, comparative in self.task.comparative_models:
-            ref_model_base = plugins.get(comparative)
+        for name, comparative, args in self.task.comparative_models:
+            log.info(f"train: {name} {args}")
+            ref_model_base = plugins.get(comparative, **args)
             ref_model = RiskEnsembleCV(
                 time_horizons=time_horizons, ensemble=ref_model_base
             )
@@ -286,7 +286,7 @@ class Builder:
 
             app_models[name] = ref_model
 
-        self._should_continue()
+            self._should_continue()
 
         save_model_to_file(output_path, app_models)
 

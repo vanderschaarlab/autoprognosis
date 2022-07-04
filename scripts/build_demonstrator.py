@@ -57,8 +57,24 @@ def build_app(
                     "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
                     "comparative_models": [
-                        ("Cox PH", "coxnet"),
-                        ("Survival XGB", "survival_xgboost"),
+                        (
+                            "Cox PH",
+                            "cox_ph",
+                            {
+                                "alpha": 0.014721404833448894,
+                                "penalizer": 0.08157265024269905,
+                            },
+                        ),
+                        (
+                            "Survival XGB",
+                            "survival_xgboost",
+                            {
+                                "max_depth": 2,
+                                "min_child_weight": 15,
+                                "objective": "aft",
+                                "strategy": "weibull",
+                            },
+                        ),
                     ],
                     "extras_cbk": extras_cbk,
                     "auth": auth,

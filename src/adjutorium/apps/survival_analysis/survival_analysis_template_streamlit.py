@@ -57,6 +57,10 @@ def generate_page_config(title):
         <style>
         #root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 3rem;}
         .reportview-container .main footer {visibility: hidden;}
+        div.stButton > button:first-child {
+            font-size:20px;
+        }
+
         </style>
         """
     st.markdown(
@@ -83,45 +87,47 @@ def generate_menu_items(menu_components):
     inputs = {}
     columns = []
 
-    st.header("Patient info")
+    with st.form("patient_form"):
+        st.header("Patient info")
+        submitted = st.form_submit_button(" Evaluate Risk  ▶️  ")
 
-    for name, item in menu_components:
-        if item.type == "header":
-            st.markdown("---")
-            st.markdown("##### " + item.name)
-            continue
-        columns.append(name)
-        if item.type == "checkbox":
-            obj = st.checkbox(
-                item.name,
-            )
-            inputs[name] = [obj]
-        if item.type == "dropdown":
-            obj = st.selectbox(
-                item.name,
-                options=item.val_range,
-            )
-            inputs[name] = [obj]
-        elif item.type == "slider_integer":
-            obj = st.slider(
-                item.name,
-                min_value=int(item.min),
-                value=int(item.median),
-                max_value=int(item.max),
-                step=1,
-            )
-            inputs[name] = [obj]
-        elif item.type == "slider_float":
-            obj = st.slider(
-                item.name,
-                min_value=float(item.min),
-                value=float(item.median),
-                max_value=float(item.max),
-                step=0.1,
-            )
-            inputs[name] = [obj]
+        for idx, (name, item) in enumerate(menu_components):
+            if item.type == "header":
+                st.markdown("---")
+                st.markdown("##### " + item.name)
+                continue
+            columns.append(name)
+            if item.type == "checkbox":
+                obj = st.checkbox(
+                    item.name,
+                )
+                inputs[name] = [obj]
+            if item.type == "dropdown":
+                obj = st.selectbox(
+                    item.name,
+                    options=item.val_range,
+                )
+                inputs[name] = [obj]
+            elif item.type == "slider_integer":
+                obj = st.slider(
+                    item.name,
+                    min_value=int(item.min),
+                    value=int(item.median),
+                    max_value=int(item.max),
+                    step=1,
+                )
+                inputs[name] = [obj]
+            elif item.type == "slider_float":
+                obj = st.slider(
+                    item.name,
+                    min_value=float(item.min),
+                    value=float(item.median),
+                    max_value=float(item.max),
+                    step=0.1,
+                )
+                inputs[name] = [obj]
 
-    return inputs, columns
+    return submitted, inputs, columns
 
 
 def generate_interpretation_plots(
@@ -295,51 +301,55 @@ def generate_survival_analysis_dashboard(
     columns = []
 
     with menu:
-        inputs, columns = generate_menu_items(menu_components)
+        submitted, inputs, columns = generate_menu_items(menu_components)
 
     with predictions:
-        predictions.empty()
-        # Title
-        st.header("Risk estimation")
-        st.markdown(
-            f'<p style="font-size: {STATEMENT_SIZE}px;">' + CAUTION_STATEMENT + "</p>",
-            unsafe_allow_html=True,
-        )
-
-        # Charts
-        with st.spinner("Generating predictions..."):
-            raw_df = pd.DataFrame.from_dict(inputs)
-            df = encoders_ctx.encode(raw_df)
-
-            prediction_fig = generate_predictions_plots(
-                models, raw_df, df, time_horizons, encoders_ctx, plot_alternatives
-            )
-
-            st.subheader("Predictions")
-
+        if submitted:
+            # Title
+            st.header("Risk estimation")
             st.markdown(
-                f'<p style="font-size: {STATEMENT_SIZE}px;">' + PLOT_STATEMENT + "</p>",
+                f'<p style="font-size: {STATEMENT_SIZE}px;">'
+                + CAUTION_STATEMENT
+                + "</p>",
                 unsafe_allow_html=True,
             )
-            st.plotly_chart(prediction_fig, use_container_width=True)
 
-        # Other benchmarks
-        with st.spinner("Evaluating reference models..."):
-            extras_type, extras_data = None, None
-            if extras_cbk is not None:
-                extras_type, extras_data = extras_cbk(raw_df)
+            # Charts
+            with st.spinner("Generating predictions..."):
+                raw_df = pd.DataFrame.from_dict(inputs)
+                df = encoders_ctx.encode(raw_df)
 
-            st.table(extras_data)
+                prediction_fig = generate_predictions_plots(
+                    models, raw_df, df, time_horizons, encoders_ctx, plot_alternatives
+                )
 
-        # XAI data
-        with st.spinner("Evaluating feature importance..."):
-            xai_figs = generate_interpretation_plots(
-                models, df, time_horizons, encoders_ctx
-            )
-            for xai_title, xai_fig in xai_figs:
-                st.subheader(xai_title)
+                st.subheader("Predictions")
 
-                st.plotly_chart(xai_fig, use_container_width=True)
+                st.markdown(
+                    f'<p style="font-size: {STATEMENT_SIZE}px;">'
+                    + PLOT_STATEMENT
+                    + "</p>",
+                    unsafe_allow_html=True,
+                )
+                st.plotly_chart(prediction_fig, use_container_width=True)
+
+            # Other benchmarks
+            with st.spinner("Evaluating reference models..."):
+                extras_type, extras_data = None, None
+                if extras_cbk is not None:
+                    extras_type, extras_data = extras_cbk(raw_df)
+
+                st.table(extras_data)
+
+            # XAI data
+            with st.spinner("Evaluating feature importance..."):
+                xai_figs = generate_interpretation_plots(
+                    models, df, time_horizons, encoders_ctx
+                )
+                for xai_title, xai_fig in xai_figs:
+                    st.subheader(xai_title)
+
+                    st.plotly_chart(xai_fig, use_container_width=True)
 
 
 def survival_analysis_dashboard(
@@ -356,7 +366,13 @@ def survival_analysis_dashboard(
 ) -> Any:
     generate_page_config(title)
 
-    if not auth:
+    login_key = "login_state"
+
+    if login_key not in st.session_state:
+        st.session_state[login_key] = False
+
+    prev_login = st.session_state[login_key]
+    if not auth or prev_login:
         return generate_survival_analysis_dashboard(
             title=title,
             banner_title=banner_title,
@@ -374,6 +390,7 @@ def survival_analysis_dashboard(
 
     if is_authenticated(password):
         clean_blocks(login_blocks)
+        st.session_state[login_key] = True
         generate_survival_analysis_dashboard(
             title=title,
             banner_title=banner_title,
