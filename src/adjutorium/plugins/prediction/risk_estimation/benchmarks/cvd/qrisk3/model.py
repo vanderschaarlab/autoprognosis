@@ -542,6 +542,7 @@ class QRisk3Model:
         df = df.copy()
         for col in expected_cols:
             if col not in df.columns:
+                print(f"[QRisk3] missing {col}")
                 df[col] = 0
 
         scores = df.apply(lambda row: qrisk3_inference(row), axis=1)

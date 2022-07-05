@@ -49,7 +49,6 @@ def run_server_streamlit(app_path: Path, port: int = 9000) -> None:
 
     app_params = load_model_from_file(app_path)
 
-    print("model ", app_params["models"]["Adjutorium model"].name())
     if app_params["type"] == "risk_estimation":
         # adjutorium absolute
         from adjutorium.apps.survival_analysis.survival_analysis_template_streamlit import (

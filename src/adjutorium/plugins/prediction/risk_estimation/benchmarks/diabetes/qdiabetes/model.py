@@ -948,6 +948,7 @@ class QDiabetesModel:
         ]
         for col in expected_cols:
             if col not in df.columns:
+                print(f"[QDiab] missing {col}")
                 df[col] = 0
 
         scores = df.apply(lambda row: qdiabetes_inference(row), axis=1)

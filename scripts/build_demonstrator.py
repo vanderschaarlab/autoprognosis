@@ -9,6 +9,9 @@ import click
 
 # adjutorium absolute
 from adjutorium.apps.extras.biobank_cvd import extras_cbk as biobank_cvd_extras_cbk
+from adjutorium.apps.extras.biobank_diabetes import (
+    extras_cbk as biobank_diabetes_extras_cbk,
+)
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 
@@ -37,6 +40,8 @@ def build_app(
     extras_cbk = None
     if extras == "biobank_cvd":
         extras_cbk = biobank_cvd_extras_cbk
+    if extras == "biobank_diabetes":
+        extras_cbk = biobank_diabetes_extras_cbk
 
     if task_type == "risk_estimation":
         parsed_horizons = []
@@ -71,7 +76,7 @@ def build_app(
                             {
                                 "max_depth": 2,
                                 "min_child_weight": 15,
-                                "objective": "aft",
+                                "objective": "cox",
                                 "strategy": "weibull",
                             },
                         ),

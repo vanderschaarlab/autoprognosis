@@ -16,25 +16,8 @@ from adjutorium.plugins.prediction.risk_estimation.benchmarks.cvd.qrisk3.model i
     QRisk3Model,
 )
 
-NO_MARGIN = {
-    "l": 0,  # left margin
-    "r": 0,  # right margin
-    "t": 0,  # top margin
-    "b": 0,  # bottom margin
-}
-STATEMENT_SIZE = 16
-
-PREDICTION_TEMPLATE = {
-    "font": {
-        "size": STATEMENT_SIZE,
-    },
-    "margin": NO_MARGIN,
-}
-PLOT_BACKGROUND = "#262730"
-
 
 def extras_cbk(raw_df: pd.DataFrame) -> Tuple[str, Any]:
-    # debug
     models = {
         "AHA/ACC score": eval_aha,
         "Framingham score": eval_fram,

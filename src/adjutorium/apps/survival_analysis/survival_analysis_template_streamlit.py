@@ -339,7 +339,7 @@ def generate_survival_analysis_dashboard(
                 if extras_cbk is not None:
                     extras_type, extras_data = extras_cbk(raw_df)
 
-                st.table(extras_data)
+                    st.table(extras_data)
 
             # XAI data
             with st.spinner("Evaluating feature importance..."):
