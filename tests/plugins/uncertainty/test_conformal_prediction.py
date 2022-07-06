@@ -37,7 +37,7 @@ def test_fit(plugin: Any) -> None:
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
     uncert_model.fit(X, y)
 
@@ -52,7 +52,7 @@ def test_predict_classifier(plugin: Any) -> None:
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     uncert_model.fit(X_train, y_train)
@@ -61,8 +61,8 @@ def test_predict_classifier(plugin: Any) -> None:
 
     assert len(mean) == len(y_test)
     assert len(confidence) == len(y_test)
-    assert (mean == y_test).sum() > len(y_test) / 2
-    assert confidence[mean != y_test].max() < 0.9
+    assert (mean.values == y_test.values).sum() > len(y_test) / 2
+    assert confidence[mean.values != y_test.values].max() < 0.9
 
 
 @pytest.mark.parametrize(
@@ -73,7 +73,7 @@ def test_predict_proba_classifier(plugin: Any) -> None:
         Classifiers().get("logistic_regression"),
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     uncert_model.fit(X_train, y_train)

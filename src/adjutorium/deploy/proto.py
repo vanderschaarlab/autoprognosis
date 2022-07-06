@@ -1,3 +1,6 @@
+# stdlib
+from typing import Callable, Optional
+
 # adjutorium absolute
 from adjutorium.utils.pip import install
 
@@ -15,7 +18,6 @@ for retry in range(2):
 class BaseAppProto(BaseModel):
     name: str
     type: str
-    dashboard_type: str
     dataset_path: str
     model_path: str
     explainers: list
@@ -27,6 +29,9 @@ class NewRiskEstimationAppProto(BaseAppProto):
     time_column: str
     target_column: str
     horizons: list
+    comparative_models: list
+    extras_cbk: Optional[Callable]
+    auth: bool = False
 
 
 class NewClassificationAppProto(BaseAppProto):

@@ -20,28 +20,44 @@ class CheckboxColumn:
 
 
 class SliderInt:
-    def __init__(self, name: str, minval: int, maxval: int) -> None:
+    def __init__(self, name: str, minval: int, maxval: int, median: float) -> None:
         self.type = "slider_integer"
         self.name = name
         self.min = minval
         self.max = maxval
-        self.mean = int((minval + maxval) / 2)
+        self.median = median
 
 
 class SliderFloat:
-    def __init__(self, name: str, minval: float, maxval: float) -> None:
+    def __init__(self, name: str, minval: float, maxval: float, median: float) -> None:
         self.type = "slider_float"
         self.name = name
         self.min = float(minval)
         self.max = float(maxval)
-        self.mean = float((minval + maxval) / 2)
+        self.median = median
 
 
-def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
+class Header:
+    def __init__(self, name: str) -> None:
+        self.type = "header"
+        self.name = name
+
+
+def generate_menu(X: pd.DataFrame, checkboxes: List, sections: list) -> list:
     dtype: Any
     column_types: List[Any] = []
 
-    for col in X.columns:
+    current_section_idx = 0
+
+    for idx, col in enumerate(X.columns):
+        if (
+            len(sections) > current_section_idx
+            and sections[current_section_idx][0] == idx
+        ):
+            section = sections[current_section_idx][1]
+            dtype = Header(section)
+            column_types.append((section, dtype))
+            current_section_idx += 1
         if is_integer_dtype(X[col].dtype):  # in ["int64", "integer", "int"]:
             unique_vals = X[col].unique()
             minval = X[col].min()
@@ -56,7 +72,10 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
                 column_types.append((col, dtype))
                 continue
 
-            dtype = SliderInt(f"{col} ({int(minval)} - {int(maxval)})", minval, maxval)
+            median = X[col].median()
+            dtype = SliderInt(
+                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval, mediam=median
+            )
             column_types.append((col, dtype))
 
         elif is_float_dtype(X[col].dtype):  # in ["float64", "float"]:
@@ -69,8 +88,12 @@ def generate_menu(X: pd.DataFrame, checkboxes: List) -> list:
                 column_types.append((col, dtype))
                 continue
 
+            median = X[col].median()
             dtype = SliderFloat(
-                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval
+                f"{col} ({int(minval)} - {int(maxval)})",
+                minval,
+                maxval,
+                median=median,
             )
             column_types.append((col, dtype))
         else:
