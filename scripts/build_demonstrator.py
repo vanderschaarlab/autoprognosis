@@ -8,6 +8,10 @@ from typing import Optional
 import click
 
 # adjutorium absolute
+from adjutorium.apps.extras.biobank_cvd import extras_cbk as biobank_cvd_extras_cbk
+from adjutorium.apps.extras.biobank_diabetes import (
+    extras_cbk as biobank_diabetes_extras_cbk,
+)
 from adjutorium.deploy.build import Builder
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 
@@ -15,7 +19,6 @@ from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimation
 def build_app(
     name: str,
     task_type: str,
-    dashboard_type: str,
     dataset_path: str,
     model_path: str,
     time_column: str,
@@ -24,6 +27,8 @@ def build_app(
     explainers: str,
     imputers: str,
     plot_alternatives: str,
+    extras: str,
+    auth: bool,
 ) -> Path:
     def split_and_clean(raw: str) -> list:
         lst = raw.split(",")
@@ -32,7 +37,12 @@ def build_app(
 
         return lst
 
-    print(task_type, explainers)
+    extras_cbk = None
+    if extras == "biobank_cvd":
+        extras_cbk = biobank_cvd_extras_cbk
+    if extras == "biobank_diabetes":
+        extras_cbk = biobank_diabetes_extras_cbk
+
     if task_type == "risk_estimation":
         parsed_horizons = []
         for tok in horizons.split(","):
@@ -43,7 +53,6 @@ def build_app(
                 **{
                     "name": name,
                     "type": task_type,
-                    "dashboard_type": dashboard_type,
                     "dataset_path": dataset_path,
                     "model_path": model_path,
                     "time_column": time_column,
@@ -52,8 +61,30 @@ def build_app(
                     "explainers": split_and_clean(explainers),
                     "imputers": split_and_clean(imputers),
                     "plot_alternatives": [],
+                    "comparative_models": [
+                        (
+                            "Cox PH",
+                            "cox_ph",
+                            {
+                                "alpha": 0.014721404833448894,
+                                "penalizer": 0.08157265024269905,
+                            },
+                        ),
+                        (
+                            "Survival XGB",
+                            "survival_xgboost",
+                            {
+                                "max_depth": 2,
+                                "min_child_weight": 15,
+                                "objective": "cox",
+                                "strategy": "weibull",
+                            },
+                        ),
+                    ],
+                    "extras_cbk": extras_cbk,
+                    "auth": auth,
                 }
-            )
+            ),
         )
     elif task_type == "classification":
         task = Builder(
@@ -61,7 +92,6 @@ def build_app(
                 **{
                     "name": name,
                     "type": task_type,
-                    "dashboard_type": dashboard_type,
                     "dataset_path": dataset_path,
                     "model_path": model_path,
                     "target_column": target_column,
@@ -99,7 +129,6 @@ def build_wheel() -> Path:
 def pack(
     app: Path,
     output: Path = Path("output/image_bin"),
-    dashboard_type: str = "streamlit",
 ) -> None:
     output = Path(output)
     output_data = output / "third_party"
@@ -118,14 +147,11 @@ def pack(
             shutil.copy(fn, output_data / fn.name)
 
     # Copy server template
-    if dashboard_type == "streamlit":
-        for fn in Path("third_party/image_template/streamlit").glob("*"):
+    for fn in Path("third_party/image_template/streamlit").glob("*"):
+        if Path(fn).is_file():
             shutil.copy(fn, output / fn.name)
-    elif dashboard_type == "dash":
-        for fn in Path("third_party/image_template/dash").glob("*"):
-            shutil.copy(fn, output / fn.name)
-    else:
-        raise RuntimeError("invalid dashboard type", dashboard_type)
+        else:
+            shutil.copytree(fn, output / fn.name)
 
     # Copy server runner
     shutil.copy("scripts/run_demonstrator.py", output / "run_demonstrator.py")
@@ -182,7 +208,6 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     "--name", type=str, default="new_demonstrator", help="The title of the demonstrator"
 )
 @click.option("--task_type", type=str, help="classification/risk_estimation")
-@click.option("--dashboard_type", type=str, default="streamlit", help="streamlit/dash")
 @click.option("--dataset_path", type=str, help="Path to the dataset csv")
 @click.option(
     "--model_path", type=str, help="Path to the model template, usually model.p"
@@ -219,6 +244,12 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     help="Only for risk_estimation. List of categorical columns by which to split the graphs. For example, plot outcome for different treatments available.",
 )
 @click.option(
+    "--extras",
+    type=str,
+    default="",
+    help="Task specific callback, like biobank_cvd or biobank_diabetes.",
+)
+@click.option(
     "--output",
     type=str,
     default="output",
@@ -236,10 +267,15 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     default=None,
     help="Optional. If provided, the script tries to deploy the demonstrator to Huggingface, to the specified app name, using streamlit",
 )
+@click.option(
+    "--auth",
+    type=bool,
+    default=False,
+    help="Optional. If provided, the dashboard will be protected by a password.",
+)
 def build(
     name: str,
     task_type: str,
-    dashboard_type: str,
     dataset_path: str,
     model_path: str,
     time_column: str,
@@ -248,9 +284,11 @@ def build(
     explainers: str,
     imputers: str,
     plot_alternatives: str,
+    extras: str,
     output: Path,
     heroku_app: Optional[str],
     huggingface_app: Optional[str],
+    auth: bool,
 ) -> None:
     output = Path(output)
     try:
@@ -262,7 +300,6 @@ def build(
     app_path = build_app(
         name,
         task_type,
-        dashboard_type,
         dataset_path,
         model_path,
         time_column,
@@ -271,10 +308,12 @@ def build(
         explainers,
         imputers,
         plot_alternatives,
+        extras,
+        auth=auth,
     )
 
     image_bin = Path(output) / "image_bin"
-    pack(app_path, output=image_bin, dashboard_type=dashboard_type)
+    pack(app_path, output=image_bin)
 
     if heroku_app:
         upload_heroku(image_bin, heroku_app)

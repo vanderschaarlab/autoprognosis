@@ -5,7 +5,12 @@ from typing import Any, Callable, Dict, List
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error, roc_auc_score
+from sklearn.metrics import (
+    mean_squared_error,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 
 # adjutorium absolute
@@ -138,6 +143,18 @@ def evaluate_estimator(
     }
 
 
+survival_supported_metrics = [
+    "c_index",
+    "brier_score",
+    "aucroc",
+    "sensitivity",
+    "specificity",
+    "PPV",
+    "NPV",
+    "predicted_cases",
+]
+
+
 def evaluate_survival_estimator(
     estimator: Any,
     X: pd.DataFrame,
@@ -145,9 +162,10 @@ def evaluate_survival_estimator(
     Y: pd.DataFrame,
     time_horizons: List,
     n_folds: int = 3,
-    metrics: List[str] = ["c_index", "brier_score", "aucroc"],
+    metrics: List[str] = survival_supported_metrics,
     seed: int = 0,
     pretrained: bool = False,
+    risk_threshold: float = 0.5,
 ) -> Dict:
     """Helper for evaluating survival analysis tasks.
 
@@ -170,11 +188,10 @@ def evaluate_survival_estimator(
             If the estimator was trained or not
     """
 
-    supported_metrics = ["c_index", "brier_score", "aucroc"]
     results = {}
 
     for metric in metrics:
-        if metric not in supported_metrics:
+        if metric not in survival_supported_metrics:
             raise ValueError(f"Metric {metric} not supported")
 
         results[metric] = np.zeros(n_folds)
@@ -187,7 +204,10 @@ def evaluate_survival_estimator(
         T_test: pd.DataFrame,
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
+        time_horizons: list,
     ) -> tuple:
+        train_max = T_train.max()
+        T_test[T_test > train_max] = train_max
 
         if pretrained:
             model = estimator[cv_idx]
@@ -207,6 +227,7 @@ def evaluate_survival_estimator(
 
         c_index = 0.0
         brier_score = 0.0
+
         for k in range(len(time_horizons)):
             eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
 
@@ -236,8 +257,12 @@ def evaluate_survival_estimator(
         T_test: pd.DataFrame,
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
-    ) -> float:
+        time_horizons: list,
+    ) -> Dict[str, float]:
         cv_idx = 0
+
+        train_max = T_train.max()
+        T_test[T_test > train_max] = train_max
 
         if pretrained:
             model = estimator[cv_idx]
@@ -255,16 +280,36 @@ def evaluate_survival_estimator(
         except BaseException as e:
             raise e
 
-        local_preds = pd.DataFrame(pred[:, k]).squeeze()
+        local_scores = pd.DataFrame(pred[:, k]).squeeze()
+        local_preds = (local_scores > risk_threshold).astype(int)
 
-        return roc_auc_score(Y_test, local_preds) / (len(time_horizons))
+        return {
+            "aucroc": roc_auc_score(Y_test, local_scores) / (len(time_horizons)),
+            "specificity": recall_score(Y_test, local_preds, pos_label=0)
+            / (len(time_horizons)),
+            "sensitivity": recall_score(Y_test, local_preds, pos_label=1)
+            / (len(time_horizons)),
+            "PPV": precision_score(Y_test, local_preds, pos_label=1)
+            / (len(time_horizons)),
+            "NPV": precision_score(Y_test, local_preds, pos_label=0)
+            / (len(time_horizons)),
+            "predicted_cases": local_preds.sum(),
+        }
 
     if n_folds == 1:
         cv_idx = 0
         X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(X, T, Y)
+        local_time_horizons = [t for t in time_horizons if t > np.min(T_test)]
 
         c_index, brier_score = _get_surv_metrics(
-            cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
+            cv_idx,
+            X_train,
+            X_test,
+            T_train,
+            T_test,
+            Y_train,
+            Y_test,
+            local_time_horizons,
         )
         for metric in metrics:
             if metric == "c_index":
@@ -272,22 +317,29 @@ def evaluate_survival_estimator(
             elif metric == "brier_score":
                 results[metric][cv_idx] = brier_score
 
-        if "aucroc" in metrics:
-            for k in range(len(time_horizons)):
-                cv_idx = 0
+        for k in range(len(time_horizons)):
+            cv_idx = 0
 
-                X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
-                    X, T, Y, time_horizons[k]
-                )
-                X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
-                    X_horizon, T_horizon, Y_horizon
-                )
+            X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
+                X, T, Y, time_horizons[k]
+            )
+            X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
+                X_horizon, T_horizon, Y_horizon
+            )
 
-                metric = "aucroc"
-
-                results[metric][cv_idx] += _get_clf_metrics(
-                    cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
-                )
+            clf_metrics = _get_clf_metrics(
+                cv_idx,
+                X_train,
+                X_test,
+                T_train,
+                T_test,
+                Y_train,
+                Y_test,
+                local_time_horizons,
+            )
+            for metric in clf_metrics:
+                if metric in metrics:
+                    results[metric][cv_idx] += clf_metrics[metric]
 
     else:
         skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
@@ -302,8 +354,17 @@ def evaluate_survival_estimator(
             Y_test = Y.loc[Y.index[test_index]]
             T_test = T.loc[T.index[test_index]]
 
+            local_time_horizons = [t for t in time_horizons if t > np.min(T_test)]
+
             c_index, brier_score = _get_surv_metrics(
-                cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
+                cv_idx,
+                X_train,
+                X_test,
+                T_train,
+                T_test,
+                Y_train,
+                Y_test,
+                local_time_horizons,
             )
             for metric in metrics:
                 if metric == "c_index":
@@ -313,29 +374,36 @@ def evaluate_survival_estimator(
 
             cv_idx += 1
 
-        if "aucroc" in metrics:
-            for k in range(len(time_horizons)):
-                cv_idx = 0
+        for k in range(len(time_horizons)):
+            cv_idx = 0
 
-                X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
-                    X, T, Y, time_horizons[k]
+            X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
+                X, T, Y, time_horizons[k]
+            )
+            for train_index, test_index in skf.split(X_horizon, Y_horizon):
+
+                X_train = X_horizon.loc[X_horizon.index[train_index]]
+                Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
+                T_train = T_horizon.loc[T_horizon.index[train_index]]
+                X_test = X_horizon.loc[X_horizon.index[test_index]]
+                Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
+                T_test = T_horizon.loc[T_horizon.index[test_index]]
+
+                clf_metrics = _get_clf_metrics(
+                    cv_idx,
+                    X_train,
+                    X_test,
+                    T_train,
+                    T_test,
+                    Y_train,
+                    Y_test,
+                    local_time_horizons,
                 )
-                for train_index, test_index in skf.split(X_horizon, Y_horizon):
+                for metric in clf_metrics:
+                    if metric in metrics:
+                        results[metric][cv_idx] += clf_metrics[metric]
 
-                    X_train = X_horizon.loc[X_horizon.index[train_index]]
-                    Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
-                    T_train = T_horizon.loc[T_horizon.index[train_index]]
-                    X_test = X_horizon.loc[X_horizon.index[test_index]]
-                    Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
-                    T_test = T_horizon.loc[T_horizon.index[test_index]]
-
-                    metric = "aucroc"
-
-                    results[metric][cv_idx] += _get_clf_metrics(
-                        cv_idx, X_train, X_test, T_train, T_test, Y_train, Y_test
-                    )
-
-                    cv_idx += 1
+                cv_idx += 1
 
     output: dict = {
         "clf": {},

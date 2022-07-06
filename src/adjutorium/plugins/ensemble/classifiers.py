@@ -231,16 +231,13 @@ class WeightedEnsembleCV(BaseEnsemble):
         self.seed = 42
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsembleCV":
-        X = np.asarray(X)
-        Y = np.asarray(Y)
-
         skf = StratifiedKFold(
             n_splits=self.n_folds, shuffle=True, random_state=self.seed
         )
         cv_idx = 0
         for train_index, test_index in skf.split(X, Y):
-            X_train = X[train_index]
-            Y_train = Y[train_index]
+            X_train = X.loc[X.index[train_index]]
+            Y_train = Y.loc[Y.index[train_index]]
 
             self.models[cv_idx].fit(X_train, Y_train)
             cv_idx += 1
@@ -350,8 +347,6 @@ class StackingEnsemble(BaseEnsemble):
             )
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
-        Y = pd.DataFrame(Y).values.ravel()
-
         self.clf.fit(X, Y)
 
         self.explainers = {}

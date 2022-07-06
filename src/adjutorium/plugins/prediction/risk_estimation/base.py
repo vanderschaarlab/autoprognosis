@@ -8,7 +8,6 @@ import pandas as pd
 # adjutorium absolute
 import adjutorium.plugins.core.params as params
 import adjutorium.plugins.prediction.base as prediction_base
-import adjutorium.plugins.utils.cast as cast
 
 
 class RiskEstimationPlugin(prediction_base.PredictionPlugin):
@@ -55,7 +54,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         T = args[0]
         Y = args[1]
 
-        X = cast.to_dataframe(X)
+        X = self._fit_input(X)
         self._fit(X, *args, **kwargs)
 
         if self.with_explanations and self.explainer is None:
@@ -80,6 +79,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         return self
 
     def explain(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        X = self._transform_input(X)
         if self.explainer is None:
             raise ValueError("Interpretability is not enabled for this model")
 

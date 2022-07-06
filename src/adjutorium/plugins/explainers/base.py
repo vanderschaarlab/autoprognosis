@@ -63,4 +63,3 @@ class ExplainerPlugin(metaclass=ABCMeta):
         plt.xticks(x_pos, feature_names, wrap=True)
         plt.xlabel(axis_title)
         plt.title(title)
-        plt.show()

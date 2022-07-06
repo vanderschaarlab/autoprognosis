@@ -36,6 +36,7 @@ class ConformalPredictionPlugin(UncertaintyPlugin):
 
     def _calibrate_classifier(self, X: pd.DataFrame, y: pd.DataFrame) -> None:
         y_pred = self.model.predict_proba(X)
+        y_pred.index = y.index
 
         classes = y_pred.shape[1]
 

@@ -11,12 +11,18 @@ from typing import Any, Optional, Tuple, Union
 import pandas as pd
 
 # adjutorium absolute
+from adjutorium.apps.common.pandas_to_streamlit import (
+    generate_menu as generate_menu_with_streamlit,
+)
 from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
 from adjutorium.deploy.utils import file_copy, file_md5
 from adjutorium.exceptions import BuildCancelled
 import adjutorium.logger as log
+from adjutorium.plugins.ensemble.risk_estimation import RiskEnsembleCV
+from adjutorium.plugins.prediction import Predictions
 from adjutorium.studies._preprocessing import dataframe_encode_and_impute
 from adjutorium.utils.serialization import load_model_from_file, save_model_to_file
+from adjutorium.utils.tester import constant_columns
 
 STATUS_KEY = "build_status"
 CHECKPOINT_KEY = "checkpoint"
@@ -102,8 +108,10 @@ class Builder:
         self,
         task: Union[NewRiskEstimationAppProto, NewClassificationAppProto],
         blocking: bool = True,
+        use_cache: bool = False,
     ) -> None:
         self.task = task
+        self.use_cache = use_cache
 
         self.blocking = blocking
         self.model_path = Path(self.task.model_path)
@@ -115,11 +123,24 @@ class Builder:
         self.progress = BuilderProgress(str(self.app_backup_file))
         atexit.register(self.progress.reset)
 
+    def _parse_sections(self, data: pd.DataFrame) -> list:
+        actual_idx = 0
+        sections = []
+        for col in data.columns:
+            if data[col].isna().sum() == len(data[col]):
+                sections.append((actual_idx, col))
+            elif len(data[col].unique()) > 1:
+                actual_idx += 1
+
+        return sections
+
     def _load_dataset(self) -> Tuple:
         self._should_continue()
         self.checkpoint = CHECKPOINT_DATASET_LOADING
 
         data = pd.read_csv(self.task.dataset_path)
+        sections = self._parse_sections(data)
+        data = data.drop(columns=constant_columns(data))
         imputation_method: Optional[str] = None
         # we treat binary columns as checkboxes
         checkboxes: list = []
@@ -155,13 +176,11 @@ class Builder:
 
             for col in rawX.columns:
                 vals = [v for v in rawX[col].unique() if not pd.isna(v)]
-                log.info(f"unique vals {vals}")
                 if sorted(vals) == [0, 1]:
                     checkboxes.append(col)
                 else:
                     other_cols.append(col)
 
-            rawX = rawX[checkboxes + other_cols]
             X = encoders.encode(rawX)
             rawX = encoders.decode(X.dropna())
             log.info(f"Loaded dataset final encoding {X.shape} {T.shape} {Y.shape}")
@@ -173,6 +192,7 @@ class Builder:
                 Y,
                 encoders,
                 checkboxes,
+                sections,
             )
         elif self.task.type == "classification":
             X = data.drop(
@@ -206,7 +226,6 @@ class Builder:
                 else:
                     other_cols.append(col)
 
-            rawX = rawX[checkboxes + other_cols]
             X = encoders.encode(rawX)
             rawX = encoders.decode(X.dropna())
             log.info(f"Loaded dataset final encoding {X.shape} {Y.shape}")
@@ -218,6 +237,7 @@ class Builder:
                 Y,
                 encoders,
                 checkboxes,
+                sections,
             )
         raise NotImplementedError(f"task not supported {self.task.type}")
 
@@ -232,20 +252,42 @@ class Builder:
     ) -> dict:
         self._should_continue()
         log.info(f"Creating model with explainers {explainers}")
-        model = load_model_from_file(self.task.model_path)
-        model.enable_explainer(explainer_plugins=explainers, explanations_nepoch=500)
-        log.info(f"Loaded model {model.name()}")
 
-        self.checkpoint = CHECKPOINT_TRAIN_MODEL
+        if output_path.exists():
+            return load_model_from_file(output_path)
+
+        base_model = load_model_from_file(self.task.model_path)
+        model = RiskEnsembleCV(
+            time_horizons=time_horizons,
+            ensemble=base_model,
+            explainer_plugins=explainers,
+            explanations_nepoch=500,
+        )
+        log.info(f"Train Adjutorium model: model {model.name()}")
+
         self._should_continue()
         model.fit(X, T, Y)
 
+        self.checkpoint = CHECKPOINT_TRAIN_MODEL
         self._should_continue()
+
         app_models = {
             DISPLAY_NAME: model,
         }
 
-        self._should_continue()
+        plugins = Predictions(category="risk_estimation")
+        for name, comparative, args in self.task.comparative_models:
+            log.info(f"train: {name} {args}")
+            ref_model_base = plugins.get(comparative, **args)
+            ref_model = RiskEnsembleCV(
+                time_horizons=time_horizons, ensemble=ref_model_base
+            )
+            ref_model.fit(X, T, Y)
+
+            app_models[name] = ref_model
+
+            self._should_continue()
+
         save_model_to_file(output_path, app_models)
 
         return app_models
@@ -279,7 +321,7 @@ class Builder:
 
     def _run(self, app_path: Path) -> str:
         self._should_continue()
-        X, rawX, T, Y, encoders, checkboxes = self._load_dataset()
+        X, rawX, T, Y, encoders, checkboxes, sections = self._load_dataset()
 
         self._should_continue()
         if self.task.type == "risk_estimation":
@@ -307,23 +349,8 @@ class Builder:
         app_title = self.task.name
         banner_title = f"{app_title} study"
 
-        if self.task.dashboard_type == "streamlit":
-            # adjutorium absolute
-            from adjutorium.apps.common.pandas_to_streamlit import (
-                generate_menu as generate_menu_with_streamlit,
-            )
-
-            column_types = generate_menu_with_streamlit(rawX, checkboxes)
-            menu_components = column_types
-        elif self.task.dashboard_type == "dash":
-            # adjutorium absolute
-            from adjutorium.apps.common.pandas_to_dash import (
-                generate_menu as generate_menu_with_dash,
-            )
-
-            menu_components, column_types = generate_menu_with_dash(rawX, checkboxes)
-        else:
-            raise RuntimeError("invalid dashboard type", self.task.dashboard_type)
+        column_types = generate_menu_with_streamlit(rawX, checkboxes, sections)
+        menu_components = column_types
 
         plot_alternatives: dict = {"Adjutorium model": {}}
         for col in self.task.plot_alternatives:
@@ -344,6 +371,8 @@ class Builder:
                     "menu_components": menu_components,
                     "time_horizons": self.task.horizons,
                     "plot_alternatives": plot_alternatives,
+                    "extras_cbk": self.task.extras_cbk,
+                    "auth": self.task.auth,
                 },
             )
         elif self.task.type == "classification":
@@ -371,7 +400,7 @@ class Builder:
 
         app_build_file = self.working_path / f"app_{model_version}.p"
 
-        if app_build_file.exists():
+        if app_build_file.exists() and self.use_cache:
             self.status = STATUS_DONE
             self.checkpoint = STATUS_DONE
 

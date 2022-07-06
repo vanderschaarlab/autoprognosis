@@ -35,6 +35,8 @@ class EncodersCallbacks:
     def encode(self, df: pd.DataFrame) -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             target = _fillna(output, col)
             if hasattr(enc, "get_feature_names"):
@@ -54,8 +56,15 @@ class EncodersCallbacks:
                     index=output.index.copy(),
                 )
 
+            orig_cols = list(output)
+            old_col_idx = orig_cols.index(col)
+
             output.drop(columns=[col], inplace=True)
+            l_cols, r_cols = output.columns[:old_col_idx], output.columns[old_col_idx:]
+
+            out_cols = list(l_cols) + list(encoded.columns) + list(r_cols)
             output = pd.concat([output, encoded], axis=1)
+            output = output[out_cols]
 
         if self.imputer:
             columns = output.columns
@@ -70,6 +79,8 @@ class EncodersCallbacks:
     def decode(self, df: pd.DataFrame) -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             if hasattr(enc, "get_feature_names"):
                 columns = enc.get_feature_names([col])
@@ -77,13 +88,20 @@ class EncodersCallbacks:
                 columns = [col]
 
             decoded = pd.DataFrame(
-                enc.inverse_transform(output[columns].astype(int).values),
+                enc.inverse_transform(output[columns].astype(int).values.squeeze()),
                 columns=[col],
                 index=output.index.copy(),
             )
 
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
             output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
             output = pd.concat([output, decoded], axis=1)
+            out_cols = list(l_cols) + list(decoded.columns) + list(r_cols)
+            output = output[out_cols]
 
         if output.isnull().values.any():
             raise RuntimeError("Imputation returned null")
@@ -93,6 +111,8 @@ class EncodersCallbacks:
     def numeric_decode(self, df: pd.DataFrame, strategy: str = "max") -> pd.DataFrame:
         output = df.copy()
         for col in self.encoders:
+            if col not in df.columns:
+                continue
             enc = self.encoders[col]
             if hasattr(enc, "get_feature_names"):
                 columns = enc.get_feature_names([col])
@@ -102,8 +122,18 @@ class EncodersCallbacks:
                 vals = output[columns].max(axis=1)
             else:
                 raise ValueError(f"unknown strategy {strategy}")
+
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
             output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
             output[col] = vals
+
+            out_cols = list(l_cols) + [col] + list(r_cols)
+            output = output[out_cols]
+
         if output.isnull().values.any():
             raise RuntimeError("Imputation returned null")
         return output

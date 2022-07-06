@@ -118,6 +118,7 @@ def _generate_fit() -> Callable:
     def fit_impl(self: Any, X: pd.DataFrame, *args: Any, **kwargs: Any) -> Any:
         local_X = X.copy()
         for stage in self.stages[:-1]:
+            local_X = pd.DataFrame(local_X)
             local_X = stage.fit_transform(local_X)
 
         self.stages[-1].fit(local_X, *args, **kwargs)

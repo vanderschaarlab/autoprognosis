@@ -36,7 +36,7 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
         learning_rate: float = 5e-2,
         min_child_weight: int = 50,
         tree_method: str = "hist",
-        booster: int = 2,
+        booster: int = 0,
         objective: str = "aft",  # "aft", "cox"
         strategy: str = "weibull",  # "weibull", "debiased_bce"
         model: Any = None,
@@ -81,11 +81,12 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
             "tree_method": tree_method,
             "booster": XGBoostRiskEstimationPlugin.booster[booster],
             "random_state": random_state,
-            "n_jobs": 4,
+            "n_jobs": -1,
         }
         lr_params = {
             "C": 1e-3,
             "max_iter": 10000,
+            "n_jobs": -1,
         }
         if strategy == "debiased_bce":
             base_model = XGBSEDebiasedBCE(xgboost_params, lr_params)

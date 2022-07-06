@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 import pandas as pd
 
 # adjutorium absolute
+import adjutorium.logger as log
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.studies._preprocessing import EncodersCallbacks
 from adjutorium.utils.pip import install
@@ -50,7 +51,6 @@ def classification_dashboard(
             List of features where to plot alternative values. Example: if treatment == 0, it will plot alternative treatment == 1 as well, as a comparison.
     """
 
-    print(title)
     st.set_page_config(layout="wide", page_title=title)
 
     hide_footer_style = """
@@ -126,7 +126,7 @@ def classification_dashboard(
                 src_interpretation = raw_interpretation[src]
 
                 if src_interpretation.shape != (1, len(df.columns)):
-                    print(
+                    log.error(
                         f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns))}"
                     )
                     continue

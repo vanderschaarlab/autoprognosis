@@ -4,16 +4,18 @@ from importlib.abc import Loader
 import importlib.util
 from os.path import basename
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Type
+from typing import Any, Dict, Generator, List, Optional, Type
 
 # third party
 import numpy as np
 from optuna.trial import Trial
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # adjutorium absolute
 import adjutorium.logger as log
 import adjutorium.plugins.utils.cast as cast
+from adjutorium.utils.tester import constant_columns
 
 # adjutorium relative
 from .params import Params
@@ -38,6 +40,8 @@ class Plugin(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         self.output = pd.DataFrame
+        self._backup_encoders: Optional[Dict[str, LabelEncoder]] = {}
+        self._drop_features: Optional[List[str]] = []
 
     def change_output(self, output: str) -> None:
         if output not in ["pandas", "numpy"]:
@@ -126,8 +130,41 @@ class Plugin(metaclass=ABCMeta):
     def fit_predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return pd.DataFrame(self.fit(X, *args, *kwargs).predict(X))
 
+    def _fit_input(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = cast.to_dataframe(X).copy()
+        self._backup_encoders = {}
+        self._drop_features = []
+
+        for col in X.columns:
+            if X[col].dtype != "object":
+                continue
+
+            encoder = LabelEncoder()
+            X[col] = encoder.fit_transform(X[col])
+
+            self._backup_encoders[col] = encoder
+        self._drop_features = constant_columns(X)
+        return X.drop(columns=self._drop_features)
+
+    def _transform_input(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = cast.to_dataframe(X).copy()
+
+        if self._backup_encoders is None:
+            self._backup_encoders = {}
+        if self._drop_features is None:
+            self._drop_features = []
+
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
+        for col in self._drop_features:
+            if col not in X.columns:
+                continue
+            X = X.drop(columns=[col])
+        return X
+
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
-        X = cast.to_dataframe(X)
+        X = self._fit_input(X)
+
         return self._fit(X, *args, **kwargs)
 
     @abstractmethod
@@ -135,7 +172,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        X = cast.to_dataframe(X)
+        X = self._transform_input(X)
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -143,7 +180,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        X = cast.to_dataframe(X)
+        X = self._transform_input(X)
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod
