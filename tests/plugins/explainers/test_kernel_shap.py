@@ -41,8 +41,7 @@ def test_plugin_sanity(classifier: str) -> None:
 
     result = explainer.explain(X_test)
 
-    assert len(result) == len(np.unique(y_train))
-    assert len(result[0]) == len(X_test)
+    assert result.shape == X_test.shape
 
 
 def test_plugin_name() -> None:
@@ -73,4 +72,4 @@ def test_plugin_kernel_shap_survival_prediction() -> None:
 
     result = explainer.explain(X[:3])
 
-    assert result.shape == (3, X.shape[1], 2)
+    assert result.shape == (3, X.shape[1])
