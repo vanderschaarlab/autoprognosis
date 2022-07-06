@@ -283,7 +283,7 @@ class invaseClassifier(invaseBase):
 
         gen_prob = self.critic(X)
 
-        return gen_prob.detach().numpy()
+        return gen_prob.detach().cpu().numpy()
 
     def _build_critic(self) -> nn.Module:
         return nn.Sequential(
@@ -304,11 +304,11 @@ class invaseClassifier(invaseBase):
         self, estimator: Any, x: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
         if hasattr(estimator, "predict_proba"):
-            baseline_proba = estimator.predict_proba(x.detach().numpy())
+            baseline_proba = estimator.predict_proba(x.detach().cpu().numpy())
             baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
             return -torch.sum(y * torch.log(baseline_proba + EPS), dim=-1)
         else:
-            baseline_proba = estimator.predict(x.detach().numpy())
+            baseline_proba = estimator.predict(x.detach().cpu().numpy())
             baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
             return torch.sum((y - baseline_proba) ** 2, dim=-1)
 
@@ -324,7 +324,7 @@ class invaseClassifier(invaseBase):
         return nn.MSELoss()(y_pred, y_true)
 
     def _importance_init(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.zeros(x.shape)
+        return torch.zeros(x.shape).to(DEVICE)
 
     def _importance_test(
         self, estimator: Any, x: np.ndarray, y: np.ndarray
@@ -333,7 +333,7 @@ class invaseClassifier(invaseBase):
         n_features = x.shape[-1]
         # get baseline importance
         for mask in bitmask_intervals(n_features, n_features - 1, n_features):
-            mask = torch.broadcast_to(mask, x.shape)
+            mask = torch.broadcast_to(mask, x.shape).to(DEVICE)
             masked_batch = self.masking([x, mask])
 
             baseline_loss = self._baseline_metric(estimator, masked_batch, y)
@@ -347,7 +347,7 @@ class invaseClassifier(invaseBase):
         next_slice = list(itertools.islice(bitmask_generator, len(x)))
 
         while len(next_slice) == len(x):
-            next_mask = torch.stack(next_slice)
+            next_mask = torch.stack(next_slice).to(DEVICE)
 
             for local_inter in range(self.epochs_inner):
                 indices = torch.argsort(torch.rand(*next_mask.shape), dim=-1)
@@ -477,7 +477,7 @@ class invaseRiskEstimation(invaseBase):
         next_slice = list(itertools.islice(bitmask_generator, len(x)))
 
         while len(next_slice) == len(x):
-            next_mask = torch.stack(next_slice)
+            next_mask = torch.stack(next_slice).to(DEVICE)
 
             for local_inter in range(self.epochs_inner):
                 indices = torch.argsort(torch.rand(*next_mask.shape), dim=-1)
