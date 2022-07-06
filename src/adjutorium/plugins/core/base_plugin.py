@@ -4,7 +4,7 @@ from importlib.abc import Loader
 import importlib.util
 from os.path import basename
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Type
+from typing import Any, Dict, Generator, List, Optional, Type
 
 # third party
 import numpy as np
@@ -40,8 +40,8 @@ class Plugin(metaclass=ABCMeta):
 
     def __init__(self) -> None:
         self.output = pd.DataFrame
-        self._backup_encoders: Dict[str, LabelEncoder] = {}
-        self._drop_features: List[str] = []
+        self._backup_encoders: Optional[Dict[str, LabelEncoder]] = {}
+        self._drop_features: Optional[List[str]] = []
 
     def change_output(self, output: str) -> None:
         if output not in ["pandas", "numpy"]:
@@ -148,6 +148,11 @@ class Plugin(metaclass=ABCMeta):
 
     def _transform_input(self, X: pd.DataFrame) -> pd.DataFrame:
         X = cast.to_dataframe(X).copy()
+
+        if self._backup_encoders is None:
+            self._backup_encoders = {}
+        if self._drop_features is None:
+            self._drop_features = []
 
         for col in self._backup_encoders:
             X[col] = self._backup_encoders[col].transform(X[col])
