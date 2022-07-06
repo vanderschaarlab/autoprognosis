@@ -9,3 +9,6 @@ hyperimpute==0.1.5
 xgboost>=1.6.1
 xgbse>=0.2.3
 streamlit
+matplotlib
+seaborn
+
