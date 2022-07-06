@@ -9,6 +9,7 @@ import adjutorium.logger as log
 current_dir = Path(__file__).parent
 
 predefined = {
+    "shap": "shap>=0.40.0",
     "combo": "git+https://github.com/yzhao062/combo",
     "symbolic_pursuit": "git+https://github.com/vanderschaarlab/Symbolic-Pursuit",
 }

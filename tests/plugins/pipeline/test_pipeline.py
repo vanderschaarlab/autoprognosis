@@ -3,6 +3,7 @@ from typing import Any, List, Tuple
 
 # third party
 import numpy as np
+import pandas as pd
 import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -17,7 +18,7 @@ from adjutorium.plugins.utils.simulate import simulate_nan
 from adjutorium.utils.serialization import load_model, save_model
 
 
-def dataset() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def dataset() -> Tuple:
     X, y = load_breast_cancer(return_X_y=True)
     return train_test_split(X, y, test_size=0.2)
 
@@ -146,9 +147,9 @@ def test_pipeline_end2end(serialize: bool) -> None:
         buff = pipeline.save()
         pipeline = PipelineMeta.load(buff)
 
-    pipeline.fit(X_train, y_train)
+    pipeline.fit(pd.DataFrame(X_train), pd.Series(y_train))
 
-    y_pred = pipeline.predict(X_test)
+    y_pred = pipeline.predict(pd.DataFrame(X_test))
 
     assert np.abs(np.subtract(y_pred.to_numpy(), y_test)).mean() < 1
 

@@ -30,7 +30,7 @@ def test_weighted_ensemble_sanity(serialize: bool) -> None:
 
     ens = WeightedEnsemble([dtype(), dtype2()], [0.5, 0.5], explainer_plugins=[])
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -62,16 +62,17 @@ def test_weighted_ensemble_explainer() -> None:
         explanations_nepoch=10,
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
 
     ens.fit(X_train, y_train)
 
-    y_pred = ens.explain(X_test[:3])
+    y_pred = ens.explain(X_test.head(3))
     assert sorted(y_pred.keys()) == sorted(["invase", "kernel_shap"])
     for src in y_pred:
+        print("weighted_ensemble", src)
         assert y_pred[src].shape == (3, X_test.shape[1])
 
 
@@ -89,7 +90,7 @@ def test_weighted_ensemble_cv_sanity(serialize: bool) -> None:
         n_folds=2,
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -127,7 +128,7 @@ def test_weighted_ensemble_cv_explainer() -> None:
         n_folds=2,
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -153,7 +154,7 @@ def test_stacked_ensemble_sanity(serialize: bool) -> None:
         explainer_plugins=[],
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -184,7 +185,7 @@ def test_stacked_ensemble_explainer() -> None:
         explanations_nepoch=10,
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -207,7 +208,7 @@ def test_aggregating_ensemble_sanity(serialize: bool) -> None:
         [dtype(output="pandas"), dtype2(output="pandas")], explainer_plugins=[]
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
@@ -236,7 +237,7 @@ def test_aggregating_ensemble_explainer() -> None:
         explanations_nepoch=10,
     )
 
-    X, y = load_breast_cancer(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0
     )
