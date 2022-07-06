@@ -5,6 +5,7 @@ from typing import Any
 import pandas as pd
 
 # adjutorium absolute
+import adjutorium.logger as log
 from adjutorium.utils.metrics import evaluate_auc
 
 
@@ -87,7 +88,7 @@ class ADAModel:
         expected_cols = ["sex", "age", "fh_diab", "ht_treat", "b_daily_exercise", "bmi"]
         for col in expected_cols:
             if col not in df.columns:
-                print(f"[ADA] missing {col}")
+                log.error(f"[ADA] missing {col}")
                 df[col] = 0
 
         scores = df.apply(lambda row: qdiabetes_inference(row), axis=1)

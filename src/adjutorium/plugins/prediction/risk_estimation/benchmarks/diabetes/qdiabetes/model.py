@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 # adjutorium absolute
+import adjutorium.logger as log
 from adjutorium.utils.metrics import evaluate_auc
 
 # Model A
@@ -923,8 +924,6 @@ class QDiabetesModel:
                 ],  # smoking category: non-smoker, ex-smoker, light-smoker(less than 10/), moderate smoker(10-      19), heavy smoker(20 or over)
                 town=row["town_depr_index"],  # Townsend deprivation score
             )
-            if np.iscomplex(score):
-                print("generated complex score", score, "input", row)
             return score
 
         expected_cols = [
@@ -948,7 +947,7 @@ class QDiabetesModel:
         ]
         for col in expected_cols:
             if col not in df.columns:
-                print(f"[QDiab] missing {col}")
+                log.error(f"[QDiab] missing {col}")
                 df[col] = 0
 
         scores = df.apply(lambda row: qdiabetes_inference(row), axis=1)

@@ -40,6 +40,7 @@ import numpy as np
 import pandas as pd
 
 # adjutorium absolute
+import adjutorium.logger as log
 from adjutorium.utils.metrics import evaluate_auc
 
 
@@ -542,7 +543,7 @@ class QRisk3Model:
         df = df.copy()
         for col in expected_cols:
             if col not in df.columns:
-                print(f"[QRisk3] missing {col}")
+                log.error(f"[QRisk3] missing {col}")
                 df[col] = 0
 
         scores = df.apply(lambda row: qrisk3_inference(row), axis=1)

@@ -12,6 +12,7 @@ from adjutorium.apps.common.login import (
     is_authenticated,
     login,
 )
+import adjutorium.logger as log
 from adjutorium.plugins.explainers import Explainers
 from adjutorium.studies._preprocessing import EncodersCallbacks
 from adjutorium.utils.pip import install
@@ -186,7 +187,7 @@ def generate_interpretation_plots(
                 )
 
             else:
-                print(
+                log.error(
                     f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns), len(time_horizons))}"
                 )
                 continue

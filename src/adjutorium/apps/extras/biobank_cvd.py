@@ -120,7 +120,6 @@ def eval_qrisk3(raw_df: pd.DataFrame) -> float:
     qrisk_input["b_erectile_disf"] = 0
     qrisk_input["b_diab_type1"] = 0
 
-    print(list(qrisk_input.columns))
     qrisk_input = qrisk_input.rename(
         columns={
             "Sex": "sex",
