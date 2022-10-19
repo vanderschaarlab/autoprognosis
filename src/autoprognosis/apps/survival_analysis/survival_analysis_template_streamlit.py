@@ -140,7 +140,8 @@ def generate_interpretation_plots(
             continue
         try:
             raw_interpretation = models[reason].explain(df)
-            assert isinstance(raw_interpretation, dict)
+            if not isinstance(raw_interpretation, dict):
+                raise ValueError("raw_interpretation must be a dict")
         except BaseException:
             continue
 

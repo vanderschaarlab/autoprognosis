@@ -95,11 +95,12 @@ class CohortRule:
         )
 
     def get_confidence(self, prediction: np.ndarray) -> np.ndarray:
-        assert (
+        if not (
             len(self.calibration_predictions_safe)
             + len(self.calibration_predictions_risk)
             > 0
-        ), f"Uncalibrated cohort {self.name}"
+        ):
+            raise RuntimeError(f"Uncalibrated cohort {self.name}")
 
         prediction = np.asarray(prediction).squeeze()
 
@@ -127,8 +128,10 @@ class CohortRule:
         return round(1 - self.calibration_perf_score, 2)
 
     def _check_sanity(self) -> None:
-        assert len(self.target_features) == len(self.ops)
-        assert len(self.target_features) == len(self.thresholds)
+        if len(self.target_features) != len(self.ops):
+            raise ValueError("invalid self.ops")
+        if len(self.target_features) != len(self.thresholds):
+            raise ValueError("invalid self.thresholds")
 
     def _eval(self, X: pd.DataFrame, feature: str, op: str, threshold: Any) -> bool:
         if op == "lt":
@@ -168,9 +171,9 @@ class CohortMgmt:
     global_cohort = "(*)"
 
     def __init__(self, cohort_rules: Dict[str, CohortRule]) -> None:
-        assert (
-            CohortMgmt.global_cohort in cohort_rules
-        ), "Provide a rule for the full population"
+        if not (CohortMgmt.global_cohort in cohort_rules):
+            raise ValueError("Provide a rule for the full population")
+
         self.cohort_scores = sorted(
             cohort_rules, key=lambda key: cohort_rules[key].calibration_perf_score
         )

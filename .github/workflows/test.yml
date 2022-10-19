@@ -2,14 +2,12 @@ name: Tests
 
 on:
   push:
-    branches-ignore:
-      - '**'
-  #push:
-  #  branches: [main, release]
-  #pull_request:
-  #  types: [opened, synchronize, reopened]
-  #schedule:
-  #  - cron:  '0 0 * * 0'
+    branches: [main, release]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron:  '0 0 * * 0'
+
 
 jobs:
   Linter:
@@ -32,14 +30,15 @@ jobs:
         run: pre-commit run --files src/*
       - name: Security checks
         run: |
-            bandit -r src/*
+            bandit -r src/autoprognosis/plugins/*
+            bandit -r src/autoprognosis/studies/*
 
   Library:
     needs: [Linter]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ['3.7', '3.8', '3.9', "3.10"]
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
@@ -49,13 +48,8 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install MacOS dependencies
-        run: |
-            brew install rajivshah3/libomp-tap/libomp@11.1.0
-        if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
-            pip install .
             pip install .[testing]
       - name: Test with pytest
         run: pytest -vvvsx -m "not slow"

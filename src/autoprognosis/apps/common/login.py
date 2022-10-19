@@ -2,8 +2,8 @@
 import streamlit as st
 
 
-def is_authenticated(password):
-    return password == "autoprognosis"
+def is_authenticated(dummy):
+    return dummy == "autoprognosis"
 
 
 def generate_login_block():
