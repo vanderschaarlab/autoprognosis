@@ -94,7 +94,6 @@ def test_param_search() -> None:
 
     def objective(trial: optuna.Trial) -> float:
         args = plugin.sample_hyperparameters(trial)
-        print("lr search", args, flush=True)
         return evaluate_args(**args)
 
     study = optuna.create_study(
@@ -102,6 +101,6 @@ def test_param_search() -> None:
         directions=["maximize"],
         study_name=f"test_param_search_{plugin.name()}",
     )
-    study.optimize(objective, n_trials=10, timeout=60)
+    study.optimize(objective, n_trials=10, timeout=60, n_jobs=1)
 
     assert len(study.trials) == 10
