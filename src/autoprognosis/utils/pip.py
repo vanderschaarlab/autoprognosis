@@ -11,7 +11,6 @@ current_dir = Path(__file__).parent
 predefined = {
     "shap": "shap>=0.40.0",
     "combo": "git+https://github.com/yzhao062/combo",
-    "symbolic_pursuit": "git+https://github.com/vanderschaarlab/Symbolic-Pursuit",
 }
 
 
@@ -24,9 +23,20 @@ def install(packages: list) -> None:
 
         try:
             subprocess.check_call(
+                ["pip", "install", install_pack],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            continue
+        except BaseException as e:
+            log.error(f"failed to install package {package} from pip: {e}")
+
+        try:
+            subprocess.check_call(
                 [sys.executable, "-m", "pip", "install", install_pack],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
+            continue
         except BaseException as e:
-            log.error(f"failed to install package {package}: {e}")
+            log.error(f"failed to install package {package} from python -m pip: {e}")
