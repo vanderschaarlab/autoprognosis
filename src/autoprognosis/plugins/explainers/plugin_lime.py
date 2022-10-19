@@ -87,19 +87,21 @@ class LimePlugin(ExplainerPlugin):
             )
 
     def explain(self, X: pd.DataFrame) -> pd.DataFrame:
-        X = np.asarray(X).squeeze()
-        if len(X.shape) > 1:
-            raise ValueError("Lime supports a single instance")
-        expl = self.explainer.explain_instance(
-            X,
-            self.predict_fn,  # labels=self.feature_names,# top_labels=self.feature_names
-        )
-        importance = expl.as_list(label=1)
+        X = np.asarray(X)
+        results = []
 
-        vals = [x[1] for x in importance]
-        cols = [x[0] for x in importance]
+        for v in X:
+            expl = self.explainer.explain_instance(
+                v,
+                self.predict_fn,  # labels=self.feature_names,# top_labels=self.feature_names
+            )
+            importance = expl.as_list(label=1)
 
-        return pd.DataFrame([vals], columns=cols)
+            vals = [x[1] for x in importance]
+            cols = [x[0] for x in importance]
+            results.append(vals)
+
+        return pd.DataFrame(results, columns=cols)
 
     @staticmethod
     def name() -> str:
