@@ -1,9 +1,9 @@
 # third party
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.feature_scaling.plugin_normal_transform import (
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.feature_scaling.plugin_normal_transform import (
     plugin,
 )
 

@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.imputers.plugin_gain import plugin
-from adjutorium.plugins.utils.metrics import RMSE
-from adjutorium.plugins.utils.simulate import simulate_nan
+# autoprognosis absolute
+from autoprognosis.plugins.imputers import ImputerPlugin, Imputers
+from autoprognosis.plugins.imputers.plugin_gain import plugin
+from autoprognosis.plugins.utils.metrics import RMSE
+from autoprognosis.plugins.utils.simulate import simulate_nan
 
 
 def from_api() -> ImputerPlugin:

@@ -8,11 +8,11 @@ import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 
-# adjutorium absolute
-from adjutorium.exceptions import StudyCancelled
-from adjutorium.studies.classifiers import ClassifierStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_estimator
+# autoprognosis absolute
+from autoprognosis.exceptions import StudyCancelled
+from autoprognosis.studies.classifiers import ClassifierStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_estimator
 
 
 @pytest.mark.slow

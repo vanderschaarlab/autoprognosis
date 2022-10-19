@@ -4,10 +4,13 @@ import numpy as np
 import pytest
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.ensemble.risk_estimation import RiskEnsemble, RiskEnsembleCV
-from adjutorium.plugins.prediction import Predictions
-from adjutorium.utils.metrics import evaluate_skurv_brier_score, evaluate_skurv_c_index
+# autoprognosis absolute
+from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsemble, RiskEnsembleCV
+from autoprognosis.plugins.prediction import Predictions
+from autoprognosis.utils.metrics import (
+    evaluate_skurv_brier_score,
+    evaluate_skurv_c_index,
+)
 
 rossi = load_rossi()
 

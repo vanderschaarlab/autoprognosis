@@ -1,4 +1,4 @@
-exclude: '^docs/conf.py|^src/adjutorium/utils/third_party|^third_party/image_template'
+exclude: '^docs/conf.py|^src/autoprognosis/utils/third_party|^third_party/image_template'
 
 repos:
 - repo: git://github.com/pre-commit/pre-commit-hooks
@@ -31,13 +31,3 @@ repos:
   rev: 3.9.1
   hooks:
   - id: flake8
-- repo: local
-  hooks:
-  - id: flynt
-    name: flynt
-    entry: flynt
-    args: [--fail-on-change]
-    types: [python]
-    language: python
-    additional_dependencies:
-        - flynt

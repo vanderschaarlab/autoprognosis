@@ -1,5 +1,5 @@
 python ./scripts/build_demonstrator.py \
-    --name "Adjutorium: UK Biobank CVD study" \
+    --name "AutoPrognosis: UK Biobank CVD study" \
     --model_path=./workspace/biobank_cvd/model.p \
     --dataset_path=./workspace/biobank_cvd/biobank_cvd.csv \
     --time_column=time_to_event \

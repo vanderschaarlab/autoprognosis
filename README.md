@@ -1,9 +1,9 @@
 
 <h1 align="center">
   <br>
-  <a href="https://www.vanderschaar-lab.com/"><img src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/07/AutoML_Fig1_rev-2048x1199.png" alt="Adjutorium" width="400"></a>
+  <a href="https://www.vanderschaar-lab.com/"><img src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/07/AutoML_Fig1_rev-2048x1199.png" alt="AutoPrognosis" width="400"></a>
   <br>
-  Adjutorium
+  AutoPrognosis
   <br>
 </h1>
 
@@ -14,7 +14,7 @@
 </h3>
 
 [![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
 ## Features
 
@@ -31,7 +31,7 @@ $ pip install .
 ```
 
 ### Redis (Optional, but recommended)
-Adjutorium can use Redis as a backend to improve the performance and quality of the searches.
+AutoPrognosis can use Redis as a backend to improve the performance and quality of the searches.
 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
@@ -46,7 +46,7 @@ More advanced use cases can be found on our [tutorials section](#tutorials).
 
 #### Example: list available classifiers
 ```python
-from adjutorium.plugins.prediction.classifiers import Classifiers
+from autoprognosis.plugins.prediction.classifiers import Classifiers
 print(Classifiers().list())
 ```
 
@@ -56,9 +56,9 @@ from pathlib import Path
 
 from sklearn.datasets import load_breast_cancer
 
-from adjutorium.studies.classifiers import ClassifierStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_estimator
+from autoprognosis.studies.classifiers import ClassifierStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_estimator
 
 
 X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
@@ -91,7 +91,7 @@ print(f"model {model.name()} -> {metrics['clf']}")
 
 #### Example: list available survival analysis estimators
 ```python
-from adjutorium.plugins.prediction.risk_estimation import RiskEstimation
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
 print(RiskEstimation().list())
 ```
 ### Example for survival analysis studies
@@ -101,9 +101,9 @@ from pathlib import Path
 
 from lifelines.datasets import load_rossi
 
-from adjutorium.studies.risk_estimation import RiskEstimationStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_survival_estimator
+from autoprognosis.studies.risk_estimation import RiskEstimationStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
 rossi = load_rossi()
@@ -248,7 +248,7 @@ python ./scripts/build_demonstrator.py \
   --dataset_path=dataset.csv \
   --target_column=target \
   --task_type=classification
-  --heroku_app=test-adjutorium-deploy # replace with your app name
+  --heroku_app=test-autoprognosis-deploy # replace with your app name
 ```
 
 After the local build is done, the script will try to login to Heroku, and then upload the `output/image_bin` folder.
@@ -265,7 +265,7 @@ python ./scripts/build_demonstrator.py \
   --dataset_path=dataset.csv \
   --target_column=target \
   --task_type=classification
-  --huggingface_app="user/adjutorium-demo" # replace with your app name
+  --huggingface_app="user/autoprognosis-demo" # replace with your app name
 ```
 
 After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
@@ -287,6 +287,6 @@ After the local build is done, the script will try to push the Streamlit app to 
  - [Survival analysisi tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
 
 ## References
-1. [Adjutorium: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
+1. [AutoPrognosis: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
 2. [Prognostication and Risk Factors for Cystic Fibrosis via Automated Machine Learning](https://www.nature.com/articles/s41598-018-29523-2)
 3. [Cardiovascular Disease Risk Prediction using Automated Machine Learning: A Prospective Study of 423,604 UK Biobank Participants](https://www.ncbi.nlm.nih.gov/pubmed/31091238)

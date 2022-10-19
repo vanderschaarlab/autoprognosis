@@ -3,10 +3,10 @@ from explorers_mocks import MockHook
 import pytest
 from sklearn.datasets import load_breast_cancer
 
-# adjutorium absolute
-from adjutorium.exceptions import StudyCancelled
-from adjutorium.explorers.classifiers import ClassifierSeeker
-from adjutorium.utils.metrics import evaluate_auc
+# autoprognosis absolute
+from autoprognosis.exceptions import StudyCancelled
+from autoprognosis.explorers.classifiers import ClassifierSeeker
+from autoprognosis.utils.metrics import evaluate_auc
 
 
 def test_sanity() -> None:

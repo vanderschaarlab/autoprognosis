@@ -9,13 +9,15 @@ import pytest
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.explainers import Explainers
-from adjutorium.plugins.explainers.plugin_invase import plugin
-from adjutorium.plugins.pipeline import Pipeline
-from adjutorium.plugins.prediction.classifiers import Classifiers
-from adjutorium.plugins.prediction.risk_estimation.plugin_cox_ph import plugin as CoxPH
-from adjutorium.plugins.preprocessors import Preprocessors
+# autoprognosis absolute
+from autoprognosis.plugins.explainers import Explainers
+from autoprognosis.plugins.explainers.plugin_invase import plugin
+from autoprognosis.plugins.pipeline import Pipeline
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+from autoprognosis.plugins.prediction.risk_estimation.plugin_cox_ph import (
+    plugin as CoxPH,
+)
+from autoprognosis.plugins.preprocessors import Preprocessors
 
 
 def dataset() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:

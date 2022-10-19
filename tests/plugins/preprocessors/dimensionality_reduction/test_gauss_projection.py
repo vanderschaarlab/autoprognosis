@@ -1,9 +1,9 @@
 # third party
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.dimensionality_reduction.plugin_gauss_projection import (
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.dimensionality_reduction.plugin_gauss_projection import (
     plugin,
 )
 

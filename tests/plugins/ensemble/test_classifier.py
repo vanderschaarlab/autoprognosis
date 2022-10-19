@@ -6,15 +6,15 @@ import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.ensemble.classifiers import (
+# autoprognosis absolute
+from autoprognosis.plugins.ensemble.classifiers import (
     AggregatingEnsemble,
     StackingEnsemble,
     WeightedEnsemble,
     WeightedEnsembleCV,
 )
-from adjutorium.plugins.pipeline import Pipeline
-from adjutorium.utils.metrics import (
+from autoprognosis.plugins.pipeline import Pipeline
+from autoprognosis.utils.metrics import (
     evaluate_auc,
     evaluate_skurv_brier_score,
     evaluate_skurv_c_index,

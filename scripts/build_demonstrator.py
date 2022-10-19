@@ -7,13 +7,16 @@ from typing import Optional
 # third party
 import click
 
-# adjutorium absolute
-from adjutorium.apps.extras.biobank_cvd import extras_cbk as biobank_cvd_extras_cbk
-from adjutorium.apps.extras.biobank_diabetes import (
+# autoprognosis absolute
+from autoprognosis.apps.extras.biobank_cvd import extras_cbk as biobank_cvd_extras_cbk
+from autoprognosis.apps.extras.biobank_diabetes import (
     extras_cbk as biobank_diabetes_extras_cbk,
 )
-from adjutorium.deploy.build import Builder
-from adjutorium.deploy.proto import NewClassificationAppProto, NewRiskEstimationAppProto
+from autoprognosis.deploy.build import Builder
+from autoprognosis.deploy.proto import (
+    NewClassificationAppProto,
+    NewRiskEstimationAppProto,
+)
 
 
 def build_app(
@@ -139,7 +142,7 @@ def pack(
     output.mkdir(parents=True, exist_ok=True)
     output_data.mkdir(parents=True, exist_ok=True)
 
-    # Copy Adjutorium wheel
+    # Copy AutoPrognosis wheel
     local_wheel = build_wheel()
     shutil.copy(local_wheel, output_data / local_wheel.name)
     for fn in Path("third_party").glob("*"):

@@ -1,8 +1,8 @@
 # third party
 import numpy as np
 
-# adjutorium absolute
-from adjutorium.plugins.utils.metrics import MAE, RMSE
+# autoprognosis absolute
+from autoprognosis.plugins.utils.metrics import MAE, RMSE
 
 
 def test_MAE() -> None:

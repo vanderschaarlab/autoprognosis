@@ -2,8 +2,8 @@
 import datetime
 from typing import Any
 
-# adjutorium absolute
-from adjutorium.hooks import Hooks
+# autoprognosis absolute
+from autoprognosis.hooks import Hooks
 
 
 class MockHook(Hooks):

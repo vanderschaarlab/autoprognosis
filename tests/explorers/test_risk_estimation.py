@@ -4,12 +4,15 @@ from lifelines.datasets import load_rossi
 import pytest
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.exceptions import StudyCancelled
-from adjutorium.explorers.risk_estimation import RiskEstimatorSeeker
-from adjutorium.plugins.prediction import Predictions
-from adjutorium.utils.metrics import evaluate_skurv_brier_score, evaluate_skurv_c_index
-from adjutorium.utils.tester import evaluate_survival_estimator
+# autoprognosis absolute
+from autoprognosis.exceptions import StudyCancelled
+from autoprognosis.explorers.risk_estimation import RiskEstimatorSeeker
+from autoprognosis.plugins.prediction import Predictions
+from autoprognosis.utils.metrics import (
+    evaluate_skurv_brier_score,
+    evaluate_skurv_c_index,
+)
+from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
 def test_sanity() -> None:

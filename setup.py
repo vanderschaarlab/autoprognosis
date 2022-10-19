@@ -1,5 +1,5 @@
 """
-    Setup file for adjutorium.
+    Setup file for autoprognosis.
     Use setup.cfg to configure your project.
 """
 # stdlib
@@ -17,7 +17,7 @@ def read(fname: str) -> str:
 
 
 def find_version() -> str:
-    version_file = read("src/adjutorium/version.py")
+    version_file = read("src/autoprognosis/version.py")
     version_re = r"__version__ = \"(?P<version>.+)\""
     version_raw = re.match(version_re, version_file)
 

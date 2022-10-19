@@ -6,13 +6,13 @@ import optuna
 import pytest
 from sklearn.datasets import load_diabetes
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import PredictionPlugin, Predictions
-from adjutorium.plugins.prediction.regression.plugin_random_forest_regressor import (
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
+from autoprognosis.plugins.prediction.regression.plugin_random_forest_regressor import (
     plugin,
 )
-from adjutorium.utils.serialization import load_model, save_model
-from adjutorium.utils.tester import evaluate_regression
+from autoprognosis.utils.serialization import load_model, save_model
+from autoprognosis.utils.tester import evaluate_regression
 
 
 def from_api() -> PredictionPlugin:

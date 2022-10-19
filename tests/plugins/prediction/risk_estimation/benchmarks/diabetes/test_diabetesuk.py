@@ -1,5 +1,5 @@
-# adjutorium absolute
-from adjutorium.plugins.prediction.risk_estimation.benchmarks.diabetes.diabetes_uk.model import (
+# autoprognosis absolute
+from autoprognosis.plugins.prediction.risk_estimation.benchmarks.diabetes.diabetes_uk.model import (
     inference,
 )
 

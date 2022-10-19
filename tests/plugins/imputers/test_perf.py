@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.utils.simulate import simulate_nan
+# autoprognosis absolute
+from autoprognosis.plugins.imputers import ImputerPlugin, Imputers
+from autoprognosis.plugins.utils.simulate import simulate_nan
 
 
 def dataset(mechanism: str, p_miss: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

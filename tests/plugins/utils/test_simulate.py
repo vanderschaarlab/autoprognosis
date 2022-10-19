@@ -5,8 +5,8 @@ from typing import Tuple
 import numpy as np
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.utils.simulate import simulate_nan
+# autoprognosis absolute
+from autoprognosis.plugins.utils.simulate import simulate_nan
 
 
 def dataset(

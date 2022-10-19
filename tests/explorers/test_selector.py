@@ -1,5 +1,5 @@
-# adjutorium absolute
-from adjutorium.explorers.core.selector import PipelineSelector
+# autoprognosis absolute
+from autoprognosis.explorers.core.selector import PipelineSelector
 
 
 def test_sanity() -> None:

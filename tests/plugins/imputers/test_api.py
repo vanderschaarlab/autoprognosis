@@ -4,10 +4,10 @@ from typing import Any, List
 # third party
 import pytest
 
-# adjutorium absolute
-import adjutorium.plugins.core.params as params
-from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.imputers.plugin_mean import plugin as mock_model
+# autoprognosis absolute
+import autoprognosis.plugins.core.params as params
+from autoprognosis.plugins.imputers import ImputerPlugin, Imputers
+from autoprognosis.plugins.imputers.plugin_mean import plugin as mock_model
 
 
 @pytest.fixture

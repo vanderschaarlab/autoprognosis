@@ -5,8 +5,8 @@ from typing import Any, List
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
 
 
 @pytest.fixture

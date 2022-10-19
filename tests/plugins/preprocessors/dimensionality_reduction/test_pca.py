@@ -1,9 +1,11 @@
 # third party
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.dimensionality_reduction.plugin_pca import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.dimensionality_reduction.plugin_pca import (
+    plugin,
+)
 
 n_components = 3
 

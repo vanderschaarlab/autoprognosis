@@ -2,12 +2,12 @@
 import numpy as np
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.feature_scaling.plugin_feature_normalizer import (
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.feature_scaling.plugin_feature_normalizer import (
     plugin,
 )
-from adjutorium.utils.serialization import load_model, save_model
+from autoprognosis.utils.serialization import load_model, save_model
 
 
 def from_api() -> PreprocessorPlugin:

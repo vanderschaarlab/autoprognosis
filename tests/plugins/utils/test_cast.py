@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 
-# adjutorium absolute
-from adjutorium.plugins.utils.cast import to_dataframe
+# autoprognosis absolute
+from autoprognosis.plugins.utils.cast import to_dataframe
 
 
 def test_cast_to_dataframe() -> None:

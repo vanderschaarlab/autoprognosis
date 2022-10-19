@@ -2,9 +2,9 @@
 import pytest
 from sklearn.datasets import load_iris
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.dimensionality_reduction.plugin_feature_agglomeration import (
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.dimensionality_reduction.plugin_feature_agglomeration import (
     plugin,
 )
 

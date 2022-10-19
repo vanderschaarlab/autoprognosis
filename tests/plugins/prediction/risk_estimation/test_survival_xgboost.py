@@ -3,10 +3,15 @@ from pycox.datasets import metabric
 import pytest
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import PredictionPlugin, Predictions
-from adjutorium.plugins.prediction.risk_estimation.plugin_survival_xgboost import plugin
-from adjutorium.utils.metrics import evaluate_skurv_brier_score, evaluate_skurv_c_index
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
+from autoprognosis.plugins.prediction.risk_estimation.plugin_survival_xgboost import (
+    plugin,
+)
+from autoprognosis.utils.metrics import (
+    evaluate_skurv_brier_score,
+    evaluate_skurv_c_index,
+)
 
 
 def from_api() -> PredictionPlugin:

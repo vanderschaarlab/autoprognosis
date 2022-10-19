@@ -8,14 +8,14 @@ import pytest
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins import group
-from adjutorium.plugins.imputers import Imputers
-from adjutorium.plugins.pipeline import Pipeline, PipelineMeta
-from adjutorium.plugins.prediction.classifiers import Classifiers
-from adjutorium.plugins.preprocessors import Preprocessors
-from adjutorium.plugins.utils.simulate import simulate_nan
-from adjutorium.utils.serialization import load_model, save_model
+# autoprognosis absolute
+from autoprognosis.plugins import group
+from autoprognosis.plugins.imputers import Imputers
+from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+from autoprognosis.plugins.preprocessors import Preprocessors
+from autoprognosis.plugins.utils.simulate import simulate_nan
+from autoprognosis.utils.serialization import load_model, save_model
 
 
 def dataset() -> Tuple:
