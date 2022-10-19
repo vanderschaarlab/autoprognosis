@@ -80,6 +80,7 @@ def test_logistic_regression_plugin_fit_predict(test_plugin: PredictionPlugin) -
     assert np.abs(np.subtract(y_pred, y_test)).mean() < 1
 
 
+@pytest.mark.skip
 def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return
