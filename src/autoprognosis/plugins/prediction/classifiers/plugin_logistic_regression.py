@@ -56,6 +56,7 @@ class LogisticRegressionPlugin(base.ClassifierPlugin):
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
+        n_jobs: int = -1,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -74,7 +75,7 @@ class LogisticRegressionPlugin(base.ClassifierPlugin):
             penalty=penalty,
             max_iter=max_iter,
             random_state=random_state,
-            n_jobs=-1,
+            n_jobs=n_jobs,
         )
         self.model = calibrated_model(model, calibration)
 
