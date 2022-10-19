@@ -94,7 +94,7 @@ def test_param_search() -> None:
 
     def objective(trial: optuna.Trial) -> float:
         args = plugin.sample_hyperparameters(trial)
-        print("lr search", args)
+        print("lr search", args, flush=True)
         return evaluate_args(**args)
 
     study = optuna.create_study(
