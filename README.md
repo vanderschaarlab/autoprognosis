@@ -1,56 +1,43 @@
+# AutoPrognosis - A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
 
-<h1 align="center">
-  <br>
-  <a href="https://www.vanderschaar-lab.com/"><img src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/07/AutoML_Fig1_rev-2048x1199.png" alt="AutoPrognosis" width="400"></a>
-  <br>
-  AutoPrognosis
-  <br>
-</h1>
-
-<h3 align="center">
-  <br>
-  A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
-  <br>
-</h3>
-
-[![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
+[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
-## Features
+![image](https://github.com/vanderschaarlab/autoprognosis/raw/prepare_release/docs/arch.png "AutoPrognosis")
 
-- Automatically learns ensembles of pipelines for prediction or survival analysis.
-- Easy to extend pluginable architecture.
-- Interpretability tools.
+## :key: Features
 
-## Installation
+- :rocket:Automatically learns ensembles of pipelines for classification or survival analysis.
+- :cyclone: Easy to extend pluginable architecture.
+- :fire: Interpretability tools.
+
+## :rocket:Installation
 
 #### Using pip
 
+The library can be installed from PyPI using
+```bash
+$ pip install autoprognosis
+```
+or from source, using
 ```bash
 $ pip install .
 ```
-
 ### Redis (Optional, but recommended)
 AutoPrognosis can use Redis as a backend to improve the performance and quality of the searches.
 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
-## Testing
-After installing the library, the tests can be executed using `pytest`
-```bash
-$ pip install .[testing]
-$ pytest -vxs -m "not slow"
-```
-## Using the library
+## :boom: Sample Usage
 More advanced use cases can be found on our [tutorials section](#tutorials).
 
-#### Example: list available classifiers
+List the available classifiers
 ```python
 from autoprognosis.plugins.prediction.classifiers import Classifiers
 print(Classifiers().list())
 ```
 
-#### Example for classification estimators studies
+Create a study for classifiers
 ```python
 from pathlib import Path
 
@@ -89,12 +76,13 @@ metrics = evaluate_estimator(model, X, Y)
 print(f"model {model.name()} -> {metrics['clf']}")
 ```
 
-#### Example: list available survival analysis estimators
+List available survival analysis estimators
 ```python
 from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
 print(RiskEstimation().list())
 ```
-### Example for survival analysis studies
+
+Survival analysis study
 ```python
 import os
 from pathlib import Path
@@ -145,7 +133,7 @@ if output.exists():
 
     print(f"Model {model.name()} score: {metrics['clf']}")
 ```
-## Building a demonstrator
+## :cyclone: Building a demonstrator
 
 After running a study, a model template will be available in the workspace, in the `model.p` file.
 Based on this template, you can create a demonstrator using the `scripts/build_demonstrator.py` script.
@@ -286,7 +274,25 @@ After the local build is done, the script will try to push the Streamlit app to 
  - [Survival analysisi tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
  - [Survival analysisi tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
 
+
+## :hammer: Test
+After installing the library, the tests can be executed using `pytest`
+```bash
+$ pip install .[testing]
+$ pytest -vxs -m "not slow"
+```
+
+## Citing
+If you use this code, please cite the associated paper:
+
+```
+TODO
+```
+
 ## References
 1. [AutoPrognosis: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
 2. [Prognostication and Risk Factors for Cystic Fibrosis via Automated Machine Learning](https://www.nature.com/articles/s41598-018-29523-2)
 3. [Cardiovascular Disease Risk Prediction using Automated Machine Learning: A Prospective Study of 423,604 UK Biobank Participants](https://www.ncbi.nlm.nih.gov/pubmed/31091238)
+
+
+
