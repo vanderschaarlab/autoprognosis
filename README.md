@@ -137,8 +137,8 @@ print(f"Model {model.name()} score: {metrics['clf']}")
 ## :high_brightness: Tutorials
 
 ### Plugins
-- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
-- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
+- [Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
+- [Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
 - [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
 - [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
 - [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
