@@ -56,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: |
             pip install --upgrade pip
-            pip install --upgrade cryptography scipy scikit-learn xgboost
+            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
 
             pip install .[testing]
       - name: Test with pytest
