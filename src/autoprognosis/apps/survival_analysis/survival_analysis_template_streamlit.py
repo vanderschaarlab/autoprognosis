@@ -47,7 +47,7 @@ PREDICTION_TEMPLATE = {
 }
 CAUTION_STATEMENT = "This tool predicts your most likely outcomes based on current knowledge and data, but will never provide a 100% accurate prediction for any individual. We recommend that you discuss the results with your own specialist in a more personalised context."
 
-PLOT_STATEMENT = "The following graphs show diagnostic risk predictions up to 10 years, using AutoPrognosis and other benchmark models."
+PLOT_STATEMENT = "The following graphs show diagnostic risk predictions up to 12 years, using AutoPrognosis and other benchmark models."
 PLOT_BACKGROUND = "#262730"
 
 

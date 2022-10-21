@@ -6,6 +6,6 @@ python ./scripts/build_demonstrator.py \
     --target_column=event \
     --horizons="365, 730, 1095, 1460, 1825, 2190, 2555, 2920, 3285, 3650, 4015, 4380" \
     --task_type=risk_estimation \
-    --explainers="invase,kernel_shap" \
+    --explainers="kernel_shap" \
     --extras=biobank_diabetes \
     --auth=True
