@@ -4,7 +4,7 @@
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
-![image](https://github.com/vanderschaarlab/autoprognosis/raw/prepare_release/docs/arch.png "AutoPrognosis")
+![image](https://github.com/vanderschaarlab/autoprognosis/raw/main/docs/arch.png "AutoPrognosis")
 
 ## :key: Features
 
