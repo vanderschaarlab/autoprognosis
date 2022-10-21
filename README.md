@@ -304,13 +304,13 @@ predictor = RiskEstimation().get(<NAME>)
 
 | Name | Description |
 |--- | --- | 
-| **survival_xgboost**  ||
-| **loglogistic_aft**  ||
-| **deephit**  ||
-| **cox_ph**  ||
-| **weibull_aft**  ||
-| **lognormal_aft**  ||
-| **coxnet**  ||
+| **survival_xgboost**  | [`XGBoost Survival Embeddings`](https://github.com/loft-br/xgboost-survival-embeddings)|
+| **loglogistic_aft**  | [` Log-Logistic AFT model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/LogLogisticAFTFitter.html)|
+| **deephit**  | [`DeepHit: A Deep Learning Approach to Survival Analysis with Competing Risks`](https://github.com/chl8856/DeepHit)|
+| **cox_ph**  | [`Cox’s proportional hazard model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/CoxPHFitter.html)|
+| **weibull_aft**  | [`Weibull AFT model.`](https://lifelines.readthedocs.io/en/latest/fitters/regression/WeibullAFTFitter.html)|
+| **lognormal_aft**  | [`Log-Normal AFT model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/LogNormalAFTFitter.html)|
+| **coxnet**  | [`CoxNet is a Cox proportional hazards model also referred to as DeepSurv`](https://github.com/havakv/pycox)|
 
 ### Regression
 ```python
@@ -321,14 +321,12 @@ regressor = Regression().get(<NAME>)
 
 | Name | Description |
 |--- | --- | 
-| **bayesian_ridge**  ||
-| **tabnet_regressor**  ||
-| **catboost_regressor**  ||
-| **random_forest_regressor**  ||
-| **mlp_regressor**  ||
-| **xgboost_regressor**  ||
-| **neural_nets_regression**  ||
-| **linear_regression**  ||
+| **tabnet_regressor**  |[`TabNet : Attentive Interpretable Tabular Learning`](https://github.com/dreamquark-ai/tabnet)|
+| **catboost_regressor**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
+| **random_forest_regressor**  |[`RandomForestRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)|
+| **xgboost_regressor**  |[`XGBoostClassifier`](https://xgboost.readthedocs.io/en/stable/)|
+| **neural_nets_regression**  |PyTorch-based neural net regressor.|
+| **linear_regression**  |[`LinearRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)|
     
     
 ### Explainers
@@ -339,12 +337,12 @@ explainer = Explainers().get(<NAME>)
 ```
 | Name | Description |
 |--- | --- | 
-| **risk_effect_size**  ||
-| **lime**  ||
-| **symbolic_pursuit**  ||
-| **shap_permutation_sampler**  ||
-| **kernel_shap**  ||
-| **invase**  ||
+| **risk_effect_size**  | Feature importance using Cohen's distance between probabilities|
+| **lime**  |[`Lime: Explaining the predictions of any machine learning classifier`](https://github.com/marcotcr/lime)|
+| **symbolic_pursuit**  |[`Symbolic Pursuit`](Learning outside the black-box: at the pursuit of interpretable models)|
+| **shap_permutation_sampler**  |[`SHAP Permutation Sampler`](https://shap.readthedocs.io/en/latest/generated/shap.explainers.Permutation.html)|
+| **kernel_shap**  |[`SHAP KernelExplainer`](https://shap-lrjball.readthedocs.io/en/latest/generated/shap.KernelExplainer.html)|
+| **invase**  |[`INVASE: Instance-wise Variable Selection`](https://github.com/vanderschaarlab/invase)|
 
 
 
