@@ -6,11 +6,11 @@ import optuna
 import pytest
 from sklearn.datasets import load_diabetes
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import PredictionPlugin, Predictions
-from adjutorium.plugins.prediction.regression.plugin_tabnet_regressor import plugin
-from adjutorium.utils.serialization import load_model, save_model
-from adjutorium.utils.tester import evaluate_regression
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
+from autoprognosis.plugins.prediction.regression.plugin_tabnet_regressor import plugin
+from autoprognosis.utils.serialization import load_model, save_model
+from autoprognosis.utils.tester import evaluate_regression
 
 n_iter = 500
 

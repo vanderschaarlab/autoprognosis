@@ -1,64 +1,52 @@
+# AutoPrognosis - A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
 
-<h1 align="center">
-  <br>
-  <a href="https://www.vanderschaar-lab.com/"><img src="https://www.vanderschaar-lab.com/wp-content/uploads/2020/07/AutoML_Fig1_rev-2048x1199.png" alt="Adjutorium" width="400"></a>
-  <br>
-  Adjutorium
-  <br>
-</h1>
+[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
+[![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
-<h3 align="center">
-  <br>
-  A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
-  <br>
-</h3>
+![image](https://github.com/vanderschaarlab/autoprognosis/raw/prepare_release/docs/arch.png "AutoPrognosis")
 
-[![Slack](https://img.shields.io/badge/chat-on%20slack-7A5979.svg)](https://vanderschaarlab.slack.com/messages/general)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/adjutorium-framewor/blob/main/LICENSE)
+## :key: Features
 
-## Features
+- :rocket:Automatically learns ensembles of pipelines for classification or survival analysis.
+- :cyclone: Easy to extend pluginable architecture.
+- :fire: Interpretability tools.
 
-- Automatically learns ensembles of pipelines for prediction or survival analysis.
-- Easy to extend pluginable architecture.
-- Interpretability tools.
-
-## Installation
+## :rocket:Installation
 
 #### Using pip
 
+The library can be installed from PyPI using
+```bash
+$ pip install autoprognosis
+```
+or from source, using
 ```bash
 $ pip install .
 ```
-
 ### Redis (Optional, but recommended)
-Adjutorium can use Redis as a backend to improve the performance and quality of the searches.
+AutoPrognosis can use Redis as a backend to improve the performance and quality of the searches.
 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
-## Testing
-After installing the library, the tests can be executed using `pytest`
-```bash
-$ pip install .[testing]
-$ pytest -vxs -m "not slow"
-```
-## Using the library
+## :boom: Sample Usage
 More advanced use cases can be found on our [tutorials section](#tutorials).
 
-#### Example: list available classifiers
+List the available classifiers
 ```python
-from adjutorium.plugins.prediction.classifiers import Classifiers
-print(Classifiers().list())
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+print(Classifiers().list_available())
 ```
 
-#### Example for classification estimators studies
+Create a study for classifiers
 ```python
 from pathlib import Path
 
 from sklearn.datasets import load_breast_cancer
 
-from adjutorium.studies.classifiers import ClassifierStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_estimator
+from autoprognosis.studies.classifiers import ClassifierStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_estimator
 
 
 X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
@@ -73,8 +61,8 @@ study = ClassifierStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    num_iter=2,  # how many trials to do for each candidate
-    timeout=10,  # seconds
+    num_iter=100,  # how many trials to do for each candidate
+    timeout=60,  # seconds
     classifiers=["logistic_regression", "lda", "qda"],
     workspace=workspace,
 )
@@ -89,48 +77,50 @@ metrics = evaluate_estimator(model, X, Y)
 print(f"model {model.name()} -> {metrics['clf']}")
 ```
 
-#### Example: list available survival analysis estimators
+List available survival analysis estimators
 ```python
-from adjutorium.plugins.prediction.risk_estimation import RiskEstimation
-print(RiskEstimation().list())
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
+print(RiskEstimation().list_available())
 ```
-### Example for survival analysis studies
+
+Survival analysis study
 ```python
+# stdlib
 import os
 from pathlib import Path
 
-from lifelines.datasets import load_rossi
+# third party
+import numpy as np
+from pycox import datasets
 
-from adjutorium.studies.risk_estimation import RiskEstimationStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_survival_estimator
+# autoprognosis absolute
+from autoprognosis.studies.risk_estimation import RiskEstimationStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_survival_estimator
 
+df = datasets.gbsg.read_df()
+df = df[df["duration"] > 0]
 
-rossi = load_rossi()
+X = df.drop(columns = ["duration"])
+T = df["duration"]
+Y = df["event"]
 
-X = rossi.drop(["week", "arrest"], axis=1)
-Y = rossi["arrest"]
-T = rossi["week"]
-
-eval_time_horizons = [
-    int(T[Y.iloc[:] == 1].quantile(0.25)),
-    int(T[Y.iloc[:] == 1].quantile(0.50)),
-    int(T[Y.iloc[:] == 1].quantile(0.75)),
-]
+eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
 
 workspace = Path("workspace")
 study_name = "example_risks"
 
 study = RiskEstimationStudy(
     study_name=study_name,
-    dataset=rossi,
-    target="arrest",
-    time_to_event="week",
+    dataset=df,
+    target="event",
+    time_to_event="duration",
     time_horizons=eval_time_horizons,
-    num_iter=2,
+    num_iter=10,
     num_study_iter=1,
     timeout=10,
-    risk_estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
+    risk_estimators=["cox_ph", "survival_xgboost"],
+    score_threshold=0.5,
     workspace=workspace,
 )
 
@@ -138,14 +128,29 @@ study.run()
 
 output = workspace / study_name / "model.p"
 
-if output.exists():
-    model = load_model_from_file(output)
+model = load_model_from_file(output)
+metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
-    metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
-
-    print(f"Model {model.name()} score: {metrics['clf']}")
+print(f"Model {model.name()} score: {metrics['clf']}")
 ```
-## Building a demonstrator
+
+## :high_brightness: Tutorials
+
+### Plugins
+- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
+- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
+- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
+- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
+- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
+- [Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
+### AutoML
+ - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
+ - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
+ - [Survival analysis tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
+ - [Survival analysis tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
+
+
+## :cyclone: Building a demonstrator
 
 After running a study, a model template will be available in the workspace, in the `model.p` file.
 Based on this template, you can create a demonstrator using the `scripts/build_demonstrator.py` script.
@@ -178,11 +183,9 @@ Options:
   --output TEXT             Where to save the demonstrator files. The content
                             of the folder can be directly used for
                             deployments(for example, to Heroku).
-  --heroku_app TEXT         Optional. If provided, the script tries to deploy
-                            the demonstrator to Heroku, to the specified
-                            Heroku app name.
   --help                    Show this message and exit.
 ```
+
 ### Build a demonstrator for a classification task
 For this task, the scripts needs access to the model template `workspace/model.p`(generated after running a study), the baseline dataset "dataset.csv", and the target column `target` in the dataset, which contains the outcomes. Based on that, the demonstrator can be built using:
 ```bash
@@ -235,58 +238,144 @@ python ./scripts/build_demonstrator.py \
   --explainers="invase,kernel_shap"
 ```
 
-### Uploading to Heroku
-If you want to directly upload the demonstrator to Heroku, you will need:
- - The [`heroku` CLI tool](https://devcenter.heroku.com/articles/heroku-cli).
- - The Heroku app name you want to use. This must be the exact name you created in the Heroku dashboard.
 
-For deploying, run:
+## :zap: Plugins
 
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-  --heroku_app=test-adjutorium-deploy # replace with your app name
+### Imputation methods
+```python
+from autoprognosis.plugins.imputers import  Imputers
+
+imputer = Imputers().get(<NAME>)
 ```
 
-After the local build is done, the script will try to login to Heroku, and then upload the `output/image_bin` folder.
+| Name | Description |
+|--- | --- | 
+|**hyperimpute**|Iterative imputer using both regression and classification methods based on linear models, trees, XGBoost, CatBoost and neural nets| 
+|**mean**|Replace the missing values using the mean along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)| 
+|**median**|Replace the missing values using the median along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) |
+|**most_frequent**|Replace the missing values using the most frequent value along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)|
+|**missforest**|Iterative imputation method based on Random Forests using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`ExtraTreesRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesRegressor.html)| 
+|**ice**| Iterative imputation method based on regularized linear regression using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
+|**mice**| Multiple imputations based on ICE using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
+|**softimpute**|  [`Low-rank matrix approximation via nuclear-norm regularization`](https://jmlr.org/papers/volume16/hastie15a/hastie15a.pdf)| [`plugin_softimpute.py`](src/hyperimpute/plugins/imputers/plugin_softimpute.py)|
+|**EM**|Iterative procedure which uses other variables to impute a value (Expectation), then checks whether that is the value most likely (Maximization) - [`EM imputation algorithm`](https://joon3216.github.io/research_materials/2019/em_imputation.html)|
+|**gain**|[`GAIN: Missing Data Imputation using Generative Adversarial Nets`](https://arxiv.org/abs/1806.02920)|
 
-### Uploading to HuggingFace spaces
-If you want to directly upload the demonstrator to HuggingFace space, you will need:
- - The HuggingFace name you want to use. This is usually of form "<user>/<app_name>".
 
-For deploying, run:
+### Preprocessing methods
+```python
+from autoprognosis.plugins.preprocessors import Preprocessors
 
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-  --huggingface_app="user/adjutorium-demo" # replace with your app name
+preprocessor = Preprocessors().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **maxabs_scaler**  | Scale each feature by its maximum absolute value. [`MaxAbsScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MaxAbsScaler.html)|
+| **scaler** |Standardize features by removing the mean and scaling to unit variance. - [`StandardScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler)|
+|**feature_normalizer** | Normalize samples individually to unit norm. [`Normalizer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Normalizer.html#sklearn.preprocessing.Normalizer)|
+|**normal_transform** |Transform features using quantiles information.[`QuantileTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html#sklearn.preprocessing.QuantileTransformer)|
+|**uniform_transform** |Transform features using quantiles information.[`QuantileTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html#sklearn.preprocessing.QuantileTransformer)|
+|**minmax_scaler** |Transform features by scaling each feature to a given range.[`MinMaxScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler)|
+
+
+### Classification
+```python
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+
+classifier = Classifiers().get(<NAME>)
 ```
 
-After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
+| Name | Description |
+|--- | --- | 
+| **neural_nets**  | PyTorch based neural net classifier.|
+| **logistic_regression**  | [`LogisticRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)|
+| **catboost**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
+| **random_forest**  | A random forest classifier. [`RandomForestClassifier`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)|
+| **tabnet**  |[`TabNet : Attentive Interpretable Tabular Learning`](https://github.com/dreamquark-ai/tabnet)|
+| **xgboost**  |[`XGBoostClassifier`](https://xgboost.readthedocs.io/en/stable/)|
 
-⚠️ The dataset is only used for training the encoding/decoding mappings, and it won't be uploaded to Heroku/HuggingFace.
 
-## Tutorials
+### Survival Analysis
+```python
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
 
-### Plugins
-- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
-- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
-- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
-- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
-### AutoML
- - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
- - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
- - [Survival analysisi tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
- - [Survival analysisi tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
+predictor = RiskEstimation().get(<NAME>)
+```
+
+| Name | Description |
+|--- | --- | 
+| **survival_xgboost**  | [`XGBoost Survival Embeddings`](https://github.com/loft-br/xgboost-survival-embeddings)|
+| **loglogistic_aft**  | [` Log-Logistic AFT model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/LogLogisticAFTFitter.html)|
+| **deephit**  | [`DeepHit: A Deep Learning Approach to Survival Analysis with Competing Risks`](https://github.com/chl8856/DeepHit)|
+| **cox_ph**  | [`Cox’s proportional hazard model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/CoxPHFitter.html)|
+| **weibull_aft**  | [`Weibull AFT model.`](https://lifelines.readthedocs.io/en/latest/fitters/regression/WeibullAFTFitter.html)|
+| **lognormal_aft**  | [`Log-Normal AFT model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/LogNormalAFTFitter.html)|
+| **coxnet**  | [`CoxNet is a Cox proportional hazards model also referred to as DeepSurv`](https://github.com/havakv/pycox)|
+
+### Regression
+```python
+from autoprognosis.plugins.prediction.regression import Regression
+
+regressor = Regression().get(<NAME>)
+```
+
+| Name | Description |
+|--- | --- | 
+| **tabnet_regressor**  |[`TabNet : Attentive Interpretable Tabular Learning`](https://github.com/dreamquark-ai/tabnet)|
+| **catboost_regressor**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
+| **random_forest_regressor**  |[`RandomForestRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)|
+| **xgboost_regressor**  |[`XGBoostClassifier`](https://xgboost.readthedocs.io/en/stable/)|
+| **neural_nets_regression**  |PyTorch-based neural net regressor.|
+| **linear_regression**  |[`LinearRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)|
+    
+    
+### Explainers
+```python
+from autoprognosis.plugins.explainers import Explainers
+
+explainer = Explainers().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **risk_effect_size**  | Feature importance using Cohen's distance between probabilities|
+| **lime**  |[`Lime: Explaining the predictions of any machine learning classifier`](https://github.com/marcotcr/lime)|
+| **symbolic_pursuit**  |[`Symbolic Pursuit`](Learning outside the black-box: at the pursuit of interpretable models)|
+| **shap_permutation_sampler**  |[`SHAP Permutation Sampler`](https://shap.readthedocs.io/en/latest/generated/shap.explainers.Permutation.html)|
+| **kernel_shap**  |[`SHAP KernelExplainer`](https://shap-lrjball.readthedocs.io/en/latest/generated/shap.KernelExplainer.html)|
+| **invase**  |[`INVASE: Instance-wise Variable Selection`](https://github.com/vanderschaarlab/invase)|
+
+
+
+### Uncertainty
+```python
+from autoprognosis.plugins.uncertainty import UncertaintyQuantification
+model = UncertaintyQuantification().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **cohort_explainer**  ||
+| **conformal_prediction**  ||
+| **jackknife**  ||
+
+
+## :hammer: Test
+After installing the library, the tests can be executed using `pytest`
+```bash
+$ pip install .[testing]
+$ pytest -vxs -m "not slow"
+```
+
+## Citing
+If you use this code, please cite the associated paper:
+
+```
+TODO
+```
 
 ## References
-1. [Adjutorium: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
+1. [AutoPrognosis: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
 2. [Prognostication and Risk Factors for Cystic Fibrosis via Automated Machine Learning](https://www.nature.com/articles/s41598-018-29523-2)
 3. [Cardiovascular Disease Risk Prediction using Automated Machine Learning: A Prospective Study of 423,604 UK Biobank Participants](https://www.ncbi.nlm.nih.gov/pubmed/31091238)
+
+
+

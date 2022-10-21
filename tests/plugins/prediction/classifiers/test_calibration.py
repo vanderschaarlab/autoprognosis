@@ -9,8 +9,8 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import brier_score_loss
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import Predictions
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import Predictions
 
 
 def gen_dataset() -> Tuple[

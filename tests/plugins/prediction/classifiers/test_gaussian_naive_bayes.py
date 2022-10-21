@@ -6,11 +6,13 @@ import numpy as np
 import optuna
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import PredictionPlugin, Predictions
-from adjutorium.plugins.prediction.classifiers.plugin_gaussian_naive_bayes import plugin
-from adjutorium.utils.serialization import load_model, save_model
-from adjutorium.utils.tester import evaluate_estimator
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
+from autoprognosis.plugins.prediction.classifiers.plugin_gaussian_naive_bayes import (
+    plugin,
+)
+from autoprognosis.utils.serialization import load_model, save_model
+from autoprognosis.utils.tester import evaluate_estimator
 
 
 def from_api() -> PredictionPlugin:

@@ -7,11 +7,11 @@ import pytest
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.prediction.classifiers import Classifiers
-from adjutorium.plugins.prediction.risk_estimation import RiskEstimation
-from adjutorium.plugins.uncertainty import UncertaintyQuantification
-from adjutorium.plugins.uncertainty.plugin_cohort_explainer import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
+from autoprognosis.plugins.uncertainty import UncertaintyQuantification
+from autoprognosis.plugins.uncertainty.plugin_cohort_explainer import plugin
 
 
 @pytest.mark.parametrize(

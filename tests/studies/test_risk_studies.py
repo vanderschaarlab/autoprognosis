@@ -8,11 +8,11 @@ from lifelines.datasets import load_rossi
 import numpy as np
 import pytest
 
-# adjutorium absolute
-from adjutorium.exceptions import StudyCancelled
-from adjutorium.studies.risk_estimation import RiskEstimationStudy
-from adjutorium.utils.serialization import load_model_from_file
-from adjutorium.utils.tester import evaluate_survival_estimator
+# autoprognosis absolute
+from autoprognosis.exceptions import StudyCancelled
+from autoprognosis.studies.risk_estimation import RiskEstimationStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
 @pytest.mark.slow

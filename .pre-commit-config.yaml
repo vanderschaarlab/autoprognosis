@@ -1,22 +1,6 @@
-exclude: '^docs/conf.py|^src/adjutorium/utils/third_party|^third_party/image_template'
+exclude: '^docs/conf.py|^src/autoprognosis/utils/third_party|^third_party/image_template'
 
 repos:
-- repo: git://github.com/pre-commit/pre-commit-hooks
-  rev: v3.4.0
-  hooks:
-  - id: trailing-whitespace
-  - id: check-ast
-  - id: check-json
-  - id: check-merge-conflict
-  - id: check-xml
-  - id: check-yaml
-  - id: debug-statements
-  - id: check-executables-have-shebangs
-  - id: end-of-file-fixer
-  - id: requirements-txt-fixer
-  - id: mixed-line-ending
-    args: ['--fix=auto']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
-
 - repo: https://github.com/pycqa/isort
   rev: 5.8.0
   hooks:
@@ -31,13 +15,3 @@ repos:
   rev: 3.9.1
   hooks:
   - id: flake8
-- repo: local
-  hooks:
-  - id: flynt
-    name: flynt
-    entry: flynt
-    args: [--fail-on-change]
-    types: [python]
-    language: python
-    additional_dependencies:
-        - flynt

@@ -5,10 +5,10 @@ from typing import Tuple
 import numpy as np
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins import Imputers
-from adjutorium.plugins.utils.simulate import simulate_nan
-from adjutorium.utils.serialization import load_model, save_model
+# autoprognosis absolute
+from autoprognosis.plugins import Imputers
+from autoprognosis.plugins.utils.simulate import simulate_nan
+from autoprognosis.utils.serialization import load_model, save_model
 
 
 def dataset(mechanism: str, p_miss: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

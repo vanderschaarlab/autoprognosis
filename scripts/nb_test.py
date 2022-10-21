@@ -14,7 +14,7 @@ def run_notebook(notebook_path: Path) -> None:
     with open(notebook_path) as f:
         nb = nbformat.read(f, as_version=4)
 
-    proc = ExecutePreprocessor(timeout=600)
+    proc = ExecutePreprocessor(timeout=1800)
     # Will raise on cell error
     proc.preprocess(nb, {"metadata": {"path": workspace}})
 

@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.feature_scaling.plugin_nop import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.feature_scaling.plugin_nop import plugin
 
 
 def from_api() -> PreprocessorPlugin:

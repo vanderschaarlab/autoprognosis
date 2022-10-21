@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins import Predictions
-from adjutorium.utils.serialization import load_model, save_model
+# autoprognosis absolute
+from autoprognosis.plugins import Predictions
+from autoprognosis.utils.serialization import load_model, save_model
 
 
 def dataset() -> Tuple[np.ndarray, np.ndarray]:

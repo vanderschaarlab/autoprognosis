@@ -4,15 +4,15 @@ from typing import Any
 # third party
 from lifelines.datasets import load_rossi
 import pytest
-from sklearn.datasets import load_boston, load_breast_cancer
+from sklearn.datasets import load_diabetes, load_breast_cancer
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.prediction.classifiers import Classifiers
-from adjutorium.plugins.prediction.regression import Regression
-from adjutorium.plugins.prediction.risk_estimation import RiskEstimation
-from adjutorium.plugins.uncertainty import UncertaintyQuantification
-from adjutorium.plugins.uncertainty.plugin_conformal_prediction import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+from autoprognosis.plugins.prediction.regression import Regression
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
+from autoprognosis.plugins.uncertainty import UncertaintyQuantification
+from autoprognosis.plugins.uncertainty.plugin_conformal_prediction import plugin
 
 
 @pytest.mark.parametrize(
@@ -93,7 +93,7 @@ def test_predict_regressor(plugin: Any) -> None:
         task_type="regression",
     )
 
-    X, y = load_boston(return_X_y=True)
+    X, y = load_diabetes(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y)
 
     uncert_model.fit(X_train, y_train)

@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.imputers import ImputerPlugin, Imputers
-from adjutorium.plugins.imputers.plugin_most_frequent import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.imputers import ImputerPlugin, Imputers
+from autoprognosis.plugins.imputers.plugin_most_frequent import plugin
 
 
 def from_api() -> ImputerPlugin:

@@ -1,5 +1,5 @@
-# adjutorium absolute
-from adjutorium.plugins.prediction.risk_estimation.benchmarks.cvd.framingham.model import (
+# autoprognosis absolute
+from autoprognosis.plugins.prediction.risk_estimation.benchmarks.cvd.framingham.model import (
     inference,
 )
 

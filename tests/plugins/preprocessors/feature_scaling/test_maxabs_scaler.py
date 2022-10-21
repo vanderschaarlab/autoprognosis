@@ -2,9 +2,11 @@
 import numpy as np
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.feature_scaling.plugin_maxabs_scaler import plugin
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.feature_scaling.plugin_maxabs_scaler import (
+    plugin,
+)
 
 
 def from_api() -> PreprocessorPlugin:

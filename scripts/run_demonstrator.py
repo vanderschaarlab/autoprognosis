@@ -2,8 +2,8 @@
 import argparse
 from pathlib import Path
 
-# adjutorium absolute
-from adjutorium.deploy.run import start_app_server
+# autoprognosis absolute
+from autoprognosis.deploy.run import start_app_server
 
 
 def run(app: str) -> None:

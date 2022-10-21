@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 
-# adjutorium absolute
-from adjutorium.studies._preprocessing import (
+# autoprognosis absolute
+from autoprognosis.studies._preprocessing import (
     dataframe_drop_low_variance,
     dataframe_encode,
     dataframe_encode_and_impute,

@@ -1,12 +1,12 @@
 # third party
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.preprocessors import PreprocessorPlugin, Preprocessors
-from adjutorium.plugins.preprocessors.dimensionality_reduction.plugin_variance_threshold import (
+# autoprognosis absolute
+from autoprognosis.plugins.preprocessors import PreprocessorPlugin, Preprocessors
+from autoprognosis.plugins.preprocessors.dimensionality_reduction.plugin_variance_threshold import (
     plugin,
 )
-from adjutorium.utils.serialization import load_model, save_model
+from autoprognosis.utils.serialization import load_model, save_model
 
 
 def from_api() -> PreprocessorPlugin:

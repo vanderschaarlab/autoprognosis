@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Any
 
 # third party
@@ -8,11 +9,11 @@ import pytest
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import PredictionPlugin, Predictions
-from adjutorium.plugins.prediction.classifiers.plugin_lgbm import plugin
-from adjutorium.utils.serialization import load_model, save_model
-from adjutorium.utils.tester import evaluate_estimator
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
+from autoprognosis.plugins.prediction.classifiers.plugin_lgbm import plugin
+from autoprognosis.utils.serialization import load_model, save_model
+from autoprognosis.utils.tester import evaluate_estimator
 
 
 def from_api() -> PredictionPlugin:
@@ -68,6 +69,7 @@ def test_lgbm_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
     assert test_plugin.hyperparameter_space()[5].name == "min_child_samples"
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="LGBM crash on OSX")
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
@@ -80,6 +82,7 @@ def test_lgbm_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     assert np.abs(np.subtract(y_pred, y_test)).mean() < 1
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="LGBM crash on OSX")
 def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return

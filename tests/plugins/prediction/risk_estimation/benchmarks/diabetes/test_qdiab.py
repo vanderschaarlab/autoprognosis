@@ -1,8 +1,8 @@
 # third party
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.prediction.risk_estimation.benchmarks.diabetes.qdiabetes.model import (
+# autoprognosis absolute
+from autoprognosis.plugins.prediction.risk_estimation.benchmarks.diabetes.qdiabetes.model import (
     inference,
 )
 

@@ -5,9 +5,9 @@ from typing import Any, List
 import pandas as pd
 import pytest
 
-# adjutorium absolute
-from adjutorium.plugins.prediction import Predictions
-from adjutorium.plugins.prediction.classifiers import ClassifierPlugin
+# autoprognosis absolute
+from autoprognosis.plugins.prediction import Predictions
+from autoprognosis.plugins.prediction.classifiers import ClassifierPlugin
 
 
 @pytest.fixture

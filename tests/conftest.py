@@ -2,8 +2,8 @@
 import sys
 import warnings
 
-# adjutorium absolute
-import adjutorium.logger as log
+# autoprognosis absolute
+import autoprognosis.logger as log
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
