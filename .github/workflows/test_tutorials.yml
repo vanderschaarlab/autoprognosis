@@ -25,10 +25,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install MacOS dependencies
         run: |
-            brew install libomp
+            brew unlink libomp
+            brew install rajivshah3/libomp-tap/libomp@11.1.0
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
+            pip install --upgrade pip
+            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
+
             pip install .
             pip install .[testing]
 

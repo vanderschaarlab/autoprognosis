@@ -44,6 +44,14 @@ class Plugins:
                 res[src][subtype] = self._plugins[src][subtype].list()
         return res
 
+    def list_available(self) -> dict:
+        res: Dict[str, Dict[str, List[str]]] = {}
+        for src in self._plugins:
+            res[src] = {}
+            for subtype in self._plugins[src]:
+                res[src][subtype] = self._plugins[src][subtype].list_available()
+        return res
+
     def add(self, cat: str, subtype: str, name: str, cls: Type) -> "Plugins":
         self._plugins[cat][subtype].add(name, cls)
 
