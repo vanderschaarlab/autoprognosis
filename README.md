@@ -183,11 +183,9 @@ Options:
   --output TEXT             Where to save the demonstrator files. The content
                             of the folder can be directly used for
                             deployments(for example, to Heroku).
-  --heroku_app TEXT         Optional. If provided, the script tries to deploy
-                            the demonstrator to Heroku, to the specified
-                            Heroku app name.
   --help                    Show this message and exit.
 ```
+
 ### Build a demonstrator for a classification task
 For this task, the scripts needs access to the model template `workspace/model.p`(generated after running a study), the baseline dataset "dataset.csv", and the target column `target` in the dataset, which contains the outcomes. Based on that, the demonstrator can be built using:
 ```bash
@@ -240,42 +238,146 @@ python ./scripts/build_demonstrator.py \
   --explainers="invase,kernel_shap"
 ```
 
-### Uploading to Heroku
-If you want to directly upload the demonstrator to Heroku, you will need:
- - The [`heroku` CLI tool](https://devcenter.heroku.com/articles/heroku-cli).
- - The Heroku app name you want to use. This must be the exact name you created in the Heroku dashboard.
 
-For deploying, run:
+## :zap: Plugins
 
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-  --heroku_app=test-autoprognosis-deploy # replace with your app name
+### Imputation methods
+```python
+from autoprognosis.plugins.imputers import  Imputers
+
+imputer = Imputers().get(<NAME>)
 ```
 
-After the local build is done, the script will try to login to Heroku, and then upload the `output/image_bin` folder.
+| Name | Description |
+|--- | --- | 
+|**hyperimpute**|Iterative imputer using both regression and classification methods based on linear models, trees, XGBoost, CatBoost and neural nets| 
+|**mean**|Replace the missing values using the mean along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)| 
+|**median**|Replace the missing values using the median along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) |
+|**most_frequent**|Replace the missing values using the most frequent value along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)|
+|**missforest**|Iterative imputation method based on Random Forests using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`ExtraTreesRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesRegressor.html)| 
+|**ice**| Iterative imputation method based on regularized linear regression using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
+|**mice**| Multiple imputations based on ICE using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
+|**softimpute**|  [`Low-rank matrix approximation via nuclear-norm regularization`](https://jmlr.org/papers/volume16/hastie15a/hastie15a.pdf)| [`plugin_softimpute.py`](src/hyperimpute/plugins/imputers/plugin_softimpute.py)|
+|**EM**|Iterative procedure which uses other variables to impute a value (Expectation), then checks whether that is the value most likely (Maximization) - [`EM imputation algorithm`](https://joon3216.github.io/research_materials/2019/em_imputation.html)|
+|**gain**|[`GAIN: Missing Data Imputation using Generative Adversarial Nets`](https://arxiv.org/abs/1806.02920)|
 
-### Uploading to HuggingFace spaces
-If you want to directly upload the demonstrator to HuggingFace space, you will need:
- - The HuggingFace name you want to use. This is usually of form "<user>/<app_name>".
 
-For deploying, run:
+### Preprocessing methods
+```python
+from autoprognosis.plugins.preprocessors import Preprocessors
 
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-  --huggingface_app="user/autoprognosis-demo" # replace with your app name
+preprocessor = Preprocessors().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **maxabs_scaler**  ||
+| **scaler** ||
+|**feature_normalizer** ||
+|**normal_transform** ||
+|**uniform_transform** ||
+|**minmax_scaler** ||
+
+
+### Classification
+```python
+from autoprognosis.plugins.prediction.classifiers import Classifiers
+
+classifier = Classifiers().get(<NAME>)
 ```
 
-After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
+| Name | Description |
+|--- | --- | 
+| **adaboost**  ||
+| **bernoulli_naive_bayes**  ||
+| **neural_nets**  ||
+| **linear_svm**  ||
+| **qda**  ||
+| **decision_trees**  ||
+| **logistic_regression**  ||
+| **hist_gradient_boosting**  ||
+| **extra_tree_classifier**  ||
+| **bagging**  ||
+| **gradient_boosting**  ||
+| **ridge_classifier**  ||
+| **gaussian_process**  ||
+| **gradient_boosting**  ||
+| **perceptron**  ||
+| **lgbm**  ||
+| **catboost**  ||
+| **random_forest**  ||
+| **catboost**  ||
+| **tabnet**  ||
+| **multinomial_naive_bayes**  ||
+| **lda**  ||
+| **gaussian_naive_bayes**  ||
+| **knn**  ||
+| **xgboost**  ||
 
-⚠️ The dataset is only used for training the encoding/decoding mappings, and it won't be uploaded to Heroku/HuggingFace.
+
+### Survival Analysis
+```python
+from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
+
+predictor = RiskEstimation().get(<NAME>)
+```
+
+| Name | Description |
+|--- | --- | 
+| **survival_xgboost**  ||
+| **loglogistic_aft**  ||
+| **deephit**  ||
+| **cox_ph**  ||
+| **weibull_aft**  ||
+| **lognormal_aft**  ||
+| **coxnet**  ||
+
+### Regression
+```python
+from autoprognosis.plugins.prediction.regression import Regression
+
+regressor = Regression().get(<NAME>)
+```
+
+| Name | Description |
+|--- | --- | 
+| **bayesian_ridge**  ||
+| **tabnet_regressor**  ||
+| **catboost_regressor**  ||
+| **random_forest_regressor**  ||
+| **mlp_regressor**  ||
+| **xgboost_regressor**  ||
+| **neural_nets_regression**  ||
+| **linear_regression**  ||
+    
+    
+### Explainers
+```python
+from autoprognosis.plugins.explainers import Explainers
+
+explainer = Explainers().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **risk_effect_size**  ||
+| **lime**  ||
+| **symbolic_pursuit**  ||
+| **shap_permutation_sampler**  ||
+| **kernel_shap**  ||
+| **invase**  ||
+
+
+
+### Uncertainty
+```python
+from autoprognosis.plugins.uncertainty import UncertaintyQuantification
+model = UncertaintyQuantification().get(<NAME>)
+```
+| Name | Description |
+|--- | --- | 
+| **cohort_explainer**  ||
+| **conformal_prediction**  ||
+| **jackknife**  ||
+
 
 ## :hammer: Test
 After installing the library, the tests can be executed using `pytest`
