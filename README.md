@@ -137,11 +137,11 @@ print(f"Model {model.name()} score: {metrics['clf']}")
 ## :high_brightness: Tutorials
 
 ### Plugins
-- [Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
-- [Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
-- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
-- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
+- [Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb) [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing)
+- [Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)[![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)
+- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)[![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)
+- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)[![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)
+- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)[![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K0yVwm4jQrXRbMKJ-em7tTYgHXWtoK5c?usp=sharing)
 - [Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
 ### AutoML
  - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
