@@ -270,12 +270,12 @@ preprocessor = Preprocessors().get(<NAME>)
 ```
 | Name | Description |
 |--- | --- | 
-| **maxabs_scaler**  ||
-| **scaler** ||
-|**feature_normalizer** ||
-|**normal_transform** ||
-|**uniform_transform** ||
-|**minmax_scaler** ||
+| **maxabs_scaler**  | Scale each feature by its maximum absolute value. [`MaxAbsScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MaxAbsScaler.html)|
+| **scaler** |Standardize features by removing the mean and scaling to unit variance. - [`StandardScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler)|
+|**feature_normalizer** | Normalize samples individually to unit norm. [`Normalizer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Normalizer.html#sklearn.preprocessing.Normalizer)|
+|**normal_transform** |Transform features using quantiles information.[`QuantileTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html#sklearn.preprocessing.QuantileTransformer)|
+|**uniform_transform** |Transform features using quantiles information.[`QuantileTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html#sklearn.preprocessing.QuantileTransformer)|
+|**minmax_scaler** |Transform features by scaling each feature to a given range.[`MinMaxScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler)|
 
 
 ### Classification
@@ -287,31 +287,12 @@ classifier = Classifiers().get(<NAME>)
 
 | Name | Description |
 |--- | --- | 
-| **adaboost**  ||
-| **bernoulli_naive_bayes**  ||
-| **neural_nets**  ||
-| **linear_svm**  ||
-| **qda**  ||
-| **decision_trees**  ||
-| **logistic_regression**  ||
-| **hist_gradient_boosting**  ||
-| **extra_tree_classifier**  ||
-| **bagging**  ||
-| **gradient_boosting**  ||
-| **ridge_classifier**  ||
-| **gaussian_process**  ||
-| **gradient_boosting**  ||
-| **perceptron**  ||
-| **lgbm**  ||
-| **catboost**  ||
-| **random_forest**  ||
-| **catboost**  ||
-| **tabnet**  ||
-| **multinomial_naive_bayes**  ||
-| **lda**  ||
-| **gaussian_naive_bayes**  ||
-| **knn**  ||
-| **xgboost**  ||
+| **neural_nets**  | PyTorch based neural net classifier.|
+| **logistic_regression**  | [`LogisticRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)|
+| **catboost**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
+| **random_forest**  | A random forest classifier. [`RandomForestClassifier`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)|
+| **tabnet**  |[`TabNet : Attentive Interpretable Tabular Learning`](https://github.com/dreamquark-ai/tabnet)|
+| **xgboost**  |[`XGBoostClassifier`](https://xgboost.readthedocs.io/en/stable/)|
 
 
 ### Survival Analysis
