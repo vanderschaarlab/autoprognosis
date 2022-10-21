@@ -51,14 +51,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install MacOS dependencies
         run: |
-            brew unlink libomp
-            brew install rajivshah3/libomp-tap/libomp@11.1.0
+            brew install libomp
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
+            conda update -n base -c defaults conda
             conda create -n test
+            conda init test
             conda activate test
-            conda install python -c conda-forge
+
+            conda install python -c conda-forge 
 
             pip install --upgrade pip
             pip install --upgrade cryptography
