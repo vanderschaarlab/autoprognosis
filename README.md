@@ -1,6 +1,7 @@
 # AutoPrognosis - A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
 
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
+[![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
 ![image](https://github.com/vanderschaarlab/autoprognosis/raw/prepare_release/docs/arch.png "AutoPrognosis")
@@ -34,7 +35,7 @@ More advanced use cases can be found on our [tutorials section](#tutorials).
 List the available classifiers
 ```python
 from autoprognosis.plugins.prediction.classifiers import Classifiers
-print(Classifiers().list())
+print(Classifiers().list_available())
 ```
 
 Create a study for classifiers
@@ -60,8 +61,8 @@ study = ClassifierStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    num_iter=2,  # how many trials to do for each candidate
-    timeout=10,  # seconds
+    num_iter=100,  # how many trials to do for each candidate
+    timeout=60,  # seconds
     classifiers=["logistic_regression", "lda", "qda"],
     workspace=workspace,
 )
@@ -79,46 +80,47 @@ print(f"model {model.name()} -> {metrics['clf']}")
 List available survival analysis estimators
 ```python
 from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
-print(RiskEstimation().list())
+print(RiskEstimation().list_available())
 ```
 
 Survival analysis study
 ```python
+# stdlib
 import os
 from pathlib import Path
 
-from lifelines.datasets import load_rossi
+# third party
+import numpy as np
+from pycox import datasets
 
+# autoprognosis absolute
 from autoprognosis.studies.risk_estimation import RiskEstimationStudy
 from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
+df = datasets.gbsg.read_df()
+df = df[df["duration"] > 0]
 
-rossi = load_rossi()
+X = df.drop(columns = ["duration"])
+T = df["duration"]
+Y = df["event"]
 
-X = rossi.drop(["week", "arrest"], axis=1)
-Y = rossi["arrest"]
-T = rossi["week"]
-
-eval_time_horizons = [
-    int(T[Y.iloc[:] == 1].quantile(0.25)),
-    int(T[Y.iloc[:] == 1].quantile(0.50)),
-    int(T[Y.iloc[:] == 1].quantile(0.75)),
-]
+eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
 
 workspace = Path("workspace")
 study_name = "example_risks"
 
 study = RiskEstimationStudy(
     study_name=study_name,
-    dataset=rossi,
-    target="arrest",
-    time_to_event="week",
+    dataset=df,
+    target="event",
+    time_to_event="duration",
     time_horizons=eval_time_horizons,
-    num_iter=2,
+    num_iter=10,
     num_study_iter=1,
     timeout=10,
-    risk_estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
+    risk_estimators=["cox_ph", "survival_xgboost"],
+    score_threshold=0.5,
     workspace=workspace,
 )
 
@@ -126,13 +128,28 @@ study.run()
 
 output = workspace / study_name / "model.p"
 
-if output.exists():
-    model = load_model_from_file(output)
+model = load_model_from_file(output)
+metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
-    metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
-
-    print(f"Model {model.name()} score: {metrics['clf']}")
+print(f"Model {model.name()} score: {metrics['clf']}")
 ```
+
+## :high_brightness: Tutorials
+
+### Plugins
+- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
+- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
+- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
+- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
+- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
+- [Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
+### AutoML
+ - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
+ - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
+ - [Survival analysis tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
+ - [Survival analysis tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
+
+
 ## :cyclone: Building a demonstrator
 
 After running a study, a model template will be available in the workspace, in the `model.p` file.
@@ -259,21 +276,6 @@ python ./scripts/build_demonstrator.py \
 After the local build is done, the script will try to push the Streamlit app to HuggingFace spaces.
 
 ⚠️ The dataset is only used for training the encoding/decoding mappings, and it won't be uploaded to Heroku/HuggingFace.
-
-## Tutorials
-
-### Plugins
-- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
-- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
-- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
-- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
-### AutoML
- - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
- - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
- - [Survival analysisi tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
- - [Survival analysisi tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
-
 
 ## :hammer: Test
 After installing the library, the tests can be executed using `pytest`
