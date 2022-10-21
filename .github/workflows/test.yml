@@ -60,4 +60,4 @@ jobs:
 
             pip install .[testing]
       - name: Test with pytest
-        run: pytest -vvvsx -m "not slow"
+        run: pytest -vvvsx -m "not slow" -k test_logistic_regression_plugin_fit_predict
