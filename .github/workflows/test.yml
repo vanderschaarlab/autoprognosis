@@ -56,6 +56,10 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
+            conda create -n test
+            conda activate test
+            conda install python -c conda-forge
+
             pip install --upgrade pip
             pip install --upgrade cryptography
 
