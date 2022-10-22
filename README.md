@@ -2,7 +2,9 @@
 
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
+[![Test In Colab](https://img.shields.io/badge/tutorial-Model%20Search-orange)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)
+[![Test In Colab](https://img.shields.io/badge/tutorial-Build%20a%20Demonstrator-orange)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)
+[![License](https://img.shields.io/github/license/vanderschaarlab/autoprognosis?color=blue)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
 ![image](https://github.com/vanderschaarlab/autoprognosis/raw/main/docs/arch.png "AutoPrognosis")
 
@@ -137,107 +139,22 @@ print(f"Model {model.name()} score: {metrics['clf']}")
 ## :high_brightness: Tutorials
 
 ### Plugins
-- [Imputation ](tutorials/plugins/tutorial_00_imputer_plugins.ipynb)
-- [Preprocessing](tutorial_01_preprocessing_plugins.ipynb)
-- [Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
-- [Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
-- [Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb) 
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)[ Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)[ Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)[ Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K0yVwm4jQrXRbMKJ-em7tTYgHXWtoK5c?usp=sharing)[ Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1bY4CbiqMe2uoqeUu2d49aIdYRbtP156X?usp=sharing)[ Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
+
 ### AutoML
- - [Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
- - [Classification tasks with imputation](tutorials/automl/tutorial_03_automl_classification_with_imputation.ipynb)
- - [Survival analysis tasks](tutorials/automl/tutorial_01_survival_analysis_study.ipynb)
- - [Survival analysis tasks with imputation](tutorials/automl/tutorial_02_automl_survival_analysis_with_imputation.ipynb)
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-lPuQAtjHESl32ahFQYsFl8ujAnDWxEJ?usp=sharing)[ Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/16UDaA3F5JGw_YVY8XlYqWjfxcUV1OHJo?usp=sharing)[ Classification tasks with imputation](tutorials/automl/tutorial_01_automl_classification_with_imputation.ipynb)
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DtZCqebhaYdKB3ci5dr3hT0KvZPaTUOi?usp=sharing)[ Survival analysis tasks](tutorials/automl/tutorial_02_survival_analysis_study.ipynb)
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)[ Survival analysis tasks with imputation](tutorials/automl/tutorial_03_automl_survival_analysis_with_imputation.ipynb)
 
-
-## :cyclone: Building a demonstrator
-
-After running a study, a model template will be available in the workspace, in the `model.p` file.
-Based on this template, you can create a demonstrator using the `scripts/build_demonstrator.py` script.
-
-```bash
-Usage: build_demonstrator.py [OPTIONS]
-
-Options:
-  --name TEXT               The title of the demonstrator
-  --task_type TEXT          classification/risk_estimation
-  --dashboard_type TEXT     streamlit or dash. Default: streamlit
-  --dataset_path TEXT       Path to the dataset csv
-  --model_path TEXT         Path to the model template, usually model.p
-  --time_column TEXT        Only for risk_estimation tasks. Which column in
-                            the dataset is used for time-to-event
-  --target_column TEXT      Which column in the dataset is the outcome
-  --horizons TEXT           Only for risk_estimation tasks. Which time
-                            horizons to plot.
-  --explainers TEXT         Which explainers to include. There can be multiple
-                            explainer names, separated by a comma. Available
-                            explainers:
-                            kernel_shap,invase,shap_permutation_sampler,lime.
-  --imputers TEXT           Which imputer to use. Available imputers:
-                            ['sinkhorn', 'EM', 'mice', 'ice', 'hyperimpute',
-                            'most_frequent', 'median', 'missforest',
-                            'softimpute', 'nop', 'mean', 'gain']
-  --plot_alternatives TEXT  Only for risk_estimation. List of categorical
-                            columns by which to split the graphs. For example,
-                            plot outcome for different treatments available.
-  --output TEXT             Where to save the demonstrator files. The content
-                            of the folder can be directly used for
-                            deployments(for example, to Heroku).
-  --help                    Show this message and exit.
-```
-
-### Build a demonstrator for a classification task
-For this task, the scripts needs access to the model template `workspace/model.p`(generated after running a study), the baseline dataset "dataset.csv", and the target column `target` in the dataset, which contains the outcomes. Based on that, the demonstrator can be built using:
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-```
-The result is a folder, `output/image_bin`, containing all the files necessary for running the demonstrator.
-You can start the demonstrator using
-```bash
-cd output/image_bin/
-pip install -r ./requirements.txt
-python ./app.py
-```
-The contents of the `output/image_bin` can be used for cloud deployments, for example, Heroku.
-
-Optionally, you can customize the `output` option to store the output files. The default is set to `output/image_bin`.
-
-### Build a demonstrator for a survival analysis task
-For this task, the scripts needs access to the model template `workspace/model.p`(generated after running a study), the baseline dataset "dataset.csv", the target column `target` in the dataset, the time_to_event column `time_to_event`, and the plotted time horizons. Based on that, the demonstrator can be built using:
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p \
-  --dataset_path=dataset.csv \
-  --time_column=time_to_event \
-  --target_column=target \
-  --horizons="14,27,41" # use your own time horizons here, separated by a comma
-  --task_type=risk_estimation
-```
-The result is a folder, `output/image_bin`, containing all the files necessary for running the demonstrator.
-You can start the demonstrator using
-```bash
-cd output/image_bin/
-pip install -r ./requirements.txt
-python ./app.py
-```
-The contents of the `output/image_bin` can be used for cloud deployments, for example, Heroku.
-
-### Customizing the demonstrator
-
-You can customize your demonstrator, by selected multiple explainers.
-```bash
-python ./scripts/build_demonstrator.py \
-  --model_path=workspace/model.p  \
-  --dataset_path=dataset.csv \
-  --target_column=target \
-  --task_type=classification
-  --explainers="invase,kernel_shap"
-```
-
+### Building a demonstrator
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)[ Survival analysis demonstrator](tutorials/demonstrators/tutorial_01_build_a_demonstrator_survival_analysis.ipynb)
 
 ## :zap: Plugins
 
