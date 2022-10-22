@@ -25,6 +25,10 @@ def main(nb_dir: Path) -> None:
     nb_dir = Path(nb_dir)
 
     for p in nb_dir.rglob("*"):
+        if "demonstrator" in str(p):
+            print("Ignoring", p)
+            continue
+
         if p.suffix != ".ipynb":
             continue
         if "checkpoint" in p.name:

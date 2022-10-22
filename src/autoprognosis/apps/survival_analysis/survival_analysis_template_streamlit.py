@@ -173,7 +173,7 @@ def generate_interpretation_plots(
                         x="Feature", y="Importance", color="Feature importance"
                     ),
                     color_continuous_scale="OrRd",
-                    height=300,
+                    height=100,
                 )
                 fig.update_layout(
                     **PREDICTION_TEMPLATE,
@@ -367,6 +367,19 @@ def survival_analysis_dashboard(
     auth: bool = False,
 ) -> Any:
     generate_page_config(title)
+
+    if auth is False:
+        return generate_survival_analysis_dashboard(
+            title=title,
+            banner_title=banner_title,
+            models=models,
+            column_types=column_types,
+            encoders_ctx=encoders_ctx,
+            menu_components=menu_components,
+            time_horizons=time_horizons,
+            plot_alternatives=plot_alternatives,
+            extras_cbk=extras_cbk,
+        )
 
     login_key = "login_state"
 

@@ -2,7 +2,6 @@
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Optional
 
 # third party
 import click
@@ -163,49 +162,6 @@ def pack(
     shutil.copy(app, output / "app.p")
 
 
-def upload_heroku(image_folder: Path, heroku_app: str) -> None:
-    print("uploading to heroku", heroku_app)
-    subprocess.run("heroku login", shell=True, check=True)
-    subprocess.run("git init", shell=True, check=True, cwd=image_folder)
-    subprocess.run(
-        f"heroku git:remote -a {heroku_app}", shell=True, check=True, cwd=image_folder
-    )
-    subprocess.run("git add .", shell=True, check=True, cwd=image_folder)
-    subprocess.run(
-        "git commit -am 'demonstrator update'",
-        shell=True,
-        check=True,
-        cwd=image_folder,
-    )
-    subprocess.run(
-        "git push heroku master --force", shell=True, check=True, cwd=image_folder
-    )
-
-
-def upload_huggingface(image_folder: Path, app_name: str) -> None:
-    print("uploading to huggingface", app_name)
-    subprocess.run(
-        "git init && git checkout -b main", shell=True, check=True, cwd=image_folder
-    )
-    subprocess.run(
-        f"git remote add space https://huggingface.co/spaces/{app_name}",
-        shell=True,
-        check=True,
-        cwd=image_folder,
-    )
-
-    subprocess.run("git add .", shell=True, check=True, cwd=image_folder)
-    subprocess.run(
-        "git commit -am 'demonstrator update'",
-        shell=True,
-        check=True,
-        cwd=image_folder,
-    )
-    subprocess.run(
-        "git push --force space main", shell=True, check=True, cwd=image_folder
-    )
-
-
 @click.command()
 @click.option(
     "--name", type=str, default="new_demonstrator", help="The title of the demonstrator"
@@ -259,18 +215,6 @@ def upload_huggingface(image_folder: Path, app_name: str) -> None:
     help="Where to save the demonstrator files. The content of the folder can be directly used for deployments(for example, to Heroku).",
 )
 @click.option(
-    "--heroku_app",
-    type=str,
-    default=None,
-    help="Optional. If provided, the script tries to deploy the demonstrator to Heroku, to the specified Heroku app name.",
-)
-@click.option(
-    "--huggingface_app",
-    type=str,
-    default=None,
-    help="Optional. If provided, the script tries to deploy the demonstrator to Huggingface, to the specified app name, using streamlit",
-)
-@click.option(
     "--auth",
     type=bool,
     default=False,
@@ -289,8 +233,6 @@ def build(
     plot_alternatives: str,
     extras: str,
     output: Path,
-    heroku_app: Optional[str],
-    huggingface_app: Optional[str],
     auth: bool,
 ) -> None:
     output = Path(output)
@@ -317,12 +259,6 @@ def build(
 
     image_bin = Path(output) / "image_bin"
     pack(app_path, output=image_bin)
-
-    if heroku_app:
-        upload_heroku(image_bin, heroku_app)
-
-    if huggingface_app:
-        upload_huggingface(image_bin, huggingface_app)
 
 
 if __name__ == "__main__":
