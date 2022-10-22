@@ -3,7 +3,7 @@
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)
-[![License](https://img.shields.io/github/license/vanderschaarlab/autoprognosis)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/vanderschaarlab/autoprognosis?color=blue)](https://github.com/vanderschaarlab/autoprognosis-framewor/blob/main/LICENSE)
 
 ![image](https://github.com/vanderschaarlab/autoprognosis/raw/main/docs/arch.png "AutoPrognosis")
 
