@@ -12,7 +12,8 @@
 
 - :rocket:Automatically learns ensembles of pipelines for classification or survival analysis.
 - :cyclone: Easy to extend pluginable architecture.
-- :fire: Interpretability tools.
+- :fire: Interpretability and uncertainty quantification tools.
+- :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
 
 ## :rocket:Installation
 
