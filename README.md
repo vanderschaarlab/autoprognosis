@@ -287,7 +287,16 @@ $ pytest -vxs -m "not slow"
 If you use this code, please cite the associated paper:
 
 ```
-TODO
+@misc{https://doi.org/10.48550/arxiv.2210.12090,
+  doi = {10.48550/ARXIV.2210.12090},
+  url = {https://arxiv.org/abs/2210.12090},
+  author = {Imrie, Fergus and Cebere, Bogdan and McKinney, Eoin F. and van der Schaar, Mihaela},
+  keywords = {Machine Learning (cs.LG), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  title = {AutoPrognosis 2.0: Democratizing Diagnostic and Prognostic Modeling in Healthcare with Automated Machine Learning},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
 ```
 
 ## References
