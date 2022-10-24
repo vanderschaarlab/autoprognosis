@@ -23,8 +23,8 @@
 - :rocket:Automatically learns ensembles of pipelines for classification or survival analysis tasks.
 - :cyclone: Easy to extend pluginable architecture.
 - :fire: Interpretability and uncertainty quantification tools.
+- :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
-
 ## :rocket:Installation
 
 #### Using pip
