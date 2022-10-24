@@ -1,12 +1,20 @@
 # AutoPrognosis - A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.
 
+
+<div align="center">
+
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![Test In Colab](https://img.shields.io/badge/tutorial-Model%20Search-orange)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)
 [![Test In Colab](https://img.shields.io/badge/tutorial-Build%20a%20Demonstrator-orange)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)
+
+
 [![arXiv](https://img.shields.io/badge/arXiv-2210.12090-b31b1b.svg)](https://arxiv.org/abs/2210.12090)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/autoprognosis/blob/main/LICENSE)
 [![about](https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue)](https://www.vanderschaar-lab.com/)
+
+</div>
+
 
 ![image](https://github.com/vanderschaarlab/autoprognosis/raw/main/docs/arch.png "AutoPrognosis")
 
