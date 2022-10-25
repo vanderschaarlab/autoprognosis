@@ -5,7 +5,6 @@ from typing import List
 
 # third party
 import numpy as np
-import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
@@ -15,7 +14,7 @@ from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
     default_risk_estimation_names,
 )
-from autoprognosis.explorers.core.optimizer import EarlyStoppingExceeded, create_study
+from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
 from autoprognosis.explorers.hooks import DefaultHooks
 from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
@@ -68,6 +67,7 @@ class RiskEnsembleSeeker:
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
         hooks: Hooks = DefaultHooks(),
+        optimizer_type: str = "bayesian",
     ) -> None:
         self.time_horizons = time_horizons
         self.num_ensemble_iter = num_ensemble_iter
@@ -78,6 +78,7 @@ class RiskEnsembleSeeker:
         self.hooks = hooks
 
         self.study_name = study_name
+        self.optimizer_type = optimizer_type
 
         self.estimator_seeker = RiskEstimatorSeeker(
             study_name,
@@ -136,25 +137,11 @@ class RiskEnsembleSeeker:
     ) -> List[float]:
         self._should_continue()
 
-        study, pruner = create_study(
-            load_if_exists=False,
-            storage_type="none",
-            study_name=f"{self.study_name}_risk_estimation_exploration_ensemble_{time_horizon}",
-        )
-
         pretrained_models = self.pretrain_for_cv(ensemble, X, T, Y, time_horizon)
 
-        def objective(trial: optuna.Trial) -> float:
+        def evaluate(weights: list) -> float:
             self._should_continue()
             start = time.time()
-
-            weights = [
-                trial.suggest_int(f"weight_{idx}", 0, 10)
-                for idx in range(len(ensemble))
-            ]
-            pruner.check_trial(trial)
-
-            weights = weights / (np.sum(weights) + EPS)
 
             cv_folds = []
             for fold in pretrained_models:
@@ -177,43 +164,28 @@ class RiskEnsembleSeeker:
             )
 
             log.debug(
-                f"Trial {trial.number}: ensemble {cv_folds[0].name()} : results {metrics['clf']['c_index'][0]}"
+                f"Ensemble {cv_folds[0].name()} : results {metrics['clf']['c_index'][0]}"
             )
-            score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            return metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
 
-            pruner.report_score(score)
+        study = EnsembleOptimizer(
+            study_name=f"{self.study_name}_risk_estimation_exploration_ensemble_{time_horizon}",
+            ensemble_len=len(ensemble),
+            evaluation_cbk=evaluate,
+            optimizer_type=self.optimizer_type,
+            n_trials=self.num_iter,
+            timeout=self.timeout,
+            skip_recap=skip_recap,
+        )
 
-            return score
-
-        if not skip_recap:
-            initial_trials = []
-
-            trial_template = {}
-            for idx in range(len(ensemble)):
-                trial_template[f"weight_{idx}"] = 0
-
-            for idx in range(len(ensemble)):
-                local_trial = copy.deepcopy(trial_template)
-                local_trial[f"weight_{idx}"] = 1
-                initial_trials.append(local_trial)
-
-            for trial in initial_trials:
-                study.enqueue_trial(trial)
-
-        try:
-            study.optimize(
-                objective, n_trials=self.num_ensemble_iter, timeout=self.timeout
-            )
-        except EarlyStoppingExceeded:
-            log.info("early stopping triggered for ensemble search")
+        best_score, selected_weights = study.evaluate()
 
         weights = []
         for idx in range(len(ensemble)):
-            weights.append(study.best_trial.params[f"weight_{idx}"])
+            weights.append(selected_weights[f"weight_{idx}"])
         weights = weights / (np.sum(weights) + EPS)
-        log.info(
-            f"Best trial for ensemble {time_horizon}: {study.best_value} for {weights}"
-        )
+        log.info(f"Best trial for ensemble: {best_score} for {weights}")
+
         return weights
 
     def search(

@@ -4,7 +4,6 @@ from typing import List, Tuple
 
 # third party
 import numpy as np
-import optuna
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
@@ -14,7 +13,7 @@ from autoprognosis.explorers.core.defaults import (
     default_classifiers_names,
     default_feature_scaling_names,
 )
-from autoprognosis.explorers.core.optimizer import EarlyStoppingExceeded, create_study
+from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
 from autoprognosis.explorers.hooks import DefaultHooks
 from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
@@ -74,6 +73,7 @@ class EnsembleSeeker:
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
+        optimizer_type: str = "bayesian",
     ) -> None:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
@@ -82,6 +82,7 @@ class EnsembleSeeker:
         self.metric = metric
         self.study_name = study_name
         self.hooks = hooks
+        self.optimizer_type = optimizer_type
 
         self.seeker = ClassifierSeeker(
             study_name,
@@ -132,24 +133,10 @@ class EnsembleSeeker:
     ) -> Tuple[WeightedEnsemble, float]:
         self._should_continue()
 
-        study, pruner = create_study(
-            load_if_exists=False,
-            storage_type="none",
-            study_name=f"{self.study_name}_classifier_exploration_ensemble_v2",
-        )
-
         pretrained_models = self.pretrain_for_cv(ensemble, X, Y)
 
-        def objective(trial: optuna.Trial) -> float:
+        def evaluate(weights: List) -> float:
             self._should_continue()
-
-            weights = [
-                trial.suggest_int(f"weight_{idx}", 0, 10)
-                for idx in range(len(ensemble))
-            ]
-            pruner.check_trial(trial)
-
-            weights = weights / (np.sum(weights) + EPS)
 
             folds = []
             for fold in pretrained_models:
@@ -160,37 +147,26 @@ class EnsembleSeeker:
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
             score = metrics["clf"][self.metric][0]
 
-            pruner.report_score(score)
-
             return score
 
-        initial_trials = []
+        study = EnsembleOptimizer(
+            study_name=f"{self.study_name}_classifier_exploration_ensemble_v2",
+            ensemble_len=len(ensemble),
+            evaluation_cbk=evaluate,
+            optimizer_type=self.optimizer_type,
+            n_trials=self.num_iter,
+            timeout=self.timeout,
+        )
 
-        trial_template = {}
-        for idx in range(len(ensemble)):
-            trial_template[f"weight_{idx}"] = 0
-
-        for idx in range(len(ensemble)):
-            local_trial = copy.deepcopy(trial_template)
-            local_trial[f"weight_{idx}"] = 1
-            initial_trials.append(local_trial)
-
-        for trial in initial_trials:
-            study.enqueue_trial(trial)
-
-        try:
-            study.optimize(objective, n_trials=self.num_iter, timeout=self.timeout)
-        except EarlyStoppingExceeded:
-            log.info("Early stopping triggered for search")
-
+        best_score, selected_weights = study.evaluate()
         weights = []
         for idx in range(len(ensemble)):
-            weights.append(study.best_trial.params[f"weight_{idx}"])
+            weights.append(selected_weights[f"weight_{idx}"])
 
         weights = weights / (np.sum(weights) + EPS)
-        log.info(f"Best trial for ensemble: {study.best_value} for {weights}")
+        log.info(f"Best trial for ensemble: {best_score} for {weights}")
 
-        return WeightedEnsemble(ensemble, weights), study.best_value
+        return WeightedEnsemble(ensemble, weights), best_score
 
     def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> BaseEnsemble:
         self._should_continue()

@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Tuple
 # third party
 from joblib import Parallel, delayed
 import numpy as np
-import optuna
 import pandas as pd
 
 # autoprognosis absolute
@@ -14,7 +13,7 @@ from autoprognosis.explorers.core.defaults import (
     default_classifiers_names,
     default_feature_scaling_names,
 )
-from autoprognosis.explorers.core.optimizer import EarlyStoppingExceeded, create_study
+from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
 from autoprognosis.explorers.hooks import DefaultHooks
 from autoprognosis.hooks import Hooks
@@ -63,6 +62,7 @@ class ClassifierSeeker:
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
+        optimizer_type: str = "bayesian",
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -92,6 +92,7 @@ class ClassifierSeeker:
         self.timeout = timeout
         self.top_k = top_k
         self.metric = metric
+        self.optimizer_type = optimizer_type
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -106,6 +107,8 @@ class ClassifierSeeker:
         self._should_continue()
 
         def evaluate_args(**kwargs: Any) -> float:
+            self._should_continue()
+
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
@@ -127,39 +130,15 @@ class ClassifierSeeker:
             )
             return metrics["clf"][self.metric][0]
 
-        baseline_score = evaluate_args()
-
-        if len(estimator.hyperparameter_space()) == 0:
-            return baseline_score, baseline_score, {}
-
-        log.info(f"baseline score for {estimator.name()} {baseline_score}")
-
-        study, pruner = create_study(
+        study = Optimizer(
             study_name=f"{self.study_name}_classifiers_exploration_{estimator.name()}",
+            estimator=estimator,
+            evaluation_cbk=evaluate_args,
+            optimizer_type=self.optimizer_type,
+            n_trials=self.num_iter,
+            timeout=self.timeout,
         )
-
-        def objective(trial: optuna.Trial) -> float:
-            self._should_continue()
-
-            args = estimator.sample_hyperparameters(trial)
-            pruner.check_trial(trial)
-
-            score = evaluate_args(**args)
-
-            pruner.report_score(score)
-
-            return score
-
-        try:
-            study.optimize(objective, n_trials=self.num_iter, timeout=self.timeout)
-        except EarlyStoppingExceeded:
-            log.info("Early stopping triggered for search")
-
-        log.info(
-            f"Best trial for estimator {estimator.name()}: {study.best_value} for {study.best_trial.params}"
-        )
-
-        return baseline_score, study.best_value, study.best_trial.params
+        return study.evaluate()
 
     def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> List:
         self._should_continue()
@@ -172,12 +151,12 @@ class ClassifierSeeker:
         all_scores = []
         all_args = []
 
-        for idx, (baseline_score, best_score, best_args) in enumerate(search_results):
-            all_scores.append([baseline_score, best_score])
-            all_args.append([{}, best_args])
+        for idx, (best_score, best_args) in enumerate(search_results):
+            all_scores.append([best_score])
+            all_args.append([best_args])
 
             log.info(
-                f"Evaluation for {self.estimators[idx].name()} scores: baseline {baseline_score} optimized {best_score}. Args {best_args}"
+                f"Evaluation for {self.estimators[idx].name()} scores: {best_score}. Args {best_args}"
             )
 
         all_scores_np = np.array(all_scores)
