@@ -91,6 +91,7 @@ class RiskEnsembleSeeker:
             hooks=hooks,
             feature_scaling=feature_scaling,
             imputers=imputers,
+            optimizer_type=optimizer_type,
         )
 
     def _should_continue(self) -> None:

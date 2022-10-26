@@ -95,6 +95,7 @@ class EnsembleSeeker:
             classifiers=classifiers,
             hooks=hooks,
             imputers=imputers,
+            optimizer_type=optimizer_type,
         )
 
     def _should_continue(self) -> None:

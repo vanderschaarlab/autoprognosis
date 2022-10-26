@@ -14,7 +14,8 @@ from autoprognosis.utils.metrics import (
 )
 
 
-def test_sanity() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_sanity(optimizer_type: str) -> None:
     sq = RiskEnsembleSeeker(
         study_name="test_risk_estimation",
         time_horizons=[2],
@@ -22,6 +23,7 @@ def test_sanity() -> None:
         CV=5,
         ensemble_size=2,
         timeout=10,
+        optimizer_type=optimizer_type,
     )
 
     assert sq.time_horizons == [2]
@@ -31,8 +33,8 @@ def test_sanity() -> None:
     assert sq.timeout == 10
 
 
-@pytest.mark.slow
-def test_search() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_search(optimizer_type: str) -> None:
 
     rossi = load_rossi()
 
@@ -54,6 +56,7 @@ def test_search() -> None:
         ensemble_size=3,
         timeout=10,
         estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
+        optimizer_type=optimizer_type,
     )
 
     ensemble = sq.search(X, T, Y)
@@ -110,7 +113,8 @@ def test_search() -> None:
         ), f"The ensemble should have a better c_index. horizon {eval_time}"
 
 
-def test_hooks() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_hooks(optimizer_type: str) -> None:
     hooks = MockHook()
 
     rossi = load_rossi()
@@ -134,6 +138,7 @@ def test_hooks() -> None:
         timeout=10,
         estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
         hooks=hooks,
+        optimizer_type=optimizer_type,
     )
 
     with pytest.raises(StudyCancelled):
