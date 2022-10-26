@@ -45,9 +45,7 @@ def test_search(optimizer_type: str) -> None:
     T = rossi["week"]
 
     eval_time_horizons = [
-        int(T[Y.iloc[:] == 1].quantile(0.25)),
         int(T[Y.iloc[:] == 1].quantile(0.50)),
-        int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
@@ -56,7 +54,7 @@ def test_search(optimizer_type: str) -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["loglogistic_aft", "lognormal_aft", "cox_ph"],
+        estimators=["lognormal_aft", "loglogistic_aft"],
         optimizer_type=optimizer_type,
     )
 
@@ -114,9 +112,7 @@ def test_hooks(optimizer_type: str) -> None:
     T = rossi["week"]
 
     eval_time_horizons = [
-        int(T[Y.iloc[:] == 1].quantile(0.25)),
         int(T[Y.iloc[:] == 1].quantile(0.50)),
-        int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
@@ -125,7 +121,7 @@ def test_hooks(optimizer_type: str) -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["loglogistic_aft", "lognormal_aft", "cox_ph"],
+        estimators=["lognormal_aft", "loglogistic_aft"],
         hooks=hooks,
         optimizer_type=optimizer_type,
     )
