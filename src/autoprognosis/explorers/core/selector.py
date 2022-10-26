@@ -139,6 +139,15 @@ class PipelineSelector:
 
         return result
 
+    def sample_hyperparameters_np(self) -> Dict:
+        params = self.hyperparameter_space()
+
+        result = {}
+        for param in params:
+            result[param.name] = param.sample_np()
+
+        return result
+
     def name(self) -> str:
         return self.classifier.name()
 

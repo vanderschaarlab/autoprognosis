@@ -9,7 +9,8 @@ from autoprognosis.explorers.classifiers_combos import EnsembleSeeker
 from autoprognosis.utils.metrics import evaluate_auc
 
 
-def test_sanity() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_sanity(optimizer_type: str) -> None:
     eseeker = EnsembleSeeker(
         study_name="test_classifiers_combos",
         CV=10,
@@ -18,6 +19,7 @@ def test_sanity() -> None:
         ensemble_size=12,
         feature_scaling=["scaler"],
         classifiers=["perceptron"],
+        optimizer_type=optimizer_type,
     )
 
     assert eseeker.seeker.CV == 10
@@ -50,8 +52,8 @@ def test_fails() -> None:
         EnsembleSeeker(study_name="test_classifiers_combos", metric="invalid")
 
 
-@pytest.mark.slow
-def test_search() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_search(optimizer_type: str) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 
     seeker = EnsembleSeeker(
@@ -63,8 +65,8 @@ def test_search() -> None:
             "logistic_regression",
             "lda",
             "qda",
-            "perceptron",
         ],
+        optimizer_type=optimizer_type,
     )
 
     selected_ensemble = seeker.search(X, Y)
@@ -79,7 +81,8 @@ def test_search() -> None:
     assert evaluate_auc(Y, y_pred_proba)[0] > 0.9
 
 
-def test_hooks() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_hooks(optimizer_type: str) -> None:
     hook = MockHook()
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 
@@ -95,6 +98,7 @@ def test_hooks() -> None:
             "perceptron",
         ],
         hooks=hook,
+        optimizer_type=optimizer_type,
     )
 
     with pytest.raises(StudyCancelled):

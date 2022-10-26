@@ -15,7 +15,8 @@ from autoprognosis.utils.metrics import (
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
-def test_sanity() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_sanity(optimizer_type: str) -> None:
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=[2],
@@ -23,6 +24,7 @@ def test_sanity() -> None:
         CV=5,
         top_k=2,
         timeout=10,
+        optimizer_type=optimizer_type,
     )
 
     assert sq.time_horizons == [2]
@@ -33,8 +35,8 @@ def test_sanity() -> None:
     assert len(sq.estimators) > 0
 
 
-@pytest.mark.slow
-def test_search() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_search(optimizer_type: str) -> None:
 
     rossi = load_rossi()
 
@@ -43,10 +45,9 @@ def test_search() -> None:
     T = rossi["week"]
 
     eval_time_horizons = [
-        int(T[Y.iloc[:] == 1].quantile(0.25)),
         int(T[Y.iloc[:] == 1].quantile(0.50)),
-        int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
+    estimators = ["lognormal_aft", "loglogistic_aft"]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
@@ -54,7 +55,8 @@ def test_search() -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["loglogistic_aft", "lognormal_aft", "cox_ph"],
+        estimators=estimators,
+        optimizer_type=optimizer_type,
     )
 
     best_models = sq.search(X, T, Y)
@@ -64,7 +66,7 @@ def test_search() -> None:
     )
 
     assert len(best_models) == len(eval_time_horizons)
-    assert len(best_models[0]) == 3
+    assert len(best_models[0]) == len(estimators)
 
     for models, eval_time in zip(best_models, eval_time_horizons):
         print("Evaluating time horizon ", eval_time)
@@ -101,7 +103,8 @@ def test_eval_surv_estimator() -> None:
     evaluate_survival_estimator(estimator, X, T, Y, eval_time_horizons, 5)
 
 
-def test_hooks() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_hooks(optimizer_type: str) -> None:
     hooks = MockHook()
     rossi = load_rossi()
 
@@ -110,10 +113,9 @@ def test_hooks() -> None:
     T = rossi["week"]
 
     eval_time_horizons = [
-        int(T[Y.iloc[:] == 1].quantile(0.25)),
         int(T[Y.iloc[:] == 1].quantile(0.50)),
-        int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
+    estimators = ["lognormal_aft", "loglogistic_aft"]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
@@ -121,8 +123,9 @@ def test_hooks() -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["loglogistic_aft", "lognormal_aft", "cox_ph"],
+        estimators=estimators,
         hooks=hooks,
+        optimizer_type=optimizer_type,
     )
 
     with pytest.raises(StudyCancelled):

@@ -9,7 +9,8 @@ from autoprognosis.explorers.classifiers import ClassifierSeeker
 from autoprognosis.utils.metrics import evaluate_auc
 
 
-def test_sanity() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_sanity(optimizer_type: str) -> None:
     model = ClassifierSeeker(
         study_name="test_classifiers",
         CV=10,
@@ -19,6 +20,7 @@ def test_sanity() -> None:
         metric="aucprc",
         feature_scaling=["scaler"],
         classifiers=["perceptron"],
+        optimizer_type=optimizer_type,
     )
 
     assert model.CV == 10
@@ -47,7 +49,8 @@ def test_fails() -> None:
         ClassifierSeeker(study_name="test_classifiers", metric="invalid")
 
 
-def test_search() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_search(optimizer_type: str) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 
     seeker = ClassifierSeeker(
@@ -61,6 +64,7 @@ def test_search() -> None:
             "qda",
             "perceptron",
         ],
+        optimizer_type=optimizer_type,
     )
     best_models = seeker.search(X, Y)
 
@@ -82,7 +86,8 @@ def test_search() -> None:
         assert evaluate_auc(Y, y_pred_proba)[0] > 0.9
 
 
-def test_hooks() -> None:
+@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
+def test_hooks(optimizer_type: str) -> None:
     hook = MockHook()
 
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
@@ -92,6 +97,7 @@ def test_hooks() -> None:
         num_iter=10,
         top_k=3,
         hooks=hook,
+        optimizer_type=optimizer_type,
     )
 
     with pytest.raises(StudyCancelled):
