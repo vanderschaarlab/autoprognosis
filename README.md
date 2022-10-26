@@ -43,7 +43,7 @@ AutoPrognosis can use Redis as a backend to improve the performance and quality 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
 ## :boom: Sample Usage
-More advanced use cases can be found on our [tutorials section](#tutorials).
+More advanced use cases can be found on the [tutorials section](#high_brightness-tutorials).
 
 List the available classifiers
 ```python
