@@ -33,7 +33,7 @@ class RegressionSeeker:
         num_iter: int.
             Number of optimization trials.
         metric: str.
-            The metric to use for optimization. ["r2", "rmse"]
+            The metric to use for optimization. ["r2"]
         CV: int.
             Number of folds to use for evaluation
         top_k: int
@@ -69,7 +69,7 @@ class RegressionSeeker:
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
                 )
-        metrics = ["r2", "rmse"]
+        metrics = ["r2"]
         if metric not in metrics:
             raise ValueError(f"invalid input metric. Should be from {metrics}")
 

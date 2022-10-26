@@ -47,7 +47,7 @@ class RegressionEnsembleSeeker:
         ensemble_size: int.
             Number of base models for the ensemble.
         metric: str.
-            The metric to use for optimization. ["rmse", "r2"]
+            The metric to use for optimization. ["r2"]
         feature_scaling: list.
             Plugins to use in the pipeline for preprocessing.
         regressors: list.
