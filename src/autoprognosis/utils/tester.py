@@ -425,6 +425,7 @@ def evaluate_regression(
     n_folds: int = 3,
     metrics: str = ["rmse", "r2"],
     seed: int = 0,
+    pretrained: bool = False,
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
@@ -464,8 +465,11 @@ def evaluate_regression(
         X_test = X.loc[X.index[test_index]]
         Y_test = Y.loc[Y.index[test_index]]
 
-        model = copy.deepcopy(estimator)
-        model.fit(X_train, Y_train)
+        if pretrained:
+            model = estimator[indx]
+        else:
+            model = copy.deepcopy(estimator)
+            model.fit(X_train, Y_train)
 
         preds = model.predict(X_test)
 
