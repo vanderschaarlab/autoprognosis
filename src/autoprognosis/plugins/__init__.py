@@ -22,7 +22,7 @@ class Plugins:
             },
             "prediction": {
                 "classifier": Predictions(category="classifier"),
-                "regressors": Predictions(category="regression"),
+                "regression": Predictions(category="regression"),
                 "risk_estimation": Predictions(category="risk_estimation"),
             },
             "explainer": {

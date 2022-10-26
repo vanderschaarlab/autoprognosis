@@ -48,7 +48,7 @@ class PipelineSelector:
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
         feature_selection: List[str] = default_feature_selection_names,
-        classifier_category: str = "classifier",  # "classifier", "risk_estimation"
+        classifier_category: str = "classifier",  # "classifier", "risk_estimation", "regression"
     ) -> None:
         self.calibration = calibration
         self.imputers = [Imputers().get_type(plugin) for plugin in imputers]

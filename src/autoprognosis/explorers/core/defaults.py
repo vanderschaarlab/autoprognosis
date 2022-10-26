@@ -12,6 +12,13 @@ default_classifiers_names = [
     "lgbm",
     "catboost",
 ]
+default_regressors_names = [
+    "random_forest_regressor",
+    "xgboost_regressor",
+    "linear_regression",
+    "catboost_regressor",
+]
+
 default_imputers_names = [
     "nop",
     "median",
