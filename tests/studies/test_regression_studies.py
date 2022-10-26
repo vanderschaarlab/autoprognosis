@@ -15,7 +15,7 @@ from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_regression
 
 
-def test_search() -> None:
+def test_regression_search() -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
 
     df = X.copy()
@@ -62,7 +62,7 @@ def test_search() -> None:
     metrics = evaluate_regression(model_v2, X, Y)
     score_v2 = metrics["clf"]["r2"][0]
 
-    EPS = 1e-2
+    EPS = 0.05
     assert score_v2 + EPS >= score_v1
 
 

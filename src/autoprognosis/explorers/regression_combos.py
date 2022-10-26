@@ -5,7 +5,7 @@ from typing import List, Tuple
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import KFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -109,7 +109,7 @@ class RegressionEnsembleSeeker:
     ) -> List:
         self._should_continue()
 
-        skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        skf = KFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         folds = []
         for train_index, _ in skf.split(X, Y):
