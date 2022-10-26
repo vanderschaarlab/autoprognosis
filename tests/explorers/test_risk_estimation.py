@@ -35,8 +35,7 @@ def test_sanity(optimizer_type: str) -> None:
     assert len(sq.estimators) > 0
 
 
-@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+def test_search() -> None:
 
     rossi = load_rossi()
 
@@ -56,7 +55,6 @@ def test_search(optimizer_type: str) -> None:
         top_k=3,
         timeout=10,
         estimators=estimators,
-        optimizer_type=optimizer_type,
     )
 
     best_models = sq.search(X, T, Y)

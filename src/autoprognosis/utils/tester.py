@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.metrics import (
     mean_squared_error,
     precision_score,
+    r2_score,
     recall_score,
     roc_auc_score,
 )
@@ -422,8 +423,9 @@ def evaluate_regression(
     X: pd.DataFrame,
     Y: pd.DataFrame,
     n_folds: int = 3,
-    metric: str = "rmse",
+    metrics: str = ["rmse", "r2"],
     seed: int = 0,
+    pretrained: bool = False,
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
@@ -438,8 +440,8 @@ def evaluate_regression(
             outcomes
         n_folds: int
             Number of cross-validation folds
-        metric: str
-            rmse
+        metrics: str
+            rmse, r2
         seed: int
             Random seed
 
@@ -449,7 +451,9 @@ def evaluate_regression(
 
     log.debug(f"evaluate_estimator shape x:{X.shape} y:{Y.shape}")
 
-    metric_ = np.zeros(n_folds)
+    metrics_ = {}
+    for metric in metrics:
+        metrics_[metric] = np.zeros(n_folds)
 
     indx = 0
     skf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
@@ -461,23 +465,30 @@ def evaluate_regression(
         X_test = X.loc[X.index[test_index]]
         Y_test = Y.loc[Y.index[test_index]]
 
-        model = copy.deepcopy(estimator)
-        model.fit(X_train, Y_train)
+        if pretrained:
+            model = estimator[indx]
+        else:
+            model = copy.deepcopy(estimator)
+            model.fit(X_train, Y_train)
 
         preds = model.predict(X_test)
 
-        metric_[indx] = mean_squared_error(Y_test, preds)
+        metrics_["rmse"][indx] = mean_squared_error(Y_test, preds)
+        metrics_["r2"][indx] = r2_score(Y_test, preds)
 
         indx += 1
 
-    output_clf = generate_score(metric_)
+    output_rmse = generate_score(metrics_["rmse"])
+    output_r2 = generate_score(metrics_["r2"])
 
     return {
         "clf": {
-            metric: output_clf,
+            "rmse": output_rmse,
+            "r2": output_r2,
         },
         "str": {
-            metric: print_score(output_clf),
+            "rmse": print_score(output_rmse),
+            "r2": print_score(output_r2),
         },
     }
 

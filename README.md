@@ -20,7 +20,7 @@
 
 ## :key: Features
 
-- :rocket:Automatically learns ensembles of pipelines for classification or survival analysis tasks.
+- :rocket:Automatically learns ensembles of pipelines for classification, regression or survival analysis tasks.
 - :cyclone: Easy to extend pluginable architecture.
 - :fire: Interpretability and uncertainty quantification tools.
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
@@ -90,6 +90,66 @@ metrics = evaluate_estimator(model, X, Y)
 print(f"model {model.name()} -> {metrics['clf']}")
 ```
 
+List the available regressors
+```python
+from autoprognosis.plugins.prediction.regression import Regression
+print(Regression().list_available())
+```
+
+Regression study
+```python
+# stdlib
+from pathlib import Path
+
+# third party
+import pandas as pd
+
+# autoprognosis absolute
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_regression
+from autoprognosis.studies.regression import RegressionStudy
+
+# Load dataset
+df = pd.read_csv(
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat",
+    header=None,
+    sep="\\t",
+)
+last_col = df.columns[-1]
+y = df[last_col]
+X = df.drop(columns=[last_col])
+
+df = X.copy()
+df["target"] = y
+
+# Search the model
+workspace = Path("workspace")
+workspace.mkdir(parents=True, exist_ok=True)
+
+study_name="regression_example"
+study = RegressionStudy(
+    study_name=study_name,
+    dataset=df,  # pandas DataFrame
+    target="target",  # the label column in the dataset
+    num_iter=10,  # how many trials to do for each candidate. Default: 50
+    num_study_iter=2,  # how many outer iterations to do. Default: 5
+    timeout=50,  # timeout for optimization for each classfier. Default: 600 seconds
+    regressors=["linear_regression", "xgboost_regressor"],
+    workspace=workspace,
+)
+
+study.run()
+
+# Test the model
+output = workspace / study_name / "model.p"
+
+model = load_model_from_file(output)
+
+metrics = evaluate_regression(model, X, y)
+
+print(f"Model {model.name()} score: {metrics['str']}")
+```
+
 List available survival analysis estimators
 ```python
 from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
@@ -156,12 +216,14 @@ print(f"Model {model.name()} score: {metrics['clf']}")
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)[ Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K0yVwm4jQrXRbMKJ-em7tTYgHXWtoK5c?usp=sharing)[ Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1bY4CbiqMe2uoqeUu2d49aIdYRbtP156X?usp=sharing)[ Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UK6WbsviT5nOQ_BAHSFYIjhpKtwppnUU?usp=sharing)[ Regression](tutorials/plugins/tutorial_06_regression_plugins.ipynb)
 
 ### AutoML
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-lPuQAtjHESl32ahFQYsFl8ujAnDWxEJ?usp=sharing)[ Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/16UDaA3F5JGw_YVY8XlYqWjfxcUV1OHJo?usp=sharing)[ Classification tasks with imputation](tutorials/automl/tutorial_01_automl_classification_with_imputation.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DtZCqebhaYdKB3ci5dr3hT0KvZPaTUOi?usp=sharing)[ Survival analysis tasks](tutorials/automl/tutorial_02_survival_analysis_study.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)[ Survival analysis tasks with imputation](tutorials/automl/tutorial_03_automl_survival_analysis_with_imputation.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1HLhWI-tRZn4e9ijQ6iEIuppuDszgWkCC?usp=sharing)[ Regression tasks](tutorials/automl/tutorial_04_regression.ipynb)
 
 ### Building a demonstrator
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)

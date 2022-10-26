@@ -33,8 +33,7 @@ def test_sanity(optimizer_type: str) -> None:
     assert sq.timeout == 10
 
 
-@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+def test_search() -> None:
 
     rossi = load_rossi()
 
@@ -54,7 +53,6 @@ def test_search(optimizer_type: str) -> None:
         ensemble_size=3,
         timeout=10,
         estimators=["lognormal_aft", "loglogistic_aft"],
-        optimizer_type=optimizer_type,
     )
 
     ensemble = sq.search(X, T, Y)
