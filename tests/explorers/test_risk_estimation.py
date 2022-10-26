@@ -47,6 +47,7 @@ def test_search(optimizer_type: str) -> None:
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
     ]
+    estimators = ["lognormal_aft", "loglogistic_aft"]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
@@ -54,7 +55,7 @@ def test_search(optimizer_type: str) -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["lognormal_aft", "loglogistic_aft"],
+        estimators=estimators,
         optimizer_type=optimizer_type,
     )
 
@@ -65,7 +66,7 @@ def test_search(optimizer_type: str) -> None:
     )
 
     assert len(best_models) == len(eval_time_horizons)
-    assert len(best_models[0]) == 3
+    assert len(best_models[0]) == len(estimators)
 
     for models, eval_time in zip(best_models, eval_time_horizons):
         print("Evaluating time horizon ", eval_time)
@@ -114,6 +115,7 @@ def test_hooks(optimizer_type: str) -> None:
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
     ]
+    estimators = ["lognormal_aft", "loglogistic_aft"]
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
@@ -121,7 +123,7 @@ def test_hooks(optimizer_type: str) -> None:
         CV=5,
         top_k=3,
         timeout=10,
-        estimators=["lognormal_aft", "loglogistic_aft"],
+        estimators=estimators,
         hooks=hooks,
         optimizer_type=optimizer_type,
     )
