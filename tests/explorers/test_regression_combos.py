@@ -56,8 +56,7 @@ def test_fails() -> None:
         RegressionEnsembleSeeker(study_name="test_regressors_combos", metric="aucroc")
 
 
-@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+def test_search() -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
 
     seeker = RegressionEnsembleSeeker(
@@ -69,7 +68,6 @@ def test_search(optimizer_type: str) -> None:
             "linear_regression",
             "random_forest_regressor",
         ],
-        optimizer_type=optimizer_type,
     )
 
     selected_ensemble = seeker.search(X, Y)

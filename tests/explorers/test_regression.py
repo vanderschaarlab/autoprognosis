@@ -48,8 +48,7 @@ def test_fails() -> None:
         RegressionSeeker(study_name="test_regressors", metric="invalid")
 
 
-@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+def test_search() -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
 
     seeker = RegressionSeeker(
@@ -61,7 +60,6 @@ def test_search(optimizer_type: str) -> None:
             "linear_regression",
             "random_forest_regressor",
         ],
-        optimizer_type=optimizer_type,
     )
     best_models = seeker.search(X, Y)
 
