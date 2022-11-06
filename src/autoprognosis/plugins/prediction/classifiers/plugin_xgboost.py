@@ -2,7 +2,9 @@
 from typing import Any, List, Optional
 
 # third party
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
@@ -84,7 +86,6 @@ class XGBoostPlugin(base.ClassifierPlugin):
         learning_rate: float = 1e-2,
         min_child_weight: int = 0,
         max_bin: int = 256,
-        tree_method: str = "hist",
         booster: int = 0,
         random_state: int = 0,
         calibration: int = 0,
@@ -114,8 +115,6 @@ class XGBoostPlugin(base.ClassifierPlugin):
             min_child_weight=min_child_weight,
             max_bin=max_bin,
             verbosity=0,
-            use_label_encoder=False,
-            tree_method=tree_method,
             booster=XGBoostPlugin.booster[booster],
             random_state=random_state,
             nthread=nthread,
@@ -144,11 +143,16 @@ class XGBoostPlugin(base.ClassifierPlugin):
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "XGBoostPlugin":
-        self.model.fit(X, *args, **kwargs)
+        y = np.asarray(args[0])
+
+        self.encoder = LabelEncoder()
+        y = self.encoder.fit_transform(y)
+
+        self.model.fit(X, y, **kwargs)
         return self
 
     def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        return self.model.predict(X, *args, **kwargs)
+        return self.encoder.inverse_transform(self.model.predict(X, *args, **kwargs))
 
     def _predict_proba(
         self, X: pd.DataFrame, *args: Any, **kwargs: Any
