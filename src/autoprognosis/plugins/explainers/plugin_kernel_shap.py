@@ -67,8 +67,13 @@ class KernelSHAPPlugin(ExplainerPlugin):
         if task_type == "classification":
             if not prefit:
                 model.fit(X, y)
+
+            def model_fn(X: pd.DataFrame) -> pd.DataFrame:
+                X = pd.DataFrame(X, columns=self.feature_names)
+                return model.predict_proba(X)
+
             self.explainer = shap.KernelExplainer(
-                model.predict_proba, X_summary, feature_names=self.feature_names
+                model_fn, X_summary, feature_names=self.feature_names
             )
         elif task_type == "risk_estimation":
             if time_to_event is None or eval_times is None:
