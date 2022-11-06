@@ -459,7 +459,7 @@ class invaseRiskEstimation(invaseBase):
         return nn.MSELoss()(y_pred.view(y_true.shape), y_true)
 
     def _baseline_predict(self, estimator: Any, x: torch.Tensor) -> torch.Tensor:
-        df = pd.DataFrame(x.detach().cpu().numpy(), columns=self.feature_names)
+        df = pd.DataFrame(x, columns=self.feature_names)
         return estimator.predict(df, self.eval_times)
 
     def _importance_init(self, x: torch.Tensor) -> torch.Tensor:
