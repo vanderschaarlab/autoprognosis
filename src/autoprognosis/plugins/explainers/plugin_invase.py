@@ -112,10 +112,12 @@ class invaseBase(metaclass=ABCMeta):
         batch_size: int = 300,
         learning_rate: float = 1e-3,
         penalty_l2: float = 1e-3,
+        feature_names: List = [],
     ) -> None:
         self.batch_size = batch_size  # Batch size
         self.epochs = n_epoch  # Epoch size (large epoch is needed due to the policy gradient framework)
         self.epochs_inner = n_epoch_inner
+        self.feature_names = feature_names
 
         self.patience = patience
         self.min_epochs = min_epochs
@@ -253,6 +255,7 @@ class invaseClassifier(invaseBase):
         batch_size: int = 300,
         learning_rate: float = 1e-3,
         penalty_l2: float = 1e-3,
+        feature_names: List = [],
     ) -> None:
         X = np.asarray(X)
         self.latent_dim2 = critic_latent_dim  # Dimension of critic network
@@ -275,6 +278,7 @@ class invaseClassifier(invaseBase):
             batch_size=batch_size,
             learning_rate=learning_rate,
             penalty_l2=penalty_l2,
+            feature_names=feature_names,
         )
 
     def explain(self, X: np.ndarray, *args: Any, **kwargs: Any) -> np.ndarray:
@@ -303,20 +307,22 @@ class invaseClassifier(invaseBase):
     def _baseline_metric(
         self, estimator: Any, x: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
+        df = pd.DataFrame(x.detach().cpu().numpy(), columns=self.feature_names)
         if hasattr(estimator, "predict_proba"):
-            baseline_proba = estimator.predict_proba(x.detach().cpu().numpy())
+            baseline_proba = estimator.predict_proba(df)
             baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
             return -torch.sum(y * torch.log(baseline_proba + EPS), dim=-1)
         else:
-            baseline_proba = estimator.predict(x.detach().cpu().numpy())
+            baseline_proba = estimator.predict(df)
             baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
             return torch.sum((y - baseline_proba) ** 2, dim=-1)
 
     def _baseline_predict(self, estimator: Any, x: torch.Tensor) -> torch.Tensor:
+        df = pd.DataFrame(x, columns=self.feature_names)
         if hasattr(estimator, "predict_proba"):
-            return estimator.predict_proba(x)
+            return estimator.predict_proba(df)
         else:
-            return estimator.predict(x)
+            return estimator.predict(df)
 
     def _importance_loss(
         self, y_pred: torch.Tensor, y_true: torch.Tensor
@@ -387,8 +393,12 @@ class invaseRiskEstimation(invaseBase):
         learning_rate: float = 1e-3,
         penalty_l2: float = 1e-3,
         samples: int = 20000,
+        feature_names: List = [],
     ) -> None:
-        X = pd.DataFrame(X)
+        if len(feature_names) == X.shape[1]:
+            X = pd.DataFrame(X, columns=feature_names)
+        else:
+            X = pd.DataFrame(X)
         self.columns = X.columns
         self.eval_times = eval_times
 
@@ -414,6 +424,7 @@ class invaseRiskEstimation(invaseBase):
             batch_size=batch_size,
             learning_rate=learning_rate,
             penalty_l2=penalty_l2,
+            feature_names=feature_names,
         )
 
     def _build_critic(self) -> nn.Module:
@@ -430,8 +441,9 @@ class invaseRiskEstimation(invaseBase):
     def _baseline_metric(
         self, estimator: Any, x: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
+        df = pd.DataFrame(x.detach().cpu().numpy(), columns=self.feature_names)
         baseline_proba = estimator.predict(
-            pd.DataFrame(x.detach().cpu().numpy(), columns=self.columns),
+            df,
             self.eval_times,
         )
         baseline_proba = torch.from_numpy(np.asarray(baseline_proba)).to(DEVICE)
@@ -447,7 +459,8 @@ class invaseRiskEstimation(invaseBase):
         return nn.MSELoss()(y_pred.view(y_true.shape), y_true)
 
     def _baseline_predict(self, estimator: Any, x: torch.Tensor) -> torch.Tensor:
-        return estimator.predict(x, self.eval_times)
+        df = pd.DataFrame(x.detach().cpu().numpy(), columns=self.feature_names)
+        return estimator.predict(df, self.eval_times)
 
     def _importance_init(self, x: torch.Tensor) -> torch.Tensor:
         return torch.zeros((x.shape[0], x.shape[1], len(self.eval_times))).to(DEVICE)
@@ -523,8 +536,10 @@ class invaseCV:
         n_epoch_print: int = 50,
         n_folds: int = 5,
         seed: int = 42,
+        feature_names: List = [],
     ) -> None:
         X = np.asarray(X)
+        self.feature_names = feature_names
 
         self.fold_models = []
 
@@ -539,6 +554,7 @@ class invaseCV:
                     n_epoch_inner=n_epoch_inner,
                     patience=patience,
                     min_epochs=min_epochs,
+                    feature_names=feature_names,
                 )
             )
 
@@ -606,7 +622,11 @@ class INVASEPlugin(ExplainerPlugin):
                 model.fit(X, y)
             if n_folds == 1:
                 self.explainer = invaseClassifier(
-                    model, X, n_epoch=n_epoch, n_epoch_inner=n_epoch_inner
+                    model,
+                    X,
+                    n_epoch=n_epoch,
+                    n_epoch_inner=n_epoch_inner,
+                    feature_names=self.feature_names,
                 )
             else:
                 self.explainer = invaseCV(
@@ -615,6 +635,7 @@ class INVASEPlugin(ExplainerPlugin):
                     n_epoch=n_epoch,
                     n_folds=n_folds,
                     n_epoch_inner=n_epoch_inner,
+                    feature_names=self.feature_names,
                 )
         elif task_type in ["risk_estimation"]:
             if eval_times is None:
@@ -634,6 +655,7 @@ class INVASEPlugin(ExplainerPlugin):
                 n_epoch=n_epoch,
                 n_epoch_inner=n_epoch_inner,
                 samples=samples,
+                feature_names=self.feature_names,
             )
 
     def explain(self, X: pd.DataFrame) -> np.ndarray:

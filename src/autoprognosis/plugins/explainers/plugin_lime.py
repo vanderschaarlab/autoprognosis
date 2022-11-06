@@ -64,7 +64,12 @@ class LimePlugin(ExplainerPlugin):
         if task_type == "classification":
             if not prefit:
                 model.fit(X, y)
-            self.predict_fn = lambda x: np.asarray(model.predict_proba(x).astype(float))
+
+            def model_fn(X: pd.DataFrame) -> pd.DataFrame:
+                X = pd.DataFrame(X, columns=self.feature_names)
+                return np.asarray(model.predict_proba(X)).astype(float)
+
+            self.predict_fn = model_fn
         elif task_type == "risk_estimation":
             if time_to_event is None or eval_times is None:
                 raise RuntimeError("invalid input for risk estimation interpretability")
@@ -73,6 +78,7 @@ class LimePlugin(ExplainerPlugin):
                 model.fit(X, time_to_event, y)
 
             def model_fn(X: pd.DataFrame) -> pd.DataFrame:
+                X = pd.DataFrame(X, columns=self.feature_names)
                 return np.asarray(model.predict(X, eval_times)).astype(float)
 
             self.predict_fn = model_fn
