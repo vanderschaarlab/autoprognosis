@@ -35,3 +35,4 @@ jobs:
       - name: Test R
         run: |
           Rscript tests/R/test_classification.R
+          Rscript tests/R/test_regression.R
