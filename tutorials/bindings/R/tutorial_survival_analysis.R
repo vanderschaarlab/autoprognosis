@@ -1,7 +1,7 @@
 library(reticulate)
 library(survival)
 
-py_install(".", pip = TRUE)
+py_install("autoprognosis", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
