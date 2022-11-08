@@ -19,8 +19,10 @@ workspace <- Path("workspace")
 study_name <- "example_risk_estimation"
 
 # Load the data
+data(cancer, package="survival")
+
 targets <- c("dtime", "death")
-df <- data(cancer, package="survival")
+df <- rotterdam
 
 X <- df[ , !(names(df) %in% targets)]
 Y <- df[, "death"]
@@ -42,7 +44,7 @@ study <- RiskEstimationStudy(
 	workspace=workspace
 )
 
-#study$run()
+study$run()
 
 # Load the optimal model - if exists
 output <- sprintf("%s/%s/model.p", workspace, study_name)
