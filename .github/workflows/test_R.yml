@@ -15,14 +15,14 @@ jobs:
     strategy:
       matrix:
         r-version: ['3.6', '4.2']
-        python-version: ['3.9']
+        python-version: ['3.8']
         os: [macos-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set up R ${{ matrix.r-version }}
@@ -34,5 +34,5 @@ jobs:
           Rscript -e "install.packages(c('remotes','reticulate'))"
       - name: Test R
         run: |
-          Rscript tests/R/test_classification.R
-          Rscript tests/R/test_regression.R
+          Rscript tutorials/bindings/R/test_classification.R
+          Rscript tutorials/bindings/R/test_regression.R
