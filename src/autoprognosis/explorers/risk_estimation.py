@@ -112,7 +112,7 @@ class RiskEstimatorSeeker:
             try:
                 metrics = evaluate_survival_estimator(model, X, T, Y, time_horizons)
             except BaseException as e:
-                log.error("evaluate_survival_estimator failed ", e)
+                log.error(f"evaluate_survival_estimator failed {e}")
                 return 0
 
             self.hooks.heartbeat(

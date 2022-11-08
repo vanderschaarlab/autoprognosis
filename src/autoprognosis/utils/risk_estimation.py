@@ -27,17 +27,21 @@ def generate_dataset_for_horizon(
 
     """
 
+    X = X.copy().reset_index(drop=True)
+    T = T.copy().reset_index(drop=True)
+    Y = Y.copy().reset_index(drop=True)
+
     event_horizon = ((Y == 1) & (T <= horizon_days)) | ((Y == 0) & (T > horizon_days))
     censored_event_horizon = (Y == 1) & (T > horizon_days)
 
-    X_horizon = X[event_horizon].reset_index(drop=True)
-    X_horizon_cens = X[censored_event_horizon].reset_index(drop=True)
+    X_horizon = X[event_horizon]
+    X_horizon_cens = X[censored_event_horizon]
 
-    Y_horizon = Y[event_horizon].reset_index(drop=True)
-    Y_horizon_cens = 1 - Y[censored_event_horizon].reset_index(drop=True)
+    Y_horizon = Y[event_horizon]
+    Y_horizon_cens = 1 - Y[censored_event_horizon]
 
-    T_horizon = T[event_horizon].reset_index(drop=True)
-    T_horizon_cens = T[censored_event_horizon].reset_index(drop=True)
+    T_horizon = T[event_horizon]
+    T_horizon_cens = T[censored_event_horizon]
 
     return (
         pd.concat([X_horizon, X_horizon_cens], ignore_index=True),
