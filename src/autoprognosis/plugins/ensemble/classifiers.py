@@ -11,23 +11,12 @@ from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
 import autoprognosis.logger as log
+from autoprognosis.plugins.ensemble.combos import SimpleClassifierAggregator, Stacking
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.utils.parallel import cpu_count
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_evaluator
-
-for retry in range(2):
-    try:
-        # third party
-        from combo.models.classifier_comb import SimpleClassifierAggregator
-        from combo.models.classifier_stacking import Stacking
-
-        break
-    except ImportError:
-        depends = ["combo"]
-        install(depends)
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=cpu_count())
 

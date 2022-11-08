@@ -85,9 +85,14 @@ study.run()
 output = workspace / study_name / "model.p"
 model = load_model_from_file(output)
 
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
 metrics = evaluate_estimator(model, X, Y)
 
 print(f"model {model.name()} -> {metrics['clf']}")
+
+# Train the model
+model.fit(X, Y)
 ```
 
 List the available regressors
@@ -144,10 +149,15 @@ study.run()
 output = workspace / study_name / "model.p"
 
 model = load_model_from_file(output)
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
 
 metrics = evaluate_regression(model, X, y)
 
 print(f"Model {model.name()} score: {metrics['str']}")
+
+# Train the model
+model.fit(X, y)
 ```
 
 List available survival analysis estimators
@@ -202,9 +212,15 @@ study.run()
 output = workspace / study_name / "model.p"
 
 model = load_model_from_file(output)
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
+
 metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
 print(f"Model {model.name()} score: {metrics['clf']}")
+
+# Train the model
+model.fit(X, T, Y)
 ```
 
 ## :high_brightness: Tutorials
