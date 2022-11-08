@@ -16,7 +16,7 @@ jobs:
       matrix:
         r-version: ['4.2']
         python-version: ['3.8']
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -36,4 +36,5 @@ jobs:
         run: |
           Rscript tutorials/bindings/R/tutorial_survival_analysis.R
           Rscript tutorials/bindings/R/tutorial_classification.R
+          Rscript tutorials/bindings/R/tutorial_classification_with_missing_data.R
           Rscript tutorials/bindings/R/tutorial_regression.R
