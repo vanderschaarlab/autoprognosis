@@ -22,8 +22,8 @@ study <- ClassifierStudy(
 	dataset = iris, 
 	target = "Species",
 	study_name=study_name,  
-	num_iter=10, 
-	num_study_iter=2, 
+	num_iter=as.integer(10), 
+	num_study_iter=as.integer(2), 
 	timeout=as.integer(60), 
 	classifiers=list("logistic_regression", "lda", "qda"), 
 	workspace=workspace
