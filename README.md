@@ -26,6 +26,7 @@
 - :fire: Interpretability and uncertainty quantification tools.
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
+- :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
 ## :rocket:Installation
 
 #### Using pip
@@ -44,7 +45,11 @@ AutoPrognosis can use Redis as a backend to improve the performance and quality 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
 ## :boom: Sample Usage
-More advanced use cases can be found on the [tutorials section](#high_brightness-tutorials).
+
+__Advanced Python tutorials__ can be found in the [Python tutorials section](#high_brightness-tutorials).
+
+
+__R examples__ can be found in the [R tutorials section](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R).
 
 List the available classifiers
 ```python
