@@ -25,4 +25,5 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: Test R
-        run: Rscript -e 'print("hello")'
+        run: |
+          Rscript tests/R/test_classification.R
