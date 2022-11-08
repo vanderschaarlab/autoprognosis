@@ -20,7 +20,7 @@ study_name <- "example_risk_estimation"
 
 # Load the data
 targets <- c("dtime", "death")
-df <- rotterdam
+df <- data(cancer, package="survival")
 
 X <- df[ , !(names(df) %in% targets)]
 Y <- df[, "death"]
