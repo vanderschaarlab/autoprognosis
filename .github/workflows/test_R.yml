@@ -6,7 +6,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   schedule:
-    - cron:  '0 1 * * 1'
+    - cron:  '2 3 * * 4'
 
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        r-version: ['4.1']
+        r-version: ['3.6', '4.2']
         python-version: ['3.9']
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
