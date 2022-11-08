@@ -190,6 +190,9 @@ def evaluate_survival_estimator(
     """
 
     results = {}
+    X = pd.DataFrame(X).reset_index(drop=True)
+    Y = pd.Series(Y).reset_index(drop=True)
+    T = pd.Series(T).reset_index(drop=True)
 
     for metric in metrics:
         if metric not in survival_supported_metrics:

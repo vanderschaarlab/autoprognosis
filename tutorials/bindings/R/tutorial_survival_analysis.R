@@ -42,7 +42,7 @@ study <- RiskEstimationStudy(
 	workspace=workspace
 )
 
-study$run()
+#study$run()
 
 # Load the optimal model - if exists
 output <- sprintf("%s/%s/model.p", workspace, study_name)
@@ -54,7 +54,7 @@ model <- load_model_from_file(output)
 metrics <- evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
 # Fit the model
-model$fit(X, Y)
+model$fit(X, T, Y)
 
 sprintf("Performance metrics %s", metrics["str"])
 
