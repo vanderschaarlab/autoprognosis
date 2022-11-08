@@ -34,5 +34,5 @@ jobs:
           Rscript -e "install.packages(c('remotes','reticulate'))"
       - name: Test R
         run: |
-          Rscript tutorials/bindings/R/test_classification.R
-          Rscript tutorials/bindings/R/test_regression.R
+          Rscript tutorials/bindings/R/tutorial_classification.R
+          Rscript tutorials/bindings/R/tutorial_regression.R
