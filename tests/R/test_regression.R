@@ -1,5 +1,8 @@
 library(reticulate)
-py_install(".", pip = TRUE, method="conda")
+install.packages("AppliedPredictiveModeling")
+library(AppliedPredictiveModeling)
+
+py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
@@ -7,28 +10,27 @@ autoprognosis <- import("autoprognosis", convert=FALSE)
 
 warnings$filterwarnings('ignore')
 
-
-
 Path = pathlib$Path
-ClassifierStudy = autoprognosis$studies$classifiers$ClassifierStudy
+RegressionStudy = autoprognosis$studies$regression$RegressionStudy
 load_model_from_file = autoprognosis$utils$serialization$load_model_from_file
-evaluate_estimator = autoprognosis$utils$tester$evaluate_estimator
+evaluate_regression = autoprognosis$utils$tester$evaluate_regression
 
-data("iris")
+data("abalone")
 
 
 workspace <- Path("workspace")
 study_name <- "example"
-target <- "Species"
 
-study <- ClassifierStudy(
-	dataset = iris, 
+target <- "Rings"
+
+study <- RegressionStudy(
+	dataset = abalone, 
 	target = target,
 	study_name=study_name,  
 	num_iter=as.integer(10), 
 	num_study_iter=as.integer(2), 
 	timeout=as.integer(60), 
-	classifiers=list("logistic_regression", "lda", "qda"), 
+	regressors=list("linear_regression", "kneighbors_regressor"), 
 	workspace=workspace
 )
 
@@ -40,10 +42,10 @@ model <- load_model_from_file(output)
 # The model is not fitted yet here
 
 targets <- c(target)
-X <- iris[ , !(names(iris) %in% targets)]
-Y = iris[, target]
+X <- abalone[ , !(names(abalone) %in% targets)]
+Y = abalone[, target]
 
-metrics <- evaluate_estimator(model, X, Y)
+metrics <- evaluate_regression(model, X, Y)
 
 # Fit the model
 model$fit(X, Y)

@@ -22,7 +22,7 @@ class LinearRegressionPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class
     """
 
-    solvers = ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
+    solvers = ["auto", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
 
     def __init__(self, model: Any = None, random_state: int = 0, **kwargs: Any) -> None:
 
