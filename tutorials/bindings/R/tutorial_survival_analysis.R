@@ -1,5 +1,7 @@
 library(reticulate)
-py_install(".", pip = TRUE, method="conda")
+library(survival)
+
+py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
@@ -8,18 +10,18 @@ autoprognosis <- import("autoprognosis", convert=FALSE)
 warnings$filterwarnings('ignore')
 
 Path = pathlib$Path
-ClassifierStudy = autoprognosis$studies$classifiers$ClassifierStudy
+RiskEstimationStudy = autoprognosis$studies$risk_estimation$RiskEstimationStudy
 load_model_from_file = autoprognosis$utils$serialization$load_model_from_file
 evaluate_estimator = autoprognosis$utils$tester$evaluate_estimator
 workspace <- Path("workspace")
-study_name <- "example"
+study_name <- "example_risk_estimation"
 
 # Load the data
 data("iris")
 target <- "Species"
 
 # Create the AutoPrognosis Study
-study <- ClassifierStudy(
+study <- RiskEstimationStudy(
 	dataset = iris, 
 	target = target,
 	study_name=study_name,  

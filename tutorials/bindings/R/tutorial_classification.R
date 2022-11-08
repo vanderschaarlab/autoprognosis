@@ -12,7 +12,7 @@ ClassifierStudy = autoprognosis$studies$classifiers$ClassifierStudy
 load_model_from_file = autoprognosis$utils$serialization$load_model_from_file
 evaluate_estimator = autoprognosis$utils$tester$evaluate_estimator
 workspace <- Path("workspace")
-study_name <- "example"
+study_name <- "example_classifier"
 
 # Load the data
 data("iris")

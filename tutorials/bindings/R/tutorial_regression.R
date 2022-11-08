@@ -13,7 +13,7 @@ load_model_from_file = autoprognosis$utils$serialization$load_model_from_file
 evaluate_regression = autoprognosis$utils$tester$evaluate_regression
 
 workspace <- Path("workspace")
-study_name <- "example"
+study_name <- "example_regression"
 
 # Load dataset
 airfoil <- read.csv(
