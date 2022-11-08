@@ -4,6 +4,7 @@ import time
 from typing import Any, List, Optional, Tuple
 
 # third party
+import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
@@ -75,11 +76,14 @@ class RegressionStudy(Study):
         workspace: Path = Path("tmp"),
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
+        nan_placeholder: Any = None,
     ) -> None:
         super().__init__()
 
         self.hooks = hooks
         dataset = pd.DataFrame(dataset)
+        if nan_placeholder is not None:
+            dataset = dataset.replace(nan_placeholder, np.nan)
 
         imputation_method: Optional[str] = None
         if dataset.isnull().values.any():

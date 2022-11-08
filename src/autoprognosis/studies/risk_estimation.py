@@ -4,6 +4,7 @@ import time
 from typing import Any, List, Optional, Tuple, Union
 
 # third party
+import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
@@ -80,11 +81,15 @@ class RiskEstimationStudy(Study):
         feature_scaling: List[str] = default_feature_scaling_names,
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
+        nan_placeholder: Any = None,
     ) -> None:
         super().__init__()
 
         # If only one imputation method is provided, we don't feed it into the optimizer
         imputation_method: Optional[str] = None
+        if nan_placeholder is not None:
+            dataset = dataset.replace(nan_placeholder, np.nan)
+
         if dataset.isnull().values.any():
             if len(imputers) == 0:
                 raise RuntimeError("Please provide at least one imputation method")

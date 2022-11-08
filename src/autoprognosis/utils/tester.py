@@ -13,6 +13,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
 import autoprognosis.logger as log
@@ -92,7 +93,7 @@ def evaluate_estimator(
         Y:
             The labels
         n_folds: int
-            corss-validation folds
+            cross-validation folds
         metric: str
             The metric to use: aucroc or aucprc
         seed: int
@@ -102,7 +103,8 @@ def evaluate_estimator(
 
     """
     X = pd.DataFrame(X)
-    Y = pd.DataFrame(Y)
+    Y = LabelEncoder().fit_transform(Y)
+    Y = pd.Series(Y)
 
     log.debug(f"evaluate_estimator shape x:{X.shape} y:{Y.shape}")
 
@@ -190,6 +192,9 @@ def evaluate_survival_estimator(
     """
 
     results = {}
+    X = pd.DataFrame(X).reset_index(drop=True)
+    Y = pd.Series(Y).reset_index(drop=True)
+    T = pd.Series(T).reset_index(drop=True)
 
     for metric in metrics:
         if metric not in survival_supported_metrics:

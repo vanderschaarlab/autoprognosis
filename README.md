@@ -3,11 +3,12 @@
 
 <div align="center">
 
-[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
-[![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
-[![Test In Colab](https://img.shields.io/badge/tutorial-Model%20Search-orange)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)
-[![Test In Colab](https://img.shields.io/badge/tutorial-Build%20a%20Demonstrator-orange)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)
 
+[![Test In Colab](https://img.shields.io/badge/Tutorial-Model%20Search-orange)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)
+[![Test In Colab](https://img.shields.io/badge/Tutorial-Build%20a%20Demonstrator-orange)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)
+[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
+[![Tests R](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml)
+[![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2210.12090-b31b1b.svg)](https://arxiv.org/abs/2210.12090)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/autoprognosis/blob/main/LICENSE)
@@ -25,6 +26,7 @@
 - :fire: Interpretability and uncertainty quantification tools.
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
+- :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
 ## :rocket:Installation
 
 #### Using pip
@@ -43,7 +45,11 @@ AutoPrognosis can use Redis as a backend to improve the performance and quality 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
 ## :boom: Sample Usage
-More advanced use cases can be found on the [tutorials section](#high_brightness-tutorials).
+
+__Advanced Python tutorials__ can be found in the [Python tutorials section](#high_brightness-tutorials).
+
+
+__R examples__ can be found in the [R tutorials section](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R).
 
 List the available classifiers
 ```python
@@ -85,9 +91,14 @@ study.run()
 output = workspace / study_name / "model.p"
 model = load_model_from_file(output)
 
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
 metrics = evaluate_estimator(model, X, Y)
 
 print(f"model {model.name()} -> {metrics['clf']}")
+
+# Train the model
+model.fit(X, Y)
 ```
 
 List the available regressors
@@ -144,10 +155,15 @@ study.run()
 output = workspace / study_name / "model.p"
 
 model = load_model_from_file(output)
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
 
 metrics = evaluate_regression(model, X, y)
 
 print(f"Model {model.name()} score: {metrics['str']}")
+
+# Train the model
+model.fit(X, y)
 ```
 
 List available survival analysis estimators
@@ -202,9 +218,15 @@ study.run()
 output = workspace / study_name / "model.p"
 
 model = load_model_from_file(output)
+# <model> contains the optimal architecture, but the model is not trained yet. You need to call fit() to use it.
+# This way, we can further benchmark the selected model on the training set.
+
 metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
 print(f"Model {model.name()} score: {metrics['clf']}")
+
+# Train the model
+model.fit(X, T, Y)
 ```
 
 ## :high_brightness: Tutorials

@@ -10,7 +10,6 @@ current_dir = Path(__file__).parent
 
 predefined = {
     "shap": "shap>=0.40.0",
-    "combo": "git+https://github.com/yzhao062/combo",
 }
 
 

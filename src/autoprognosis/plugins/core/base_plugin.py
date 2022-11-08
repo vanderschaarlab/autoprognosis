@@ -136,7 +136,7 @@ class Plugin(metaclass=ABCMeta):
         self._drop_features = []
 
         for col in X.columns:
-            if X[col].dtype != "object":
+            if X[col].dtype not in ["object", "category"]:
                 continue
 
             encoder = LabelEncoder()

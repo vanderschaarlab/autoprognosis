@@ -109,6 +109,10 @@ class RiskEnsemble:
             raise StudyCancelled("risk estimation ensemble: cancelled")
 
     def fit(self, X: pd.DataFrame, T: pd.DataFrame, Y: pd.DataFrame) -> "RiskEnsemble":
+        X = pd.DataFrame(X).reset_index(drop=True)
+        T = pd.Series(T).reset_index(drop=True)
+        Y = pd.Series(Y).reset_index(drop=True)
+
         for model in self.models:
             self._should_continue()
             log.info(f"[RiskEnsemble]: train {model.name()} {model.get_args()}")

@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, List
+from typing import Any, List, Optional
 
 # third party
 import pandas as pd
@@ -50,10 +50,12 @@ class PCAPlugin(base.PreprocessorPlugin):
         self, random_state: int = 0, model: Any = None, n_components: int = 2
     ) -> None:
         super().__init__()
+        self.random_state = random_state
+        self.n_components = n_components
+        self.model: Optional[PCA] = None
+
         if model:
             self.model = model
-            return
-        self.model = PCA(n_components=n_components, random_state=random_state)
 
     @staticmethod
     def name() -> str:
@@ -69,6 +71,10 @@ class PCAPlugin(base.PreprocessorPlugin):
         return [params.Integer("n_components", cmin, cmax)]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "PCAPlugin":
+        n_components = min(self.n_components, X.shape[0], X.shape[1])
+
+        self.model = PCA(n_components=n_components, random_state=self.random_state)
+
         self.model.fit(X, *args, **kwargs)
 
         return self
@@ -77,12 +83,14 @@ class PCAPlugin(base.PreprocessorPlugin):
         return self.model.transform(X)
 
     def save(self) -> bytes:
-        return serialization.save_model(self.model)
+        return serialization.save_model(
+            {"model": self.model, "n_components": self.n_components}
+        )
 
     @classmethod
     def load(cls, buff: bytes) -> "PCAPlugin":
-        model = serialization.load_model(buff)
-        return cls(model=model)
+        args = serialization.load_model(buff)
+        return cls(**args)
 
 
 plugin = PCAPlugin

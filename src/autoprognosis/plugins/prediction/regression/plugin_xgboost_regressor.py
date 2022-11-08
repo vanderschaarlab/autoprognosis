@@ -68,6 +68,8 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
 
     def __init__(
         self,
+        reg_lambda: Optional[float] = None,
+        reg_alpha: Optional[float] = None,
         n_estimators: int = 100,
         max_depth: int = 5,
         lr: float = 0.01,
@@ -88,6 +90,8 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
             verbosity=0,
             n_estimators=n_estimators,
             max_depth=max_depth,
+            reg_lambda=reg_lambda,
+            reg_alpha=reg_alpha,
             nthread=3,
             lr=lr,
             random_state=random_state,
@@ -101,8 +105,11 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Integer("max_depth", 2, 9),
-            params.Categorical("lr", [0.01, 0.1]),
+            params.Float("reg_lambda", 1e-3, 10.0),
+            params.Float("reg_alpha", 1e-3, 10.0),
+            params.Integer("max_depth", 2, 5),
+            params.Integer("n_estimators", 10, 300),
+            params.Categorical("lr", [1e-4, 1e-3, 1e-2]),
         ]
 
     def _fit(

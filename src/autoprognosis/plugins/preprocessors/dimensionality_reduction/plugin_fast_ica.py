@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, List
+from typing import Any, List, Optional
 
 # third party
 import pandas as pd
@@ -49,12 +49,12 @@ class FastICAPlugin(base.PreprocessorPlugin):
         self, model: Any = None, random_state: int = 0, n_components: int = 2
     ) -> None:
         super().__init__()
+        self.random_state = random_state
+        self.n_components = n_components
+        self.model: Optional[FastICA] = None
+
         if model:
             self.model = model
-            return
-        self.model = FastICA(
-            n_components=n_components, random_state=random_state, max_iter=1000
-        )
 
     @staticmethod
     def name() -> str:
@@ -70,6 +70,14 @@ class FastICAPlugin(base.PreprocessorPlugin):
         return [params.Integer("n_components", cmin, cmax)]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "FastICAPlugin":
+        n_components = min(self.n_components, X.shape[0], X.shape[1])
+        self.model = FastICA(
+            n_components=n_components,
+            random_state=self.random_state,
+            max_iter=1000,
+            whiten="unit-variance",
+        )
+
         self.model.fit(X, *args, **kwargs)
         return self
 
@@ -77,12 +85,14 @@ class FastICAPlugin(base.PreprocessorPlugin):
         return self.model.transform(X)
 
     def save(self) -> bytes:
-        return serialization.save_model(self.model)
+        return serialization.save_model(
+            {"model": self.model, "n_components": self.n_components}
+        )
 
     @classmethod
     def load(cls, buff: bytes) -> "FastICAPlugin":
         model = serialization.load_model(buff)
-        return cls(model=model)
+        return cls(**model)
 
 
 plugin = FastICAPlugin
