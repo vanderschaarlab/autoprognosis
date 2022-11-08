@@ -22,6 +22,8 @@ class LinearRegressionPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class
     """
 
+    solvers = ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
+
     def __init__(self, model: Any = None, random_state: int = 0, **kwargs: Any) -> None:
 
         super().__init__(**kwargs)
@@ -39,7 +41,10 @@ class LinearRegressionPlugin(base.RegressionPlugin):
 
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
-        return []
+        return [
+            params.Categorical("max_iter", [100, 1000, 10000]),
+            params.Integer("solver", 0, len(LinearRegressionPlugin.solvers) - 1),
+        ]
 
     def _fit(
         self, X: pd.DataFrame, *args: Any, **kwargs: Any

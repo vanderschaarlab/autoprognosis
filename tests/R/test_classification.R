@@ -1,12 +1,13 @@
 library(reticulate)
-py_install("autoprognosis", pip = TRUE)
-py_install(".", pip = TRUE)
+py_install(".", pip = TRUE, method="conda")
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
 autoprognosis <- import("autoprognosis", convert=FALSE)
 
 warnings$filterwarnings('ignore')
+
+
 
 Path = pathlib$Path
 ClassifierStudy = autoprognosis$studies$classifiers$ClassifierStudy

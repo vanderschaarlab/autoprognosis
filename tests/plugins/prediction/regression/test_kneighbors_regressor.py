@@ -8,13 +8,15 @@ from sklearn.datasets import load_diabetes
 
 # autoprognosis absolute
 from autoprognosis.plugins.prediction import PredictionPlugin, Predictions
-from autoprognosis.plugins.prediction.regression.plugin_linear_regression import plugin
+from autoprognosis.plugins.prediction.regression.plugin_kneighbors_regressor import (
+    plugin,
+)
 from autoprognosis.utils.serialization import load_model, save_model
 from autoprognosis.utils.tester import evaluate_regression
 
 
 def from_api() -> PredictionPlugin:
-    return Predictions(category="regression").get("linear_regression")
+    return Predictions(category="regression").get("kneighbors_regressor")
 
 
 def from_module() -> PredictionPlugin:
@@ -34,21 +36,21 @@ def from_pickle() -> PredictionPlugin:
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
-def test_linear_regression_plugin_sanity(test_plugin: PredictionPlugin) -> None:
+def test_kneighbors_regressor_plugin_sanity(test_plugin: PredictionPlugin) -> None:
     assert test_plugin is not None
 
 
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
-def test_linear_regression_plugin_name(test_plugin: PredictionPlugin) -> None:
-    assert test_plugin.name() == "linear_regression"
+def test_kneighbors_regressor_plugin_name(test_plugin: PredictionPlugin) -> None:
+    assert test_plugin.name() == "kneighbors_regressor"
 
 
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
-def test_linear_regression_plugin_type(test_plugin: PredictionPlugin) -> None:
+def test_kneighbors_regressor_plugin_type(test_plugin: PredictionPlugin) -> None:
     assert test_plugin.type() == "prediction"
     assert test_plugin.subtype() == "regression"
 
@@ -56,14 +58,14 @@ def test_linear_regression_plugin_type(test_plugin: PredictionPlugin) -> None:
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
-def test_linear_regression_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
-    assert len(test_plugin.hyperparameter_space()) == 2
+def test_kneighbors_regressor_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
+    assert len(test_plugin.hyperparameter_space()) == 5
 
 
 @pytest.mark.parametrize(
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
-def test_linear_regression_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
+def test_kneighbors_regressor_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     X, y = load_diabetes(return_X_y=True)
 
     score = evaluate_regression(test_plugin, X, y)
