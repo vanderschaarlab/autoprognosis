@@ -53,5 +53,6 @@ def test_fast_ica_plugin_hyperparams(test_plugin: PreprocessorPlugin) -> None:
 def test_fast_ica_plugin_fit_transform(test_plugin: PreprocessorPlugin) -> None:
     X, y = load_iris(return_X_y=True)
     res = test_plugin.fit_transform(X, y)
+    print(X.shape, n_components)
 
     assert res.shape == (len(X), n_components)

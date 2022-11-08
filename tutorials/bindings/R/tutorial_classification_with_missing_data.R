@@ -21,6 +21,7 @@ colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin',
                      'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex', 
                      'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'income')
 adult[adult == "?"] <- NA
+adult <- adult[ , !(names(adult) %in% c("native_country"))]
 
 df <- adult
 
