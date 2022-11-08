@@ -53,7 +53,9 @@ class PCAPlugin(base.PreprocessorPlugin):
         if model:
             self.model = model
             return
-        self.model = PCA(n_components=n_components, random_state=random_state)
+
+        self.random_state = random_state
+        self.n_components = n_components
 
     @staticmethod
     def name() -> str:
@@ -69,6 +71,10 @@ class PCAPlugin(base.PreprocessorPlugin):
         return [params.Integer("n_components", cmin, cmax)]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "PCAPlugin":
+        n_components = min(self.n_components, X.shape[0], X.shape[1])
+
+        self.model = PCA(n_components=n_components, random_state=self.random_state)
+
         self.model.fit(X, *args, **kwargs)
 
         return self

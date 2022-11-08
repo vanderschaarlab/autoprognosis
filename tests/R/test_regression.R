@@ -1,7 +1,4 @@
 library(reticulate)
-install.packages("AppliedPredictiveModeling")
-library(AppliedPredictiveModeling)
-
 py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
@@ -15,16 +12,21 @@ RegressionStudy = autoprognosis$studies$regression$RegressionStudy
 load_model_from_file = autoprognosis$utils$serialization$load_model_from_file
 evaluate_regression = autoprognosis$utils$tester$evaluate_regression
 
-data("abalone")
-
-
 workspace <- Path("workspace")
 study_name <- "example"
 
-target <- "Rings"
+# Load dataset
+airfoil <- read.csv(
+        url("https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat"),
+        sep = "\t",
+        header = FALSE,
+)
 
+target <- "V6"
+
+# Create AutoPrognosis Study
 study <- RegressionStudy(
-	dataset = abalone, 
+	dataset = airfoil, 
 	target = target,
 	study_name=study_name,  
 	num_iter=as.integer(10), 
@@ -36,18 +38,24 @@ study <- RegressionStudy(
 
 study$run()
 
+# Load the optimal model - if exists
 output <- sprintf("%s/%s/model.p", workspace, study_name)
 
 model <- load_model_from_file(output)
 # The model is not fitted yet here
 
+# Benchmark the model
 targets <- c(target)
-X <- abalone[ , !(names(abalone) %in% targets)]
-Y = abalone[, target]
+X <- airfoil[ , !(names(iris) %in% targets)]
+Y = airfoil[, target]
 
 metrics <- evaluate_regression(model, X, Y)
+
+sprintf("Performance metrics %s", metrics["str"])
 
 # Fit the model
 model$fit(X, Y)
 
-sprintf("Performance metrics %s", metrics["str"])
+# Predict 
+model$predict(X)
+

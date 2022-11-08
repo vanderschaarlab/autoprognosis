@@ -52,9 +52,9 @@ class FastICAPlugin(base.PreprocessorPlugin):
         if model:
             self.model = model
             return
-        self.model = FastICA(
-            n_components=n_components, random_state=random_state, max_iter=1000
-        )
+
+        self.random_state = random_state
+        self.n_components = n_components
 
     @staticmethod
     def name() -> str:
@@ -70,6 +70,11 @@ class FastICAPlugin(base.PreprocessorPlugin):
         return [params.Integer("n_components", cmin, cmax)]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "FastICAPlugin":
+        n_components = min(self.n_components, X.shape[0], X.shape[1])
+        self.model = FastICA(
+            n_components=n_components, random_state=self.random_state, max_iter=1000
+        )
+
         self.model.fit(X, *args, **kwargs)
         return self
 
