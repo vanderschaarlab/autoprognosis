@@ -29,20 +29,9 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r-version }}
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::reticulate
-      - name: setup r-reticulate venv
-        shell: Rscript {0}
+      - name: Install depends
         run: |
-          remotes::install_local()
-          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
-          reticulate::virtualenv_install("r-reticulate",
-            c("docutils", "pandas", "scipy", "matplotlib", "ipython",
-              "tabulate", "plotly", "psutil", "kaleido"))
-          python <- reticulate::virtualenv_python("r-reticulate")
-          writeLines(sprintf("RETICULATE_PYTHON=%s", python),
-                     Sys.getenv("GITHUB_ENV"))
+          Rscript -e "install.packages(c('remotes','reticulate'))"
       - name: Test R
         run: |
           Rscript tests/R/test_classification.R
