@@ -99,6 +99,9 @@ print(f"model {model.name()} -> {metrics['clf']}")
 
 # Train the model
 model.fit(X, Y)
+
+# Predict the probabilities of each class using the model
+model.predict_proba(X)
 ```
 
 List the available regressors
@@ -164,6 +167,10 @@ print(f"Model {model.name()} score: {metrics['str']}")
 
 # Train the model
 model.fit(X, y)
+
+
+# Predict using the model
+model.predict(X)
 ```
 
 List available survival analysis estimators
@@ -227,6 +234,9 @@ print(f"Model {model.name()} score: {metrics['clf']}")
 
 # Train the model
 model.fit(X, T, Y)
+
+# Predict using the model
+model.predict(X, eval_time_horizons)
 ```
 
 ## :high_brightness: Tutorials
