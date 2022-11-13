@@ -1,5 +1,9 @@
+# stdlib
+from typing import Optional
+
 # third party
 from explorers_mocks import MockHook
+import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 
@@ -49,9 +53,13 @@ def test_fails() -> None:
         ClassifierSeeker(study_name="test_classifiers", metric="invalid")
 
 
-@pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+@pytest.mark.parametrize(
+    "optimizer_type,id", [("bayesian", None), ("bayesian", "id"), ("hyperband", None)]
+)
+def test_search(optimizer_type: str, id: Optional[bool]) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
+    if id:
+        X["id"] = np.random.randint(0, 10, X.shape[0])
 
     seeker = ClassifierSeeker(
         study_name="test_classifiers",
@@ -65,6 +73,7 @@ def test_search(optimizer_type: str) -> None:
             "perceptron",
         ],
         optimizer_type=optimizer_type,
+        id=id,
     )
     best_models = seeker.search(X, Y)
 

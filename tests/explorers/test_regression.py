@@ -1,5 +1,9 @@
+# stdlib
+from typing import Optional
+
 # third party
 from explorers_mocks import MockHook
+import numpy as np
 import pytest
 from sklearn.datasets import load_diabetes
 
@@ -48,8 +52,11 @@ def test_fails() -> None:
         RegressionSeeker(study_name="test_regressors", metric="invalid")
 
 
-def test_search() -> None:
+@pytest.mark.parametrize("id", [None, "id"])
+def test_search(id: Optional[str]) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
+    if id is not None:
+        X["id"] = np.random.randint(0, 10, size=(X.shape[0], 1))
 
     seeker = RegressionSeeker(
         study_name="test_regressors",
@@ -60,6 +67,7 @@ def test_search() -> None:
             "linear_regression",
             "random_forest_regressor",
         ],
+        id=id,
     )
     best_models = seeker.search(X, Y)
 
