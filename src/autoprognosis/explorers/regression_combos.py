@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, KFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -114,7 +114,13 @@ class RegressionEnsembleSeeker:
     ) -> List:
         self._should_continue()
 
-        skf = GroupKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        skf = (
+            GroupKFold(
+                n_splits=self.CV,
+            )
+            if self.id is not None
+            else KFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        )
 
         folds = []
         for train_index, _ in skf.split(X, Y, groups=self.id):

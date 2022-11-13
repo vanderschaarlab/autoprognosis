@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -116,7 +116,11 @@ class EnsembleSeeker:
     ) -> List:
         self._should_continue()
 
-        skf = StratifiedGroupKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        skf = (
+            StratifiedGroupKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+            if self.id
+            else StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        )
         folds = []
         for train_index, _ in skf.split(X, Y, groups=self.id):
             X_train = X.loc[X.index[train_index]]
@@ -204,7 +208,7 @@ class EnsembleSeeker:
 
         try:
             aggr_ensemble = AggregatingEnsemble(best_models)
-            aggr_ens_score = evaluate_estimator(aggr_ensemble, X, Y, self.CV)["clf"][
+            aggr_ens_score = evaluate_estimator(aggr_ensemble, X, Y, self.CV, groups=self.id)["clf"][
                 self.metric
             ][0]
             log.info(

@@ -14,6 +14,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import (
     GroupKFold,
+    KFold,
     StratifiedGroupKFold,
     StratifiedKFold,
     train_test_split,
@@ -119,10 +120,15 @@ def evaluate_estimator(
     metric_ = np.zeros(n_folds)
 
     indx = 0
-    skf = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    skf = (
+        StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+        if groups is not None
+        else StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    )
 
     ev = classifier_evaluator(metric)
 
+    # groups is always ignored for StratifiedKFold so safe to pass None
     for train_index, test_index in skf.split(X, Y, groups=groups):
 
         X_train = X.loc[X.index[train_index]]
@@ -469,7 +475,11 @@ def evaluate_regression(
         metrics_[metric] = np.zeros(n_folds)
 
     indx = 0
-    skf = GroupKFold(n_splits=n_folds)
+    skf = (
+        GroupKFold(n_splits=n_folds)
+        if groups is not None
+        else KFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    )
 
     for train_index, test_index in skf.split(X, Y, groups=groups):
 

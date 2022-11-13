@@ -50,7 +50,6 @@ class ClassifierSeeker:
             Custom callbacks to be notified about the search progress.
         id: str.
             The id column in the dataset.
-
     """
 
     def __init__(
@@ -119,7 +118,9 @@ class ClassifierSeeker:
             model = estimator.get_pipeline_from_named_args(**kwargs)
             groups = X[self.id] if self.id else None
             try:
-                metrics = evaluate_estimator(model, X, Y, self.CV, metric=self.metric, groups=groups)
+                metrics = evaluate_estimator(
+                    model, X, Y, self.CV, metric=self.metric, groups=groups
+                )
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
                 return 0

@@ -117,9 +117,9 @@ class RegressionSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-
+            groups = X[self.id] if self.id else None
             try:
-                metrics = evaluate_regression(model, X, Y, self.CV, groups=self.id)
+                metrics = evaluate_regression(model, X, Y, self.CV, groups=groups)
             except BaseException as e:
                 log.error(f"evaluate_regression failed: {e}")
                 return 0
