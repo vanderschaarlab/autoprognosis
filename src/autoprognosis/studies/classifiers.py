@@ -59,6 +59,8 @@ class ClassifierStudy(Study):
             Where to store the output model.
         score_threshold: float.
             The minimum metric score for a candidate.
+        id: str.
+            The id column in the dataset.
     """
 
     def __init__(
@@ -76,6 +78,7 @@ class ClassifierStudy(Study):
         workspace: Path = Path("tmp"),
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
+        id: Optional[str] = None,
         nan_placeholder: Any = None,
     ) -> None:
         super().__init__()
@@ -97,8 +100,8 @@ class ClassifierStudy(Study):
         else:
             imputers = []
 
-        self.X, _, self.Y, _, _ = dataframe_preprocess(
-            dataset, target, imputation_method=imputation_method
+        self.X, _, self.Y, _, _, ID = dataframe_preprocess(
+            dataset, target, imputation_method=imputation_method, id=id
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -113,6 +116,7 @@ class ClassifierStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
+        self.id = ID
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
@@ -124,6 +128,7 @@ class ClassifierStudy(Study):
             classifiers=classifiers,
             imputers=imputers,
             hooks=self.hooks,
+            id=self.id,
         )
 
     def _should_continue(self) -> None:
@@ -139,7 +144,9 @@ class ClassifierStudy(Study):
         try:
             start = time.time()
             best_model = load_model_from_file(self.output_file)
-            metrics = evaluate_estimator(best_model, self.X, self.Y, metric=self.metric)
+            metrics = evaluate_estimator(
+                best_model, self.X, self.Y, metric=self.metric, groups=self.id
+            )
             best_score = metrics["clf"][self.metric][0]
             self.hooks.heartbeat(
                 topic="classification_study",
@@ -175,7 +182,7 @@ class ClassifierStudy(Study):
             current_model = self.seeker.search(self.X, self.Y)
 
             metrics = evaluate_estimator(
-                current_model, self.X, self.Y, metric=self.metric
+                current_model, self.X, self.Y, metric=self.metric, groups=self.id
             )
             score = metrics["clf"][self.metric][0]
 

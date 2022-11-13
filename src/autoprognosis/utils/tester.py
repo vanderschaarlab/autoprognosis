@@ -1,6 +1,6 @@
 # stdlib
 import copy
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 # third party
 import numpy as np
@@ -12,7 +12,12 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
+from sklearn.model_selection import (
+    GroupKFold,
+    StratifiedGroupKFold,
+    StratifiedKFold,
+    train_test_split,
+)
 from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
@@ -80,6 +85,7 @@ def evaluate_estimator(
     metric: str = "aucroc",
     seed: int = 0,
     pretrained: bool = False,
+    groups: Optional[pd.Series] = None,
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
@@ -100,6 +106,8 @@ def evaluate_estimator(
             Random seed
         pretrained: bool
             If the estimator was already trained or not.
+        groups: pd.Series
+            The groups to use for stratified cross-validation
 
     """
     X = pd.DataFrame(X)
@@ -111,11 +119,11 @@ def evaluate_estimator(
     metric_ = np.zeros(n_folds)
 
     indx = 0
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    skf = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
     ev = classifier_evaluator(metric)
 
-    for train_index, test_index in skf.split(X, Y):
+    for train_index, test_index in skf.split(X, Y, groups=groups):
 
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]
@@ -238,17 +246,14 @@ def evaluate_survival_estimator(
             eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
 
             def get_score(fn: Callable) -> float:
-                return (
-                    fn(
-                        T_train,
-                        Y_train,
-                        pred[:, k],
-                        T_test,
-                        Y_test,
-                        eval_horizon,
-                    )
-                    / (len(time_horizons))
-                )
+                return fn(
+                    T_train,
+                    Y_train,
+                    pred[:, k],
+                    T_test,
+                    Y_test,
+                    eval_horizon,
+                ) / (len(time_horizons))
 
             c_index += get_score(evaluate_skurv_c_index)
             brier_score += get_score(evaluate_skurv_brier_score)
@@ -431,6 +436,7 @@ def evaluate_regression(
     metrics: str = ["rmse", "r2"],
     seed: int = 0,
     pretrained: bool = False,
+    groups: Optional[pd.Series] = None,
     *args: Any,
     **kwargs: Any,
 ) -> Dict:
@@ -449,6 +455,8 @@ def evaluate_regression(
             rmse, r2
         seed: int
             Random seed
+        groups: pd.Series
+            Optional groups for stratified cross-validation
 
     """
     X = pd.DataFrame(X)
@@ -461,9 +469,9 @@ def evaluate_regression(
         metrics_[metric] = np.zeros(n_folds)
 
     indx = 0
-    skf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    skf = GroupKFold(n_splits=n_folds)
 
-    for train_index, test_index in skf.split(X, Y):
+    for train_index, test_index in skf.split(X, Y, groups=groups):
 
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]

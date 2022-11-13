@@ -1,6 +1,6 @@
 # stdlib
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -48,6 +48,8 @@ class RegressionSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        id: pd.Series.
+            pd.Series containing group ids. Used for stratified cross validation.
     """
 
     def __init__(
@@ -63,6 +65,7 @@ class RegressionSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        id: Optional[pd.Series] = None,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -94,6 +97,7 @@ class RegressionSeeker:
         self.top_k = top_k
         self.metric = metric
         self.optimizer_type = optimizer_type
+        self.id = id
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -115,7 +119,7 @@ class RegressionSeeker:
             model = estimator.get_pipeline_from_named_args(**kwargs)
 
             try:
-                metrics = evaluate_regression(model, X, Y, self.CV)
+                metrics = evaluate_regression(model, X, Y, self.CV, groups=self.id)
             except BaseException as e:
                 log.error(f"evaluate_regression failed: {e}")
                 return 0

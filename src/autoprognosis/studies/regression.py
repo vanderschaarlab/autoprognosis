@@ -59,6 +59,9 @@ class RegressionStudy(Study):
             Where to store the output model.
         score_threshold: float.
             The minimum metric score for a candidate.
+        id: str.
+            The id column in the dataset.
+
     """
 
     def __init__(
@@ -77,6 +80,7 @@ class RegressionStudy(Study):
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
+        id: Optional[str] = None,
     ) -> None:
         super().__init__()
 
@@ -96,8 +100,8 @@ class RegressionStudy(Study):
         else:
             imputers = []
 
-        self.X, _, self.Y, _, _ = dataframe_preprocess(
-            dataset, target, imputation_method=imputation_method
+        self.X, _, self.Y, _, _, ID = dataframe_preprocess(
+            dataset, target, imputation_method=imputation_method, id=id
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -112,6 +116,7 @@ class RegressionStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
+        self.id = ID
 
         self.seeker = RegressionEnsembleSeeker(
             self.internal_name,
@@ -123,6 +128,7 @@ class RegressionStudy(Study):
             regressors=regressors,
             imputers=imputers,
             hooks=self.hooks,
+            id=self.id,
         )
 
     def _should_continue(self) -> None:
@@ -138,7 +144,7 @@ class RegressionStudy(Study):
         try:
             start = time.time()
             best_model = load_model_from_file(self.output_file)
-            metrics = evaluate_regression(best_model, self.X, self.Y)
+            metrics = evaluate_regression(best_model, self.X, self.Y, groups=self.ID)
             best_score = metrics["clf"][self.metric][0]
             self.hooks.heartbeat(
                 topic="regression_study",
@@ -173,7 +179,7 @@ class RegressionStudy(Study):
 
             current_model = self.seeker.search(self.X, self.Y)
 
-            metrics = evaluate_regression(current_model, self.X, self.Y)
+            metrics = evaluate_regression(current_model, self.X, self.Y, groups=self.ID)
             score = metrics["clf"][self.metric][0]
 
             self.hooks.heartbeat(

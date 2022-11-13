@@ -1,11 +1,11 @@
 # stdlib
 import copy
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -58,6 +58,8 @@ class EnsembleSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        id: pd.Series.
+            pd.Series containing patient ids. Used for stratified CV.
     """
 
     def __init__(
@@ -74,6 +76,7 @@ class EnsembleSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        id: Optional[str] = None,
     ) -> None:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
@@ -83,6 +86,7 @@ class EnsembleSeeker:
         self.study_name = study_name
         self.hooks = hooks
         self.optimizer_type = optimizer_type
+        self.id = id
 
         self.seeker = ClassifierSeeker(
             study_name,
@@ -96,6 +100,7 @@ class EnsembleSeeker:
             hooks=hooks,
             imputers=imputers,
             optimizer_type=optimizer_type,
+            id=self.id,
         )
 
     def _should_continue(self) -> None:
@@ -111,10 +116,9 @@ class EnsembleSeeker:
     ) -> List:
         self._should_continue()
 
-        skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
-
+        skf = StratifiedGroupKFold(n_splits=self.CV, shuffle=True, random_state=seed)
         folds = []
-        for train_index, _ in skf.split(X, Y):
+        for train_index, _ in skf.split(X, Y, groups=self.id):
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
 
@@ -143,7 +147,9 @@ class EnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedEnsemble(fold, weights))
 
-            metrics = evaluate_estimator(folds, X, Y, self.CV, pretrained=True)
+            metrics = evaluate_estimator(
+                folds, X, Y, self.CV, pretrained=True, groups=self.id
+            )
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
             score = metrics["clf"][self.metric][0]
@@ -182,9 +188,9 @@ class EnsembleSeeker:
 
         try:
             stacking_ensemble = StackingEnsemble(best_models)
-            stacking_ens_score = evaluate_estimator(stacking_ensemble, X, Y, self.CV)[
-                "clf"
-            ][self.metric][0]
+            stacking_ens_score = evaluate_estimator(
+                stacking_ensemble, X, Y, self.CV, groups=self.id
+            )["clf"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
             )

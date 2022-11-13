@@ -103,11 +103,12 @@ class RiskEstimationStudy(Study):
         self.time_horizons = time_horizons
         self.score_threshold = score_threshold
 
-        self.X, self.T, self.Y, _, _ = dataframe_preprocess(
+        self.X, self.T, self.Y, _, _, _ = dataframe_preprocess(
             dataset,
             target,
             time_to_event=time_to_event,
             imputation_method=imputation_method,
+            id=id,
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -132,6 +133,7 @@ class RiskEstimationStudy(Study):
             feature_scaling=feature_scaling,
             imputers=imputers,
             hooks=hooks,
+            id=self.id,
         )
 
     def _should_continue(self) -> None:

@@ -1,6 +1,6 @@
 # stdlib
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -48,6 +48,9 @@ class ClassifierSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        id: str.
+            The id column in the dataset.
+
     """
 
     def __init__(
@@ -63,6 +66,7 @@ class ClassifierSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        id: Optional[str] = None,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -93,6 +97,7 @@ class ClassifierSeeker:
         self.top_k = top_k
         self.metric = metric
         self.optimizer_type = optimizer_type
+        self.id = id
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -112,9 +117,9 @@ class ClassifierSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-
+            groups = X[self.id] if self.id else None
             try:
-                metrics = evaluate_estimator(model, X, Y, self.CV, metric=self.metric)
+                metrics = evaluate_estimator(model, X, Y, self.CV, metric=self.metric, groups=groups)
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
                 return 0
