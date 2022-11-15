@@ -180,7 +180,7 @@ def evaluate_survival_estimator(
     X: Union[pd.DataFrame, np.ndarray],
     T: Union[pd.Series, np.ndarray],
     Y: Union[pd.Series, np.ndarray],
-    time_horizons: List[float],
+    time_horizons: Union[List[float], np.ndarray],
     n_folds: int = 3,
     metrics: List[str] = survival_supported_metrics,
     seed: int = 0,
