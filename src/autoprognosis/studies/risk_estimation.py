@@ -82,6 +82,7 @@ class RiskEstimationStudy(Study):
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
+        group_id: Optional[str] = None,
     ) -> None:
         super().__init__()
 
@@ -103,11 +104,12 @@ class RiskEstimationStudy(Study):
         self.time_horizons = time_horizons
         self.score_threshold = score_threshold
 
-        self.X, self.T, self.Y, _, _ = dataframe_preprocess(
+        self.X, self.T, self.Y, _, _, self.group_ids = dataframe_preprocess(
             dataset,
             target,
             time_to_event=time_to_event,
             imputation_method=imputation_method,
+            group_id=group_id,
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -149,7 +151,12 @@ class RiskEstimationStudy(Study):
             start = time.time()
             best_model = load_model_from_file(self.output_file)
             metrics = evaluate_survival_estimator(
-                best_model, self.X, self.T, self.Y, self.time_horizons
+                best_model,
+                self.X,
+                self.T,
+                self.Y,
+                self.time_horizons,
+                group_ids=self.group_ids,
             )
             best_score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
             self.hooks.heartbeat(
@@ -196,6 +203,7 @@ class RiskEstimationStudy(Study):
                     self.T,
                     self.Y,
                     skip_recap=(it > 0),
+                    group_ids=self.group_ids,
                 )
 
                 metrics = evaluate_survival_estimator(
@@ -204,6 +212,7 @@ class RiskEstimationStudy(Study):
                     self.T,
                     self.Y,
                     self.time_horizons,
+                    group_ids=self.group_ids,
                 )
                 score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
                 self.hooks.heartbeat(

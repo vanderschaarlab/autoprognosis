@@ -59,6 +59,9 @@ class RegressionStudy(Study):
             Where to store the output model.
         score_threshold: float.
             The minimum metric score for a candidate.
+        id: str.
+            The id column in the dataset.
+
     """
 
     def __init__(
@@ -77,6 +80,7 @@ class RegressionStudy(Study):
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
+        group_id: Optional[str] = None,
     ) -> None:
         super().__init__()
 
@@ -96,8 +100,8 @@ class RegressionStudy(Study):
         else:
             imputers = []
 
-        self.X, _, self.Y, _, _ = dataframe_preprocess(
-            dataset, target, imputation_method=imputation_method
+        self.X, _, self.Y, _, _, self.group_ids = dataframe_preprocess(
+            dataset, target, imputation_method=imputation_method, group_id=group_id
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -138,7 +142,9 @@ class RegressionStudy(Study):
         try:
             start = time.time()
             best_model = load_model_from_file(self.output_file)
-            metrics = evaluate_regression(best_model, self.X, self.Y)
+            metrics = evaluate_regression(
+                best_model, self.X, self.Y, group_ids=self.group_ids
+            )
             best_score = metrics["clf"][self.metric][0]
             self.hooks.heartbeat(
                 topic="regression_study",
@@ -171,9 +177,11 @@ class RegressionStudy(Study):
             self._should_continue()
             start = time.time()
 
-            current_model = self.seeker.search(self.X, self.Y)
+            current_model = self.seeker.search(self.X, self.Y, group_ids=self.group_ids)
 
-            metrics = evaluate_regression(current_model, self.X, self.Y)
+            metrics = evaluate_regression(
+                current_model, self.X, self.Y, group_ids=self.group_ids
+            )
             score = metrics["clf"][self.metric][0]
 
             self.hooks.heartbeat(

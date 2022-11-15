@@ -1,12 +1,13 @@
 # stdlib
 import copy
 import time
-from typing import List
+from typing import List, Optional
 
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
+from pydantic import validate_arguments
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -54,6 +55,7 @@ class RiskEnsembleSeeker:
             Custom callbacks to be notified about the search progress.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -106,14 +108,20 @@ class RiskEnsembleSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         seed: int = 0,
+        group_ids: Optional[str] = None,
     ) -> List:
         self._should_continue()
 
-        skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        if group_ids is not None:
+            skf = StratifiedGroupKFold(
+                n_splits=self.CV, shuffle=True, random_state=seed
+            )
+        else:
+            skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         ensemble_folds = []
 
-        for train_index, _ in skf.split(X, Y):
+        for train_index, _ in skf.split(X, Y, groups=group_ids):
 
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
@@ -135,10 +143,13 @@ class RiskEnsembleSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         skip_recap: bool = False,
+        group_ids: Optional[pd.Series] = None,
     ) -> List[float]:
         self._should_continue()
 
-        pretrained_models = self.pretrain_for_cv(ensemble, X, T, Y, time_horizon)
+        pretrained_models = self.pretrain_for_cv(
+            ensemble, X, T, Y, time_horizon, group_ids=group_ids
+        )
 
         def evaluate(weights: list) -> float:
             self._should_continue()
@@ -149,7 +160,7 @@ class RiskEnsembleSeeker:
                 cv_folds.append(RiskEnsemble(fold, [weights], [time_horizon]))
 
             metrics = evaluate_survival_estimator(
-                cv_folds, X, T, Y, [time_horizon], pretrained=True
+                cv_folds, X, T, Y, [time_horizon], pretrained=True, group_ids=group_ids
             )
 
             self.hooks.heartbeat(
@@ -189,16 +200,18 @@ class RiskEnsembleSeeker:
 
         return weights
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def search(
         self,
         X: pd.DataFrame,
-        T: pd.DataFrame,
-        Y: pd.DataFrame,
+        T: pd.Series,
+        Y: pd.Series,
         skip_recap: bool = False,
+        group_ids: Optional[pd.Series] = None,
     ) -> RiskEnsemble:
         self._should_continue()
 
-        best_horizon_models = self.estimator_seeker.search(X, T, Y)
+        best_horizon_models = self.estimator_seeker.search(X, T, Y, group_ids=group_ids)
         all_models = [
             model for horizon_models in best_horizon_models for model in horizon_models
         ]
@@ -209,7 +222,13 @@ class RiskEnsembleSeeker:
             self._should_continue()
 
             local_weights = self.search_weights(
-                all_models, X, T, Y, horizon, skip_recap
+                all_models,
+                X,
+                T,
+                Y,
+                horizon,
+                skip_recap=skip_recap,
+                group_ids=group_ids,
             )
             weights.append(local_weights)
 

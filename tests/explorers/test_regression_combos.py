@@ -1,5 +1,10 @@
+# stdlib
+from typing import Optional
+
 # third party
 from explorers_mocks import MockHook
+import numpy as np
+import pandas as pd
 import pytest
 from sklearn.datasets import load_diabetes
 
@@ -56,8 +61,12 @@ def test_fails() -> None:
         RegressionEnsembleSeeker(study_name="test_regressors_combos", metric="aucroc")
 
 
-def test_search() -> None:
+@pytest.mark.parametrize("group_id", [False, True])
+def test_search(group_id: Optional[bool]) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
+    group_ids = None
+    if group_id:
+        group_ids = pd.Series(np.random.randint(0, 10, X.shape[0]))
 
     seeker = RegressionEnsembleSeeker(
         study_name="test_regressors_combos",
@@ -70,7 +79,7 @@ def test_search() -> None:
         ],
     )
 
-    selected_ensemble = seeker.search(X, Y)
+    selected_ensemble = seeker.search(X, Y, group_ids=group_ids)
 
     print("Best model ", selected_ensemble.name())
     selected_ensemble.fit(X, Y)

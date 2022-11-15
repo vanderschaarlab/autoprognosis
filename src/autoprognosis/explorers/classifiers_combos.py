@@ -1,11 +1,12 @@
 # stdlib
 import copy
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 # third party
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
+from pydantic import validate_arguments
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -60,6 +61,7 @@ class EnsembleSeeker:
             Custom callbacks to be notified about the search progress.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -106,15 +108,21 @@ class EnsembleSeeker:
         self,
         ensemble: List,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_ids: Optional[pd.Series] = None,
         seed: int = 0,
     ) -> List:
         self._should_continue()
 
-        skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+        if group_ids is not None:
+            skf = StratifiedGroupKFold(
+                n_splits=self.CV, shuffle=True, random_state=seed
+            )
+        else:
+            skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         folds = []
-        for train_index, _ in skf.split(X, Y):
+        for train_index, _ in skf.split(X, Y, groups=group_ids):
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
 
@@ -130,11 +138,12 @@ class EnsembleSeeker:
         self,
         ensemble: List,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[WeightedEnsemble, float]:
         self._should_continue()
 
-        pretrained_models = self.pretrain_for_cv(ensemble, X, Y)
+        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_ids=group_ids)
 
         def evaluate(weights: List) -> float:
             self._should_continue()
@@ -143,7 +152,9 @@ class EnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedEnsemble(fold, weights))
 
-            metrics = evaluate_estimator(folds, X, Y, self.CV, pretrained=True)
+            metrics = evaluate_estimator(
+                folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
+            )
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
             score = metrics["clf"][self.metric][0]
@@ -169,10 +180,16 @@ class EnsembleSeeker:
 
         return WeightedEnsemble(ensemble, weights), best_score
 
-    def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> BaseEnsemble:
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def search(
+        self,
+        X: pd.DataFrame,
+        Y: pd.Series,
+        group_ids: Optional[pd.Series] = None,
+    ) -> BaseEnsemble:
         self._should_continue()
 
-        best_models = self.seeker.search(X, Y)
+        best_models = self.seeker.search(X, Y, group_ids=group_ids)
 
         if self.hooks.cancel():
             raise StudyCancelled("Classifier search cancelled")
@@ -182,9 +199,9 @@ class EnsembleSeeker:
 
         try:
             stacking_ensemble = StackingEnsemble(best_models)
-            stacking_ens_score = evaluate_estimator(stacking_ensemble, X, Y, self.CV)[
-                "clf"
-            ][self.metric][0]
+            stacking_ens_score = evaluate_estimator(
+                stacking_ensemble, X, Y, self.CV, group_ids=group_ids
+            )["clf"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
             )
@@ -198,9 +215,9 @@ class EnsembleSeeker:
 
         try:
             aggr_ensemble = AggregatingEnsemble(best_models)
-            aggr_ens_score = evaluate_estimator(aggr_ensemble, X, Y, self.CV)["clf"][
-                self.metric
-            ][0]
+            aggr_ens_score = evaluate_estimator(
+                aggr_ensemble, X, Y, self.CV, group_ids=group_ids
+            )["clf"][self.metric][0]
             log.info(
                 f"Aggregating ensemble: {aggr_ensemble.name()} --> {aggr_ens_score}"
             )
@@ -213,7 +230,9 @@ class EnsembleSeeker:
         if self.hooks.cancel():
             raise StudyCancelled("Classifier search cancelled")
 
-        weighted_ensemble, weighted_ens_score = self.search_weights(best_models, X, Y)
+        weighted_ensemble, weighted_ens_score = self.search_weights(
+            best_models, X, Y, group_ids=group_ids
+        )
         log.info(
             f"Weighted ensemble: {weighted_ensemble.name()} -> {weighted_ens_score}"
         )

@@ -1,11 +1,12 @@
 # stdlib
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
+from pydantic import validate_arguments
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -50,6 +51,7 @@ class RegressionSeeker:
             Custom callbacks to be notified about the search progress.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -63,6 +65,7 @@ class RegressionSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        strict: bool = False,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -89,11 +92,11 @@ class RegressionSeeker:
 
         self.CV = CV
         self.num_iter = num_iter
-        self.CV = CV
         self.timeout = timeout
         self.top_k = top_k
         self.metric = metric
         self.optimizer_type = optimizer_type
+        self.strict = strict
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -103,7 +106,8 @@ class RegressionSeeker:
         self,
         estimator: Any,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -113,11 +117,14 @@ class RegressionSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-
             try:
-                metrics = evaluate_regression(model, X, Y, self.CV)
+                metrics = evaluate_regression(model, X, Y, self.CV, group_ids=group_ids)
             except BaseException as e:
                 log.error(f"evaluate_regression failed: {e}")
+
+                if self.strict:
+                    raise
+
                 return 0
 
             self.hooks.heartbeat(
@@ -141,11 +148,16 @@ class RegressionSeeker:
         )
         return study.evaluate()
 
-    def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> List:
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def search(
+        self, X: pd.DataFrame, Y: pd.Series, group_ids: Optional[pd.Series] = None
+    ) -> List:
         self._should_continue()
 
         search_results = dispatcher(
-            delayed(self.search_best_args_for_estimator)(estimator, X, Y)
+            delayed(self.search_best_args_for_estimator)(
+                estimator, X, Y, group_ids=group_ids
+            )
             for estimator in self.estimators
         )
 

@@ -252,12 +252,14 @@ def dataframe_preprocess(
     special_cols: List[str] = [],
     sample: bool = True,
     imputation_method: Optional[str] = None,
+    group_id: Optional[str] = None,
 ) -> Tuple[
     pd.DataFrame,
     pd.DataFrame,
     Optional[pd.DataFrame],
     List,
     EncodersCallbacks,
+    pd.Series,
 ]:
 
     drop_columns = [target]
@@ -271,6 +273,11 @@ def dataframe_preprocess(
         drop_columns.append(time_to_event)
 
         T = df[time_to_event]
+
+    group_ids = None
+    if group_id is not None:
+        drop_columns.append(group_id)
+        group_ids = df[group_id]
 
     for col in special_cols:
         df = dataframe_remove_zeros(df, col)
@@ -296,7 +303,10 @@ def dataframe_preprocess(
         if T is not None:
             T = T.loc[T.index[indices]]
 
+        if group_ids is not None:
+            group_ids = group_ids.loc[group_ids.index[indices]]
+
         for idx, other in enumerate(others):
             others[idx] = other.loc[other.index[indices]]
 
-    return X, T, Y, others, encoders
+    return X, T, Y, others, encoders, group_ids
