@@ -94,7 +94,7 @@ class classifier_evaluator:
 def evaluate_estimator(
     estimator: Any,
     X: Union[pd.DataFrame, np.ndarray],
-    Y: Union[pd.Series, np.ndarray],
+    Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
     metric: str = "aucroc",
     seed: int = 0,
@@ -178,8 +178,8 @@ def evaluate_estimator(
 def evaluate_survival_estimator(
     estimator: Any,
     X: Union[pd.DataFrame, np.ndarray],
-    T: Union[pd.Series, np.ndarray],
-    Y: Union[pd.Series, np.ndarray],
+    T: Union[pd.Series, np.ndarray, List],
+    Y: Union[pd.Series, np.ndarray, List],
     time_horizons: Union[List[float], np.ndarray],
     n_folds: int = 3,
     metrics: List[str] = survival_supported_metrics,
@@ -456,7 +456,7 @@ def evaluate_survival_estimator(
 def evaluate_regression(
     estimator: Any,
     X: Union[pd.DataFrame, np.ndarray],
-    Y: Union[pd.Series, np.ndarray],
+    Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
     metrics: str = ["rmse", "r2"],
     seed: int = 0,
