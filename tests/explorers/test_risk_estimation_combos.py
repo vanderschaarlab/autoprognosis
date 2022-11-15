@@ -1,6 +1,10 @@
+# stdlib
+from typing import Optional
+
 # third party
 from explorers_mocks import MockHook
 from lifelines.datasets import load_rossi
+import numpy as np
 import pytest
 from sklearn.model_selection import train_test_split
 
@@ -33,13 +37,16 @@ def test_sanity(optimizer_type: str) -> None:
     assert sq.timeout == 10
 
 
-def test_search() -> None:
-
+@pytest.mark.parametrize("group_id", [None, "id"])
+def test_search(group_id: Optional[str]) -> None:
     rossi = load_rossi()
 
     X = rossi.drop(["week", "arrest"], axis=1)
     Y = rossi["arrest"]
     T = rossi["week"]
+
+    if group_id is not None:
+        X[group_id] = np.random.randint(0, 10, size=(X.shape[0], 1))
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
@@ -55,7 +62,7 @@ def test_search() -> None:
         estimators=["lognormal_aft", "loglogistic_aft"],
     )
 
-    ensemble = sq.search(X, T, Y)
+    ensemble = sq.search(X, T, Y, group_id=group_id)
 
     assert len(ensemble.weights) == len(eval_time_horizons)
 

@@ -1,5 +1,9 @@
+# stdlib
+from typing import Optional
+
 # third party
 from explorers_mocks import MockHook
+import numpy as np
 import pytest
 from sklearn.datasets import load_breast_cancer
 
@@ -53,8 +57,11 @@ def test_fails() -> None:
 
 
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
-def test_search(optimizer_type: str) -> None:
+@pytest.mark.parametrize("group_id", [None, "id"])
+def test_search(optimizer_type: str, group_id: Optional[str]) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
+    if group_id:
+        X[group_id] = np.random.randint(0, 10, X.shape[0])
 
     seeker = EnsembleSeeker(
         study_name="test_classifiers_combos",
@@ -69,7 +76,7 @@ def test_search(optimizer_type: str) -> None:
         optimizer_type=optimizer_type,
     )
 
-    selected_ensemble = seeker.search(X, Y)
+    selected_ensemble = seeker.search(X, Y, group_id=group_id)
 
     print("Best model ", selected_ensemble.name())
     selected_ensemble.fit(X, Y)

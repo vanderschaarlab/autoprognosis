@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 # third party
 import numpy as np
 import pandas as pd
+from pydantic import validate_arguments
 from sklearn.metrics import (
     mean_squared_error,
     precision_score,
@@ -31,6 +32,17 @@ from autoprognosis.utils.metrics import (
     print_score,
 )
 from autoprognosis.utils.risk_estimation import generate_dataset_for_horizon
+
+survival_supported_metrics = [
+    "c_index",
+    "brier_score",
+    "aucroc",
+    "sensitivity",
+    "specificity",
+    "PPV",
+    "NPV",
+    "predicted_cases",
+]
 
 
 class classifier_evaluator:
@@ -78,10 +90,11 @@ class classifier_evaluator:
         return evaluate_auc(y_test, y_pred_proba)[1]
 
 
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_estimator(
     estimator: Any,
     X: pd.DataFrame,
-    Y: pd.DataFrame,
+    Y: pd.Series,
     n_folds: int = 3,
     metric: str = "aucroc",
     seed: int = 0,
@@ -111,20 +124,21 @@ def evaluate_estimator(
             The groups to use for stratified cross-validation
 
     """
-    X = pd.DataFrame(X)
+    X = pd.DataFrame(X).reset_index(drop=True)
     Y = LabelEncoder().fit_transform(Y)
-    Y = pd.Series(Y)
+    Y = pd.Series(Y).reset_index(drop=True)
+    if groups is not None:
+        groups = pd.Series(groups).reset_index(drop=True)
 
     log.debug(f"evaluate_estimator shape x:{X.shape} y:{Y.shape}")
 
     metric_ = np.zeros(n_folds)
 
     indx = 0
-    skf = (
-        StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-        if groups is not None
-        else StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-    )
+    if groups is not None:
+        skf = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    else:
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
     ev = classifier_evaluator(metric)
 
@@ -160,29 +174,19 @@ def evaluate_estimator(
     }
 
 
-survival_supported_metrics = [
-    "c_index",
-    "brier_score",
-    "aucroc",
-    "sensitivity",
-    "specificity",
-    "PPV",
-    "NPV",
-    "predicted_cases",
-]
-
-
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_survival_estimator(
     estimator: Any,
     X: pd.DataFrame,
-    T: pd.DataFrame,
-    Y: pd.DataFrame,
-    time_horizons: List,
+    T: pd.Series,
+    Y: pd.Series,
+    time_horizons: List[float],
     n_folds: int = 3,
     metrics: List[str] = survival_supported_metrics,
     seed: int = 0,
     pretrained: bool = False,
     risk_threshold: float = 0.5,
+    groups: Optional[pd.Series] = None,
 ) -> Dict:
     """Helper for evaluating survival analysis tasks.
 
@@ -203,12 +207,16 @@ def evaluate_survival_estimator(
             Random seed
         pretrained: bool
             If the estimator was trained or not
+        groups:
+            Group labels for the samples used while splitting the dataset into train/test set.
     """
 
     results = {}
     X = pd.DataFrame(X).reset_index(drop=True)
     Y = pd.Series(Y).reset_index(drop=True)
     T = pd.Series(T).reset_index(drop=True)
+    if groups is not None:
+        groups = pd.Series(groups).reset_index(drop=True)
 
     for metric in metrics:
         if metric not in survival_supported_metrics:
@@ -252,14 +260,17 @@ def evaluate_survival_estimator(
             eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
 
             def get_score(fn: Callable) -> float:
-                return fn(
-                    T_train,
-                    Y_train,
-                    pred[:, k],
-                    T_test,
-                    Y_test,
-                    eval_horizon,
-                ) / (len(time_horizons))
+                return (
+                    fn(
+                        T_train,
+                        Y_train,
+                        pred[:, k],
+                        T_test,
+                        Y_test,
+                        eval_horizon,
+                    )
+                    / (len(time_horizons))
+                )
 
             c_index += get_score(evaluate_skurv_c_index)
             brier_score += get_score(evaluate_skurv_brier_score)
@@ -359,10 +370,15 @@ def evaluate_survival_estimator(
                     results[metric][cv_idx] += clf_metrics[metric]
 
     else:
-        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+        if groups is not None:
+            skf = StratifiedGroupKFold(
+                n_splits=n_folds, shuffle=True, random_state=seed
+            )
+        else:
+            skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
         cv_idx = 0
-        for train_index, test_index in skf.split(X, Y):
+        for train_index, test_index in skf.split(X, Y, groups=groups):
 
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
@@ -397,7 +413,9 @@ def evaluate_survival_estimator(
             X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
                 X, T, Y, time_horizons[k]
             )
-            for train_index, test_index in skf.split(X_horizon, Y_horizon):
+            for train_index, test_index in skf.split(
+                X_horizon, Y_horizon, groups=groups
+            ):
 
                 X_train = X_horizon.loc[X_horizon.index[train_index]]
                 Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
@@ -434,10 +452,11 @@ def evaluate_survival_estimator(
     return output
 
 
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_regression(
     estimator: Any,
     X: pd.DataFrame,
-    Y: pd.DataFrame,
+    Y: pd.Series,
     n_folds: int = 3,
     metrics: str = ["rmse", "r2"],
     seed: int = 0,
@@ -465,8 +484,10 @@ def evaluate_regression(
             Optional groups for stratified cross-validation
 
     """
-    X = pd.DataFrame(X)
-    Y = pd.DataFrame(Y)
+    X = pd.DataFrame(X).reset_index(drop=True)
+    Y = pd.Series(Y).reset_index(drop=True)
+    if groups is not None:
+        groups = pd.Series(groups).reset_index(drop=True)
 
     log.debug(f"evaluate_estimator shape x:{X.shape} y:{Y.shape}")
 
@@ -475,13 +496,12 @@ def evaluate_regression(
         metrics_[metric] = np.zeros(n_folds)
 
     indx = 0
-    skf = (
-        GroupKFold(n_splits=n_folds)
-        if groups is not None
-        else KFold(n_splits=n_folds, shuffle=True, random_state=seed)
-    )
+    if groups is not None:
+        kf = GroupKFold(n_splits=n_folds)
+    else:
+        kf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
-    for train_index, test_index in skf.split(X, Y, groups=groups):
+    for train_index, test_index in kf.split(X, Y, groups=groups):
 
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]

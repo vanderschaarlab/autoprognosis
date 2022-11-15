@@ -52,11 +52,11 @@ def test_fails() -> None:
         RegressionSeeker(study_name="test_regressors", metric="invalid")
 
 
-@pytest.mark.parametrize("id", [None, "id"])
-def test_search(id: Optional[str]) -> None:
+@pytest.mark.parametrize("group_id", [None, "id"])
+def test_search(group_id: Optional[str]) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
-    if id is not None:
-        X["id"] = np.random.randint(0, 10, size=(X.shape[0], 1))
+    if group_id is not None:
+        X[group_id] = np.random.randint(0, 10, size=(X.shape[0], 1))
 
     seeker = RegressionSeeker(
         study_name="test_regressors",
@@ -67,9 +67,9 @@ def test_search(id: Optional[str]) -> None:
             "linear_regression",
             "random_forest_regressor",
         ],
-        id=id,
+        strict=True,
     )
-    best_models = seeker.search(X, Y)
+    best_models = seeker.search(X, Y, group_id=group_id)
 
     assert len(best_models) == 2
 

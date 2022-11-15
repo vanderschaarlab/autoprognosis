@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
+from pydantic import validate_arguments
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -48,10 +49,9 @@ class ClassifierSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
-        id: str.
-            The id column in the dataset.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -65,7 +65,7 @@ class ClassifierSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
-        id: Optional[str] = None,
+        strict: bool = False,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -91,12 +91,11 @@ class ClassifierSeeker:
 
         self.CV = CV
         self.num_iter = num_iter
-        self.CV = CV
+        self.strict = strict
         self.timeout = timeout
         self.top_k = top_k
         self.metric = metric
         self.optimizer_type = optimizer_type
-        self.id = id
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -106,7 +105,8 @@ class ClassifierSeeker:
         self,
         estimator: Any,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_id: Optional[str] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -116,13 +116,17 @@ class ClassifierSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-            groups = X[self.id] if self.id else None
+            groups = X[group_id] if group_id else None
             try:
                 metrics = evaluate_estimator(
                     model, X, Y, self.CV, metric=self.metric, groups=groups
                 )
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
+
+                if self.strict:
+                    raise
+
                 return 0
 
             self.hooks.heartbeat(
@@ -146,11 +150,28 @@ class ClassifierSeeker:
         )
         return study.evaluate()
 
-    def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> List:
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def search(
+        self,
+        X: pd.DataFrame,
+        Y: pd.Series,
+        group_id: Optional[str] = None,
+    ) -> List:
+        """Search the optimal model for the task.
+
+        Args:
+            X: DataFrame
+                The covariates
+            y: DataFrame/Series
+                The labels
+            group_id: Optional str
+                Optional Group labels for the samples used while splitting the dataset into train/test set.
+
+        """
         self._should_continue()
 
         search_results = dispatcher(
-            delayed(self.search_best_args_for_estimator)(estimator, X, Y)
+            delayed(self.search_best_args_for_estimator)(estimator, X, Y, group_id)
             for estimator in self.estimators
         )
 

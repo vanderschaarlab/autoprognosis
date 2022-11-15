@@ -54,12 +54,13 @@ def test_fails() -> None:
 
 
 @pytest.mark.parametrize(
-    "optimizer_type,id", [("bayesian", None), ("bayesian", "id"), ("hyperband", None)]
+    "optimizer_type,group_id",
+    [("bayesian", None), ("bayesian", "id"), ("hyperband", None)],
 )
-def test_search(optimizer_type: str, id: Optional[bool]) -> None:
+def test_search(optimizer_type: str, group_id: Optional[str]) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
-    if id:
-        X["id"] = np.random.randint(0, 10, X.shape[0])
+    if group_id:
+        X[group_id] = np.random.randint(0, 10, X.shape[0])
 
     seeker = ClassifierSeeker(
         study_name="test_classifiers",
@@ -73,9 +74,9 @@ def test_search(optimizer_type: str, id: Optional[bool]) -> None:
             "perceptron",
         ],
         optimizer_type=optimizer_type,
-        id=id,
+        strict=True,
     )
-    best_models = seeker.search(X, Y)
+    best_models = seeker.search(X, Y, group_id=group_id)
 
     assert len(best_models) == 3
 

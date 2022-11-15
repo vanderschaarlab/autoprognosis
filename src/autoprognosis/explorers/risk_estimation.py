@@ -1,12 +1,13 @@
 # stdlib
 import time
 import traceback
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
+from pydantic import validate_arguments
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -51,6 +52,7 @@ class RiskEstimatorSeeker:
             Custom callbacks to be notified about the search progress.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -64,6 +66,7 @@ class RiskEstimatorSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        strict: bool = False,
     ) -> None:
         self.time_horizons = time_horizons
 
@@ -73,7 +76,7 @@ class RiskEstimatorSeeker:
         self.study_name = study_name
         self.hooks = hooks
         self.optimizer_type = optimizer_type
-
+        self.strict = strict
         self.CV = CV
 
         self.estimators = [
@@ -99,6 +102,7 @@ class RiskEstimatorSeeker:
         T: pd.DataFrame,
         Y: pd.DataFrame,
         time_horizon: int,
+        group_id: Optional[str] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -109,10 +113,17 @@ class RiskEstimatorSeeker:
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
 
+            groups = X[group_id] if group_id else None
             try:
-                metrics = evaluate_survival_estimator(model, X, T, Y, time_horizons)
+                metrics = evaluate_survival_estimator(
+                    model, X, T, Y, time_horizons, groups=groups
+                )
             except BaseException as e:
                 log.error(f"evaluate_survival_estimator failed {e}")
+
+                if self.strict:
+                    raise
+
                 return 0
 
             self.hooks.heartbeat(
@@ -139,8 +150,14 @@ class RiskEstimatorSeeker:
         )
         return study.evaluate()
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def search_estimator(
-        self, X: pd.DataFrame, T: pd.DataFrame, Y: pd.DataFrame, time_horizon: int
+        self,
+        X: pd.DataFrame,
+        T: pd.Series,
+        Y: pd.Series,
+        time_horizon: int,
+        group_id: Optional[str] = None,
     ) -> List:
         self._should_continue()
 
@@ -148,7 +165,7 @@ class RiskEstimatorSeeker:
         try:
             search_results = dispatcher(
                 delayed(self.search_best_args_for_estimator)(
-                    estimator, X, T, Y, time_horizon
+                    estimator, X, T, Y, time_horizon, group_id=group_id
                 )
                 for estimator in self.estimators
             )
@@ -183,12 +200,21 @@ class RiskEstimatorSeeker:
 
         return result
 
-    def search(self, X: pd.DataFrame, T: pd.DataFrame, Y: pd.DataFrame) -> List:
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def search(
+        self,
+        X: pd.DataFrame,
+        T: pd.Series,
+        Y: pd.Series,
+        group_id: Optional[str] = None,
+    ) -> List:
         self._should_continue()
 
         result = []
         for time_horizon in self.time_horizons:
-            best_estimators_template = self.search_estimator(X, T, Y, time_horizon)
+            best_estimators_template = self.search_estimator(
+                X, T, Y, time_horizon, group_id=group_id
+            )
             horizon_result = []
             for idx, args in best_estimators_template:
                 horizon_result.append(

@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 # third party
 import numpy as np
 import pandas as pd
+from pydantic import validate_arguments
 from sklearn.model_selection import GroupKFold, KFold
 
 # autoprognosis absolute
@@ -56,10 +57,9 @@ class RegressionEnsembleSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
-        id: pd.Series
-            pd.Series containing patient ids. Used for stratified CV.
     """
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
         study_name: str,
@@ -74,7 +74,6 @@ class RegressionEnsembleSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
-        id: Optional[pd.Series] = None,
     ) -> None:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
@@ -84,7 +83,6 @@ class RegressionEnsembleSeeker:
         self.study_name = study_name
         self.hooks = hooks
         self.optimizer_type = optimizer_type
-        self.id = id
 
         self.seeker = RegressionSeeker(
             study_name,
@@ -98,7 +96,6 @@ class RegressionEnsembleSeeker:
             hooks=hooks,
             imputers=imputers,
             optimizer_type=optimizer_type,
-            id=self.id,
         )
 
     def _should_continue(self) -> None:
@@ -109,21 +106,20 @@ class RegressionEnsembleSeeker:
         self,
         ensemble: List,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_id: Optional[str] = None,
         seed: int = 0,
     ) -> List:
         self._should_continue()
 
-        skf = (
-            GroupKFold(
-                n_splits=self.CV,
-            )
-            if self.id is not None
-            else KFold(n_splits=self.CV, shuffle=True, random_state=seed)
-        )
+        groups = X[group_id] if group_id else None
+        if group_id is not None:
+            kf = GroupKFold(n_splits=self.CV)
+        else:
+            kf = KFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         folds = []
-        for train_index, _ in skf.split(X, Y, groups=self.id):
+        for train_index, _ in kf.split(X, Y, groups=groups):
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
 
@@ -139,11 +135,12 @@ class RegressionEnsembleSeeker:
         self,
         ensemble: List,
         X: pd.DataFrame,
-        Y: pd.DataFrame,
+        Y: pd.Series,
+        group_id: Optional[str] = None,
     ) -> Tuple[WeightedRegressionEnsemble, float]:
         self._should_continue()
 
-        pretrained_models = self.pretrain_for_cv(ensemble, X, Y)
+        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_id=group_id)
 
         def evaluate(weights: List) -> float:
             self._should_continue()
@@ -152,8 +149,9 @@ class RegressionEnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedRegressionEnsemble(fold, weights))
 
+            groups = X[group_id] if group_id else None
             metrics = evaluate_regression(
-                folds, X, Y, self.CV, pretrained=True, groups=self.id
+                folds, X, Y, self.CV, pretrained=True, groups=groups
             )
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
@@ -180,10 +178,13 @@ class RegressionEnsembleSeeker:
 
         return WeightedRegressionEnsemble(ensemble, weights), best_score
 
-    def search(self, X: pd.DataFrame, Y: pd.DataFrame) -> BaseRegressionEnsemble:
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def search(
+        self, X: pd.DataFrame, Y: pd.Series, group_id: Optional[str] = None
+    ) -> BaseRegressionEnsemble:
         self._should_continue()
 
-        best_models = self.seeker.search(X, Y)
+        best_models = self.seeker.search(X, Y, group_id=group_id)
 
         if self.hooks.cancel():
             raise StudyCancelled("regressor search cancelled")
@@ -191,7 +192,9 @@ class RegressionEnsembleSeeker:
         scores = []
         ensembles: list = []
 
-        weighted_ensemble, weighted_ens_score = self.search_weights(best_models, X, Y)
+        weighted_ensemble, weighted_ens_score = self.search_weights(
+            best_models, X, Y, group_id=group_id
+        )
         log.info(
             f"Weighted regression ensemble: {weighted_ensemble.name()} -> {weighted_ens_score}"
         )
