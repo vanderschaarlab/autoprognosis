@@ -1,6 +1,6 @@
 # stdlib
 import copy
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # third party
 import numpy as np
@@ -93,8 +93,8 @@ class classifier_evaluator:
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_estimator(
     estimator: Any,
-    X: pd.DataFrame,
-    Y: pd.Series,
+    X: Union[pd.DataFrame, np.ndarray],
+    Y: Union[pd.Series, np.ndarray],
     n_folds: int = 3,
     metric: str = "aucroc",
     seed: int = 0,
@@ -177,9 +177,9 @@ def evaluate_estimator(
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_survival_estimator(
     estimator: Any,
-    X: pd.DataFrame,
-    T: pd.Series,
-    Y: pd.Series,
+    X: Union[pd.DataFrame, np.ndarray],
+    T: Union[pd.Series, np.ndarray],
+    Y: Union[pd.Series, np.ndarray],
     time_horizons: List[float],
     n_folds: int = 3,
     metrics: List[str] = survival_supported_metrics,
@@ -455,8 +455,8 @@ def evaluate_survival_estimator(
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_regression(
     estimator: Any,
-    X: pd.DataFrame,
-    Y: pd.Series,
+    X: Union[pd.DataFrame, np.ndarray],
+    Y: Union[pd.Series, np.ndarray],
     n_folds: int = 3,
     metrics: str = ["rmse", "r2"],
     seed: int = 0,
