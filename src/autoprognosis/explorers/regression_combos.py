@@ -107,19 +107,18 @@ class RegressionEnsembleSeeker:
         ensemble: List,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
         seed: int = 0,
     ) -> List:
         self._should_continue()
 
-        groups = X[group_id] if group_id else None
-        if group_id is not None:
+        if group_ids is not None:
             kf = GroupKFold(n_splits=self.CV)
         else:
             kf = KFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         folds = []
-        for train_index, _ in kf.split(X, Y, groups=groups):
+        for train_index, _ in kf.split(X, Y, groups=group_ids):
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
 
@@ -136,11 +135,11 @@ class RegressionEnsembleSeeker:
         ensemble: List,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[WeightedRegressionEnsemble, float]:
         self._should_continue()
 
-        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_id=group_id)
+        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_ids=group_ids)
 
         def evaluate(weights: List) -> float:
             self._should_continue()
@@ -149,9 +148,8 @@ class RegressionEnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedRegressionEnsemble(fold, weights))
 
-            groups = X[group_id] if group_id else None
             metrics = evaluate_regression(
-                folds, X, Y, self.CV, pretrained=True, groups=groups
+                folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
             )
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
@@ -180,11 +178,11 @@ class RegressionEnsembleSeeker:
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def search(
-        self, X: pd.DataFrame, Y: pd.Series, group_id: Optional[str] = None
+        self, X: pd.DataFrame, Y: pd.Series, group_ids: Optional[pd.Series] = None
     ) -> BaseRegressionEnsemble:
         self._should_continue()
 
-        best_models = self.seeker.search(X, Y, group_id=group_id)
+        best_models = self.seeker.search(X, Y, group_ids=group_ids)
 
         if self.hooks.cancel():
             raise StudyCancelled("regressor search cancelled")
@@ -193,7 +191,7 @@ class RegressionEnsembleSeeker:
         ensembles: list = []
 
         weighted_ensemble, weighted_ens_score = self.search_weights(
-            best_models, X, Y, group_id=group_id
+            best_models, X, Y, group_ids=group_ids
         )
         log.info(
             f"Weighted regression ensemble: {weighted_ensemble.name()} -> {weighted_ens_score}"

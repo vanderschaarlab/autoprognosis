@@ -106,7 +106,7 @@ class ClassifierSeeker:
         estimator: Any,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -116,10 +116,9 @@ class ClassifierSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-            groups = X[group_id] if group_id else None
             try:
                 metrics = evaluate_estimator(
-                    model, X, Y, self.CV, metric=self.metric, groups=groups
+                    model, X, Y, self.CV, metric=self.metric, group_ids=group_ids
                 )
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
@@ -155,7 +154,7 @@ class ClassifierSeeker:
         self,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> List:
         """Search the optimal model for the task.
 
@@ -164,14 +163,14 @@ class ClassifierSeeker:
                 The covariates
             y: DataFrame/Series
                 The labels
-            group_id: Optional str
+            group_ids: Optional str
                 Optional Group labels for the samples used while splitting the dataset into train/test set.
 
         """
         self._should_continue()
 
         search_results = dispatcher(
-            delayed(self.search_best_args_for_estimator)(estimator, X, Y, group_id)
+            delayed(self.search_best_args_for_estimator)(estimator, X, Y, group_ids)
             for estimator in self.estimators
         )
 

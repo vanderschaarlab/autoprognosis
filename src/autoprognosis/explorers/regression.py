@@ -107,7 +107,7 @@ class RegressionSeeker:
         estimator: Any,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -117,9 +117,8 @@ class RegressionSeeker:
             start = time.time()
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
-            groups = X[group_id] if group_id else None
             try:
-                metrics = evaluate_regression(model, X, Y, self.CV, groups=groups)
+                metrics = evaluate_regression(model, X, Y, self.CV, group_ids=group_ids)
             except BaseException as e:
                 log.error(f"evaluate_regression failed: {e}")
 
@@ -151,13 +150,13 @@ class RegressionSeeker:
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def search(
-        self, X: pd.DataFrame, Y: pd.Series, group_id: Optional[str] = None
+        self, X: pd.DataFrame, Y: pd.Series, group_ids: Optional[pd.Series] = None
     ) -> List:
         self._should_continue()
 
         search_results = dispatcher(
             delayed(self.search_best_args_for_estimator)(
-                estimator, X, Y, group_id=group_id
+                estimator, X, Y, group_ids=group_ids
             )
             for estimator in self.estimators
         )

@@ -5,6 +5,7 @@ from typing import Optional
 from explorers_mocks import MockHook
 from lifelines.datasets import load_rossi
 import numpy as np
+import pandas as pd
 import pytest
 from sklearn.model_selection import train_test_split
 
@@ -39,8 +40,8 @@ def test_sanity(optimizer_type: str) -> None:
     assert len(sq.estimators) > 0
 
 
-@pytest.mark.parametrize("group_id", [None, "id"])
-def test_search(group_id: Optional[str]) -> None:
+@pytest.mark.parametrize("group_id", [False, True])
+def test_search(group_id: Optional[bool]) -> None:
 
     rossi = load_rossi()
 
@@ -48,8 +49,9 @@ def test_search(group_id: Optional[str]) -> None:
     Y = rossi["arrest"]
     T = rossi["week"]
 
-    if group_id is not None:
-        X[group_id] = np.random.randint(0, 10, size=(X.shape[0], 1))
+    group_ids = None
+    if group_id:
+        group_ids = pd.Series(np.random.randint(0, 10, X.shape[0]))
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
@@ -65,7 +67,7 @@ def test_search(group_id: Optional[str]) -> None:
         estimators=estimators,
     )
 
-    best_models = sq.search(X, T, Y, group_id=group_id)
+    best_models = sq.search(X, T, Y, group_ids=group_ids)
 
     tr_X, te_X, tr_T, te_T, tr_Y, te_Y = train_test_split(
         X, T, Y, test_size=0.2, random_state=0

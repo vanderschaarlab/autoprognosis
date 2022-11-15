@@ -108,12 +108,11 @@ class RiskEnsembleSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         seed: int = 0,
-        group_id: Optional[str] = None,
+        group_ids: Optional[str] = None,
     ) -> List:
         self._should_continue()
 
-        groups = X[group_id] if group_id else None
-        if group_id is not None:
+        if group_ids is not None:
             skf = StratifiedGroupKFold(
                 n_splits=self.CV, shuffle=True, random_state=seed
             )
@@ -122,7 +121,7 @@ class RiskEnsembleSeeker:
 
         ensemble_folds = []
 
-        for train_index, _ in skf.split(X, Y, groups=groups):
+        for train_index, _ in skf.split(X, Y, groups=group_ids):
 
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
@@ -144,12 +143,12 @@ class RiskEnsembleSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         skip_recap: bool = False,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> List[float]:
         self._should_continue()
 
         pretrained_models = self.pretrain_for_cv(
-            ensemble, X, T, Y, time_horizon, group_id=group_id
+            ensemble, X, T, Y, time_horizon, group_ids=group_ids
         )
 
         def evaluate(weights: list) -> float:
@@ -160,9 +159,8 @@ class RiskEnsembleSeeker:
             for fold in pretrained_models:
                 cv_folds.append(RiskEnsemble(fold, [weights], [time_horizon]))
 
-            groups = X[group_id] if group_id else None
             metrics = evaluate_survival_estimator(
-                cv_folds, X, T, Y, [time_horizon], pretrained=True, groups=groups
+                cv_folds, X, T, Y, [time_horizon], pretrained=True, group_ids=group_ids
             )
 
             self.hooks.heartbeat(
@@ -209,11 +207,11 @@ class RiskEnsembleSeeker:
         T: pd.Series,
         Y: pd.Series,
         skip_recap: bool = False,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> RiskEnsemble:
         self._should_continue()
 
-        best_horizon_models = self.estimator_seeker.search(X, T, Y, group_id=group_id)
+        best_horizon_models = self.estimator_seeker.search(X, T, Y, group_ids=group_ids)
         all_models = [
             model for horizon_models in best_horizon_models for model in horizon_models
         ]
@@ -230,7 +228,7 @@ class RiskEnsembleSeeker:
                 Y,
                 horizon,
                 skip_recap=skip_recap,
-                group_id=group_id,
+                group_ids=group_ids,
             )
             weights.append(local_weights)
 

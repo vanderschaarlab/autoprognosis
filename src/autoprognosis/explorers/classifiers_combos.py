@@ -109,13 +109,12 @@ class EnsembleSeeker:
         ensemble: List,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
         seed: int = 0,
     ) -> List:
         self._should_continue()
 
-        groups = X[group_id] if group_id else None
-        if group_id is not None:
+        if group_ids is not None:
             skf = StratifiedGroupKFold(
                 n_splits=self.CV, shuffle=True, random_state=seed
             )
@@ -123,7 +122,7 @@ class EnsembleSeeker:
             skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
 
         folds = []
-        for train_index, _ in skf.split(X, Y, groups=groups):
+        for train_index, _ in skf.split(X, Y, groups=group_ids):
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
 
@@ -140,11 +139,11 @@ class EnsembleSeeker:
         ensemble: List,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[WeightedEnsemble, float]:
         self._should_continue()
 
-        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_id=group_id)
+        pretrained_models = self.pretrain_for_cv(ensemble, X, Y, group_ids=group_ids)
 
         def evaluate(weights: List) -> float:
             self._should_continue()
@@ -153,9 +152,8 @@ class EnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedEnsemble(fold, weights))
 
-            groups = X[group_id] if group_id else None
             metrics = evaluate_estimator(
-                folds, X, Y, self.CV, pretrained=True, groups=groups
+                folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
             )
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
@@ -187,12 +185,11 @@ class EnsembleSeeker:
         self,
         X: pd.DataFrame,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> BaseEnsemble:
         self._should_continue()
 
-        best_models = self.seeker.search(X, Y, group_id=group_id)
-        groups = X[group_id] if group_id else None
+        best_models = self.seeker.search(X, Y, group_ids=group_ids)
 
         if self.hooks.cancel():
             raise StudyCancelled("Classifier search cancelled")
@@ -203,7 +200,7 @@ class EnsembleSeeker:
         try:
             stacking_ensemble = StackingEnsemble(best_models)
             stacking_ens_score = evaluate_estimator(
-                stacking_ensemble, X, Y, self.CV, groups=groups
+                stacking_ensemble, X, Y, self.CV, group_ids=group_ids
             )["clf"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
@@ -219,7 +216,7 @@ class EnsembleSeeker:
         try:
             aggr_ensemble = AggregatingEnsemble(best_models)
             aggr_ens_score = evaluate_estimator(
-                aggr_ensemble, X, Y, self.CV, groups=groups
+                aggr_ensemble, X, Y, self.CV, group_ids=group_ids
             )["clf"][self.metric][0]
             log.info(
                 f"Aggregating ensemble: {aggr_ensemble.name()} --> {aggr_ens_score}"
@@ -234,7 +231,7 @@ class EnsembleSeeker:
             raise StudyCancelled("Classifier search cancelled")
 
         weighted_ensemble, weighted_ens_score = self.search_weights(
-            best_models, X, Y, group_id=group_id
+            best_models, X, Y, group_ids=group_ids
         )
         log.info(
             f"Weighted ensemble: {weighted_ensemble.name()} -> {weighted_ens_score}"

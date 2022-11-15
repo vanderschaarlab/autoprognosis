@@ -102,7 +102,7 @@ class RiskEstimatorSeeker:
         T: pd.DataFrame,
         Y: pd.DataFrame,
         time_horizon: int,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> Tuple[float, float, Dict]:
         self._should_continue()
 
@@ -113,10 +113,9 @@ class RiskEstimatorSeeker:
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
 
-            groups = X[group_id] if group_id else None
             try:
                 metrics = evaluate_survival_estimator(
-                    model, X, T, Y, time_horizons, groups=groups
+                    model, X, T, Y, time_horizons, group_ids=group_ids
                 )
             except BaseException as e:
                 log.error(f"evaluate_survival_estimator failed {e}")
@@ -157,7 +156,7 @@ class RiskEstimatorSeeker:
         T: pd.Series,
         Y: pd.Series,
         time_horizon: int,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> List:
         self._should_continue()
 
@@ -165,7 +164,7 @@ class RiskEstimatorSeeker:
         try:
             search_results = dispatcher(
                 delayed(self.search_best_args_for_estimator)(
-                    estimator, X, T, Y, time_horizon, group_id=group_id
+                    estimator, X, T, Y, time_horizon, group_ids=group_ids
                 )
                 for estimator in self.estimators
             )
@@ -206,14 +205,14 @@ class RiskEstimatorSeeker:
         X: pd.DataFrame,
         T: pd.Series,
         Y: pd.Series,
-        group_id: Optional[str] = None,
+        group_ids: Optional[pd.Series] = None,
     ) -> List:
         self._should_continue()
 
         result = []
         for time_horizon in self.time_horizons:
             best_estimators_template = self.search_estimator(
-                X, T, Y, time_horizon, group_id=group_id
+                X, T, Y, time_horizon, group_ids=group_ids
             )
             horizon_result = []
             for idx, args in best_estimators_template:

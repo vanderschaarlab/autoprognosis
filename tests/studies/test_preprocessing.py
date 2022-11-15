@@ -1,6 +1,10 @@
+# stdlib
+from typing import Optional
+
 # third party
 import numpy as np
 import pandas as pd
+import pytest
 
 # autoprognosis absolute
 from autoprognosis.studies._preprocessing import (
@@ -88,7 +92,8 @@ def test_dataframe_sample() -> None:
     assert len(indices) == 4
 
 
-def test_dataframe_preprocess() -> None:
+@pytest.mark.parametrize("group_id", [None, "group_id"])
+def test_dataframe_preprocess(group_id: Optional[str]) -> None:
     df = pd.DataFrame(
         {
             "target": [0, 1, 0, 1, 0, 1],
@@ -99,13 +104,16 @@ def test_dataframe_preprocess() -> None:
             "constant": [0, 0, 0, 0, 0, 0],
         }
     )
+    if group_id is not None:
+        df[group_id] = pd.Series(np.random.randint(0, 10, df.shape[0]))
 
-    X, T, Y, others, enc_ctx = dataframe_preprocess(
+    X, T, Y, others, enc_ctx, group_ids = dataframe_preprocess(
         df,
         target="target",
         time_to_event="time_to_event",
         special_cols=["special"],
         imputation_method="mean",
+        group_id=group_id,
     )
 
     assert not X.isnull().values.any()
@@ -113,3 +121,5 @@ def test_dataframe_preprocess() -> None:
     assert len(X) == 5
     assert len(others) == 1
     assert "not_encoded" in enc_ctx.encoders
+    if group_id is not None:
+        assert len(group_ids) == len(X)
