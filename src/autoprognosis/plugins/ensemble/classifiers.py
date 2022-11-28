@@ -308,7 +308,7 @@ class StackingEnsemble(BaseEnsemble):
         self,
         models: List[PipelineMeta],
         meta_model: PipelineMeta = Pipeline(
-            ["prediction.classifier.logistic_regression"]
+            ["imputer.default.ice", "prediction.classifier.logistic_regression"]
         )(output="numpy"),
         clf: Union[None, Stacking] = None,
         explainer_plugins: list = [],
