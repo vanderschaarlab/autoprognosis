@@ -42,6 +42,7 @@ class Plugin(metaclass=ABCMeta):
         self.output = pd.DataFrame
         self._backup_encoders: Optional[Dict[str, LabelEncoder]] = {}
         self._drop_features: Optional[List[str]] = []
+        self._fitted = False
 
     def change_output(self, output: str) -> None:
         if output not in ["pandas", "numpy"]:
@@ -165,13 +166,19 @@ class Plugin(metaclass=ABCMeta):
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
         X = self._fit_input(X)
 
-        return self._fit(X, *args, **kwargs)
+        self._fit(X, *args, **kwargs)
+
+        self._fitted = True
+
+        return self
 
     @abstractmethod
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
         X = self._transform_input(X)
         return self.output(self._transform(X))
 
@@ -180,6 +187,8 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
         X = self._transform_input(X)
         return self.output(self._predict(X, *args, *kwargs))
 

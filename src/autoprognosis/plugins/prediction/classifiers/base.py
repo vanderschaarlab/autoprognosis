@@ -39,7 +39,11 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
             raise RuntimeError("Training requires X, y")
         Y = cast.to_dataframe(args[0]).values.ravel()
 
-        return self._fit(X, Y, **kwargs)
+        self._fit(X, Y, **kwargs)
+
+        self._fitted = True
+
+        return self
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
         ev = classifier_evaluator(metric)

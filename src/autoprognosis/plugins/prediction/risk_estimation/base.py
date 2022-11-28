@@ -78,9 +78,13 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
                 task_type="risk_estimation",
             )
 
+        self._fitted = True
         return self
 
     def explain(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
+
         X = self._transform_input(X)
         if self.explainer is None:
             raise ValueError("Interpretability is not enabled for this model")

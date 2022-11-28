@@ -43,6 +43,7 @@ class RegressionPlugin(prediction_base.PredictionPlugin):
 
         X = self._fit_input(X)
         self._fit(X, *args, **kwargs)
+        self._fitted = True
 
         return self
 

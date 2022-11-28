@@ -90,6 +90,7 @@ class WeightedEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explanations_nepoch = explanations_nepoch
         self.explainers = explainers
+        self._fitted = False
 
         for idx, weight in enumerate(weights):
             if weight == 0:
@@ -121,9 +122,13 @@ class WeightedEnsemble(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
+
         preds_ = []
         for k in range(len(self.models)):
             preds_.append(self.models[k].predict_proba(X, *args) * self.weights[k])
@@ -247,9 +252,12 @@ class WeightedEnsembleCV(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
         result, _ = self.predict_proba_with_uncertainity(X)
 
         return result
@@ -322,6 +330,7 @@ class StackingEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
+        self._fitted = False
 
         for model in self.models:
             model.change_output("numpy")
@@ -349,10 +358,13 @@ class StackingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -427,6 +439,7 @@ class AggregatingEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
+        self._fitted = False
 
         if clf:
             self.clf = clf
@@ -449,10 +462,13 @@ class AggregatingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self._fitted:
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
