@@ -86,6 +86,9 @@ class PipelineMeta(type):
     def fit(self: Any, X: pd.DataFrame, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError("not implemented")
 
+    def is_fitted(self: Any) -> Any:
+        raise NotImplementedError("not implemented")
+
     def predict(*args: Any, **kwargs: Any) -> pd.DataFrame:
         raise NotImplementedError("not implemented")
 

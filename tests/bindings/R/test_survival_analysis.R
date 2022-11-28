@@ -1,7 +1,7 @@
 library(reticulate)
 library(survival)
 
-py_install(".", pip = TRUE, ignore_installed = TRUE)
+py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
