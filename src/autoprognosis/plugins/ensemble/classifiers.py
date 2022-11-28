@@ -339,7 +339,7 @@ class StackingEnsemble(BaseEnsemble):
 
         self._fitted = True
         for model in models:
-            self._fitted |= model.is_fitted()
+            self._fitted = self._fitted or model.is_fitted()
 
         for model in self.models:
             model.change_output("numpy")
@@ -457,7 +457,7 @@ class AggregatingEnsemble(BaseEnsemble):
 
         self._fitted = True
         for model in models:
-            self._fitted |= model.is_fitted()
+            self._fitted = self._fitted or model.is_fitted()
 
         if clf:
             self.clf = clf
