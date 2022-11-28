@@ -16,7 +16,10 @@ from numpy import percentile
 import numpy as np
 from pyod.utils.utility import check_parameter
 from scipy.special import erf
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401,E402
+from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import (
     check_array,
@@ -417,9 +420,6 @@ class Stacking(BaseAggregator):
     base_estimators: list or numpy array (n_estimators,)
         A list of base classifiers.
 
-    meta_clf : object, optional (default=LogisticRegression)
-        The meta classifier to make the final prediction.
-
     n_folds : int, optional (default=2)
         The number of splits of the training sample.
 
@@ -451,7 +451,7 @@ class Stacking(BaseAggregator):
         self,
         base_estimators,
         meta_clf=None,
-        n_folds=2,
+        n_folds=3,
         keep_original=True,
         use_proba=False,
         shuffle_data=False,
@@ -473,7 +473,9 @@ class Stacking(BaseAggregator):
         if meta_clf is not None:
             self.meta_clf = meta_clf
         else:
-            self.meta_clf = LogisticRegression()
+            self.meta_clf = Pipeline(
+                ("imputer", IterativeImputer()), ("output", LogisticRegression())
+            )
 
         # set flags
         self.keep_original = keep_original
@@ -504,8 +506,8 @@ class Stacking(BaseAggregator):
         """
 
         # Validate inputs X and y
-        X, y = check_X_y(X, y)
-        X = check_array(X)
+        X, y = check_X_y(X, y, force_all_finite=False)
+        X = check_array(X, force_all_finite=False)
         self._set_n_classes(y)
 
         n_samples = X.shape[0]
@@ -574,7 +576,7 @@ class Stacking(BaseAggregator):
             The processed dataset of X.
         """
         check_is_fitted(self, ["fitted_"])
-        X = check_array(X)
+        X = check_array(X, force_all_finite=False)
         n_samples = X.shape[0]
 
         # initialize matrix for storing newly generated features
@@ -718,8 +720,8 @@ class SimpleClassifierAggregator(BaseAggregator):
         """
 
         # Validate inputs X and y
-        X, y = check_X_y(X, y)
-        X = check_array(X)
+        X, y = check_X_y(X, y, force_all_finite=False)
+        X = check_array(X, force_all_finite=False)
         self._set_n_classes(y)
 
         if self.pre_fitted:
@@ -744,7 +746,7 @@ class SimpleClassifierAggregator(BaseAggregator):
         labels : numpy array of shape (n_samples,)
             Class labels for each data sample.
         """
-        X = check_array(X)
+        X = check_array(X, force_all_finite=False)
 
         all_scores = np.zeros([X.shape[0], self.n_base_estimators_])
 
@@ -782,7 +784,7 @@ class SimpleClassifierAggregator(BaseAggregator):
             The class probabilities of the input samples.
             Classes are ordered by lexicographic order.
         """
-        X = check_array(X)
+        X = check_array(X, force_all_finite=False)
         all_scores = np.zeros([X.shape[0], self._classes, self.n_base_estimators_])
 
         for i in range(self.n_base_estimators_):

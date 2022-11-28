@@ -128,6 +128,13 @@ def _generate_fit() -> Callable:
     return fit_impl
 
 
+def _generate_is_fitted() -> Callable:
+    def fit_impl(self: Any) -> Any:
+        return self.stages[-1].is_fitted()
+
+    return fit_impl
+
+
 def _generate_predict() -> Callable:
     @decorators.benchmark
     def predict_impl(
@@ -249,6 +256,7 @@ __all__ = [
     "_generate_sample_param_impl",
     "_generate_constructor",
     "_generate_fit",
+    "_generate_is_fitted",
     "_generate_predict",
     "_generate_predict_proba",
     "_generate_score",

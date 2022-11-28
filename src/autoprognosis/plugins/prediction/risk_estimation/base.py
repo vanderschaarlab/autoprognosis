@@ -56,6 +56,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
 
         X = self._fit_input(X)
         self._fit(X, *args, **kwargs)
+        self._fitted = True
 
         if self.with_explanations and self.explainer is None:
             if "eval_times" not in kwargs:
@@ -81,6 +82,9 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         return self
 
     def explain(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         X = self._transform_input(X)
         if self.explainer is None:
             raise ValueError("Interpretability is not enabled for this model")

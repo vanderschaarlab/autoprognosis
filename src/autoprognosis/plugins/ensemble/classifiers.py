@@ -13,7 +13,9 @@ from sklearn.model_selection import StratifiedKFold
 import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.combos import SimpleClassifierAggregator, Stacking
 from autoprognosis.plugins.explainers import Explainers
+from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
+from autoprognosis.plugins.prediction.classifiers import Classifiers
 from autoprognosis.utils.parallel import cpu_count
 import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_evaluator
@@ -91,11 +93,21 @@ class WeightedEnsemble(BaseEnsemble):
         self.explanations_nepoch = explanations_nepoch
         self.explainers = explainers
 
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
+
         for idx, weight in enumerate(weights):
             if weight == 0:
                 continue
             self.models.append(models[idx])
             self.weights.append(weights[idx])
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsemble":
         def fit_model(k: int) -> Any:
@@ -121,9 +133,13 @@ class WeightedEnsemble(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         preds_ = []
         for k in range(len(self.models)):
             preds_.append(self.models[k].predict_proba(X, *args) * self.weights[k])
@@ -307,9 +323,7 @@ class StackingEnsemble(BaseEnsemble):
     def __init__(
         self,
         models: List[PipelineMeta],
-        meta_model: PipelineMeta = Pipeline(
-            ["prediction.classifier.logistic_regression"]
-        )(output="numpy"),
+        meta_model: Optional[PipelineMeta] = None,
         clf: Union[None, Stacking] = None,
         explainer_plugins: list = [],
         explanations_nepoch: int = 10000,
@@ -317,11 +331,22 @@ class StackingEnsemble(BaseEnsemble):
         super().__init__()
 
         self.models = models
+        if meta_model is None:
+            meta_model = Pipeline(
+                [
+                    Imputers().get_type("ice").fqdn(),
+                    Classifiers().get_type("logistic_regression").fqdn(),
+                ]
+            )(output="numpy")
         self.meta_model = meta_model
 
         self.explainer_plugins = explainer_plugins
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
+
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
 
         for model in self.models:
             model.change_output("numpy")
@@ -334,6 +359,12 @@ class StackingEnsemble(BaseEnsemble):
                 meta_clf=meta_model,
                 use_proba=True,
             )
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
         self.clf.fit(X, Y)
@@ -349,10 +380,13 @@ class StackingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -428,10 +462,20 @@ class AggregatingEnsemble(BaseEnsemble):
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
 
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
+
         if clf:
             self.clf = clf
         else:
             self.clf = SimpleClassifierAggregator(models, method=method)
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "AggregatingEnsemble":
         Y = pd.DataFrame(Y).values.ravel()
@@ -449,10 +493,13 @@ class AggregatingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
