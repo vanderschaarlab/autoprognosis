@@ -93,7 +93,7 @@ class WeightedEnsemble(BaseEnsemble):
 
         self._fitted = True
         for model in models:
-            self._fitted |= model.is_fitted()
+            self._fitted = self._fitted or model.is_fitted()
 
         for idx, weight in enumerate(weights):
             if weight == 0:
