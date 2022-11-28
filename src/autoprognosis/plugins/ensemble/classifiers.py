@@ -323,12 +323,7 @@ class StackingEnsemble(BaseEnsemble):
     def __init__(
         self,
         models: List[PipelineMeta],
-        meta_model: PipelineMeta = Pipeline(
-            [
-                Imputers().get_type("ice").fqdn(),
-                Classifiers().get_type("logistic_regression").fqdn(),
-            ]
-        )(output="numpy"),
+        meta_model: Optional[PipelineMeta] = None,
         clf: Union[None, Stacking] = None,
         explainer_plugins: list = [],
         explanations_nepoch: int = 10000,
@@ -336,6 +331,13 @@ class StackingEnsemble(BaseEnsemble):
         super().__init__()
 
         self.models = models
+        if meta_model is None:
+            meta_model = Pipeline(
+                [
+                    Imputers().get_type("ice").fqdn(),
+                    Classifiers().get_type("logistic_regression").fqdn(),
+                ]
+            )(output="numpy")
         self.meta_model = meta_model
 
         self.explainer_plugins = explainer_plugins
