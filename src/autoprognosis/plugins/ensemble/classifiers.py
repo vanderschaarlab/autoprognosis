@@ -91,11 +91,21 @@ class WeightedEnsemble(BaseEnsemble):
         self.explanations_nepoch = explanations_nepoch
         self.explainers = explainers
 
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
+
         for idx, weight in enumerate(weights):
             if weight == 0:
                 continue
             self.models.append(models[idx])
             self.weights.append(weights[idx])
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsemble":
         def fit_model(k: int) -> Any:
@@ -121,9 +131,13 @@ class WeightedEnsemble(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         preds_ = []
         for k in range(len(self.models)):
             preds_.append(self.models[k].predict_proba(X, *args) * self.weights[k])
@@ -308,7 +322,7 @@ class StackingEnsemble(BaseEnsemble):
         self,
         models: List[PipelineMeta],
         meta_model: PipelineMeta = Pipeline(
-            ["prediction.classifier.logistic_regression"]
+            ["imputer.default.ice", "prediction.classifier.logistic_regression"]
         )(output="numpy"),
         clf: Union[None, Stacking] = None,
         explainer_plugins: list = [],
@@ -323,6 +337,10 @@ class StackingEnsemble(BaseEnsemble):
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
 
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
+
         for model in self.models:
             model.change_output("numpy")
 
@@ -334,6 +352,12 @@ class StackingEnsemble(BaseEnsemble):
                 meta_clf=meta_model,
                 use_proba=True,
             )
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
         self.clf.fit(X, Y)
@@ -349,10 +373,13 @@ class StackingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -428,10 +455,20 @@ class AggregatingEnsemble(BaseEnsemble):
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
 
+        self._fitted = True
+        for model in models:
+            self._fitted = self._fitted or model.is_fitted()
+
         if clf:
             self.clf = clf
         else:
             self.clf = SimpleClassifierAggregator(models, method=method)
+
+    def is_fitted(self) -> bool:
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "AggregatingEnsemble":
         Y = pd.DataFrame(Y).values.ravel()
@@ -449,10 +486,13 @@ class AggregatingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-
+        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        if not self.is_fitted():
+            raise RuntimeError("Fit the model first")
+
         return pd.DataFrame(self.clf.predict_proba(X))
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
