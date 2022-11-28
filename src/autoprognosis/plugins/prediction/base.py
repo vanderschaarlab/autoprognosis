@@ -43,7 +43,7 @@ class PredictionPlugin(plugin.Plugin):
         raise NotImplementedError(f"Explainer not implemented for {self.name()}")
 
     def predict_proba(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
         X = self._transform_input(X)

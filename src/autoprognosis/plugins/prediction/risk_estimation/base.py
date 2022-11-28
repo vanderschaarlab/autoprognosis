@@ -82,7 +82,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         return self
 
     def explain(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
         X = self._transform_input(X)

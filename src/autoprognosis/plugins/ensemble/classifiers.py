@@ -102,7 +102,10 @@ class WeightedEnsemble(BaseEnsemble):
             self.weights.append(weights[idx])
 
     def is_fitted(self) -> bool:
-        return self._fitted
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsemble":
         def fit_model(k: int) -> Any:
@@ -132,7 +135,7 @@ class WeightedEnsemble(BaseEnsemble):
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
         preds_ = []
@@ -258,7 +261,6 @@ class WeightedEnsembleCV(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
-        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -352,7 +354,10 @@ class StackingEnsemble(BaseEnsemble):
             )
 
     def is_fitted(self) -> bool:
-        return self._fitted
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
         self.clf.fit(X, Y)
@@ -372,7 +377,7 @@ class StackingEnsemble(BaseEnsemble):
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
         return pd.DataFrame(self.clf.predict_proba(X))
@@ -460,7 +465,10 @@ class AggregatingEnsemble(BaseEnsemble):
             self.clf = SimpleClassifierAggregator(models, method=method)
 
     def is_fitted(self) -> bool:
-        return self._fitted
+        try:
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "AggregatingEnsemble":
         Y = pd.DataFrame(Y).values.ravel()
@@ -482,7 +490,7 @@ class AggregatingEnsemble(BaseEnsemble):
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
         return pd.DataFrame(self.clf.predict_proba(X))

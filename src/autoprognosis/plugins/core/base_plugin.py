@@ -126,7 +126,10 @@ class Plugin(metaclass=ABCMeta):
         return cls.type() + "." + cls.subtype() + "." + cls.name()
 
     def is_fitted(self) -> bool:
-        return self._fitted
+        try:
+            return self._fitted
+        except BaseException:
+            return True
 
     def fit_transform(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return pd.DataFrame(self.fit(X, *args, *kwargs).transform(X))
@@ -180,7 +183,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._transform_input(X)
         return self.output(self._transform(X))
@@ -190,7 +193,7 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        if not self._fitted:
+        if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._transform_input(X)
         return self.output(self._predict(X, *args, *kwargs))
