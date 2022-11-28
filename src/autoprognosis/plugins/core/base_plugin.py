@@ -125,6 +125,9 @@ class Plugin(metaclass=ABCMeta):
     def fqdn(cls) -> str:
         return cls.type() + "." + cls.subtype() + "." + cls.name()
 
+    def is_fitted(self) -> bool:
+        return self._fitted
+
     def fit_transform(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return pd.DataFrame(self.fit(X, *args, *kwargs).transform(X))
 

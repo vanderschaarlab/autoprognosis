@@ -17,6 +17,7 @@ from .generators import (
     _generate_getstate,
     _generate_hyperparameter_space_for_layer_impl,
     _generate_hyperparameter_space_impl,
+    _generate_is_fitted,
     _generate_load,
     _generate_load_template,
     _generate_name_impl,
@@ -37,6 +38,7 @@ class PipelineMeta(type):
         dct["__setstate__"] = _generate_setstate()
         dct["__getstate__"] = _generate_getstate()
         dct["fit"] = _generate_fit()
+        dct["is_fitted"] = _generate_is_fitted()
         dct["predict"] = _generate_predict()
         dct["predict_proba"] = _generate_predict_proba()
         dct["score"] = _generate_score()

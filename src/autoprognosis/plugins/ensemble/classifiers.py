@@ -90,13 +90,19 @@ class WeightedEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explanations_nepoch = explanations_nepoch
         self.explainers = explainers
-        self._fitted = False
+
+        self._fitted = True
+        for model in models:
+            self._fitted |= model.is_fitted()
 
         for idx, weight in enumerate(weights):
             if weight == 0:
                 continue
             self.models.append(models[idx])
             self.weights.append(weights[idx])
+
+    def is_fitted(self) -> bool:
+        return self._fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsemble":
         def fit_model(k: int) -> Any:
@@ -256,8 +262,6 @@ class WeightedEnsembleCV(BaseEnsemble):
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        if not self._fitted:
-            raise RuntimeError("Fit the model first")
         result, _ = self.predict_proba_with_uncertainity(X)
 
         return result
@@ -330,7 +334,10 @@ class StackingEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
-        self._fitted = False
+
+        self._fitted = True
+        for model in models:
+            self._fitted |= model.is_fitted()
 
         for model in self.models:
             model.change_output("numpy")
@@ -343,6 +350,9 @@ class StackingEnsemble(BaseEnsemble):
                 meta_clf=meta_model,
                 use_proba=True,
             )
+
+    def is_fitted(self) -> bool:
+        return self._fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
         self.clf.fit(X, Y)
@@ -439,12 +449,18 @@ class AggregatingEnsemble(BaseEnsemble):
         self.explainer_plugins = explainer_plugins
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
-        self._fitted = False
+
+        self._fitted = True
+        for model in models:
+            self._fitted |= model.is_fitted()
 
         if clf:
             self.clf = clf
         else:
             self.clf = SimpleClassifierAggregator(models, method=method)
+
+    def is_fitted(self) -> bool:
+        return self._fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "AggregatingEnsemble":
         Y = pd.DataFrame(Y).values.ravel()
