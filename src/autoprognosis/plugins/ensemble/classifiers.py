@@ -11,9 +11,12 @@ from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
 import autoprognosis.logger as log
+from autoprognosis.plugins import group
 from autoprognosis.plugins.ensemble.combos import SimpleClassifierAggregator, Stacking
 from autoprognosis.plugins.explainers import Explainers
+from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
+from autoprognosis.plugins.prediction.classifiers import Classifiers
 from autoprognosis.utils.parallel import cpu_count
 import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_evaluator
@@ -322,7 +325,12 @@ class StackingEnsemble(BaseEnsemble):
         self,
         models: List[PipelineMeta],
         meta_model: PipelineMeta = Pipeline(
-            ["imputer.default.ice", "prediction.classifier.logistic_regression"]
+            group(
+                [
+                    Imputers().get_type("ice").fqdn(),
+                    Classifiers().get_type("logistic_regression").fqdn(),
+                ]
+            )
         )(output="numpy"),
         clf: Union[None, Stacking] = None,
         explainer_plugins: list = [],
