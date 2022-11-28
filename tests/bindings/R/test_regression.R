@@ -1,5 +1,5 @@
 library(reticulate)
-py_install(".", pip = TRUE)
+py_install(".", pip = TRUE, ignore_installed = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
 warnings <- import("warnings", convert=FALSE)
