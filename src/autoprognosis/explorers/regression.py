@@ -12,6 +12,7 @@ from pydantic import validate_arguments
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_regressors_names,
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
@@ -61,6 +62,7 @@ class RegressionSeeker:
         top_k: int = 3,
         timeout: int = 360,
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         regressors: List[str] = default_regressors_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
@@ -84,6 +86,7 @@ class RegressionSeeker:
                 plugin,
                 calibration=[],
                 feature_scaling=feature_scaling,
+                feature_selection=feature_selection,
                 imputers=imputers,
                 classifier_category="regression",
             )

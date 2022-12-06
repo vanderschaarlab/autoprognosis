@@ -13,11 +13,13 @@ from autoprognosis.explorers.classifiers_combos import EnsembleSeeker
 from autoprognosis.explorers.core.defaults import (
     default_classifiers_names,
     default_feature_scaling_names,
+    default_feature_selection_names,
 )
 from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import DefaultHooks, Study
 from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
 from autoprognosis.utils.tester import evaluate_estimator
 
@@ -48,7 +50,9 @@ class ClassifierStudy(Study):
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugins to use in the pipeline for scaling.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         classifiers: list.
             Plugins to use in the pipeline for prediction.
         imputers: list.
@@ -73,6 +77,7 @@ class ClassifierStudy(Study):
         metric: str = "aucroc",
         study_name: Optional[str] = None,
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = ["ice"],
         workspace: Path = Path("tmp"),
@@ -80,8 +85,10 @@ class ClassifierStudy(Study):
         score_threshold: float = SCORE_THRESHOLD,
         group_id: Optional[str] = None,
         nan_placeholder: Any = None,
+        random_state: int = 0,
     ) -> None:
         super().__init__()
+        enable_reproducible_results(random_state)
 
         self.hooks = hooks
         dataset = pd.DataFrame(dataset)
@@ -125,6 +132,7 @@ class ClassifierStudy(Study):
             timeout=timeout,
             metric=metric,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             classifiers=classifiers,
             imputers=imputers,
             hooks=self.hooks,

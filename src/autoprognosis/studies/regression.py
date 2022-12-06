@@ -11,6 +11,7 @@ import pandas as pd
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_regressors_names,
 )
 from autoprognosis.explorers.regression_combos import RegressionEnsembleSeeker
@@ -48,7 +49,9 @@ class RegressionStudy(Study):
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugins to use in the pipeline for feature scaling. : scaler, minmax_scaler etc
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         regressors: list.
             Plugins to use in the pipeline for prediction.
         imputers: list.
@@ -74,6 +77,7 @@ class RegressionStudy(Study):
         metric: str = "r2",
         study_name: Optional[str] = None,
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         regressors: List[str] = default_regressors_names,
         imputers: List[str] = ["ice"],
         workspace: Path = Path("tmp"),
@@ -124,6 +128,7 @@ class RegressionStudy(Study):
             timeout=timeout,
             metric=metric,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             regressors=regressors,
             imputers=imputers,
             hooks=self.hooks,

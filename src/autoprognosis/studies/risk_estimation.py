@@ -11,6 +11,7 @@ import pandas as pd
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_risk_estimation_names,
 )
 from autoprognosis.explorers.risk_estimation_combos import (
@@ -52,7 +53,9 @@ class RiskEstimationStudy(Study):
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugins to use in the pipeline for feature scaling.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         risk_estimators: list.
             Plugins to use in the pipeline for risk estimation.
         imputers: list.
@@ -79,6 +82,7 @@ class RiskEstimationStudy(Study):
         risk_estimators: List[str] = default_risk_estimation_names,
         imputers: List[str] = ["ice"],
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
@@ -132,6 +136,7 @@ class RiskEstimationStudy(Study):
             timeout=timeout,
             estimators=risk_estimators,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             imputers=imputers,
             hooks=hooks,
         )

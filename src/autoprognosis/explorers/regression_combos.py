@@ -12,6 +12,7 @@ from sklearn.model_selection import GroupKFold, KFold
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_regressors_names,
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
@@ -51,6 +52,8 @@ class RegressionEnsembleSeeker:
             The metric to use for optimization. ["r2"]
         feature_scaling: list.
             Plugins to use in the pipeline for preprocessing.
+        feature_selection: list
+            Plugins to use in the pipeline for feature selection.
         regressors: list.
             Plugins to use in the pipeline for prediction.
         imputers: list.
@@ -70,6 +73,7 @@ class RegressionEnsembleSeeker:
         ensemble_size: int = 3,
         metric: str = "r2",
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         regressors: List[str] = default_regressors_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
@@ -92,6 +96,7 @@ class RegressionEnsembleSeeker:
             top_k=ensemble_size,
             timeout=timeout,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             regressors=regressors,
             hooks=hooks,
             imputers=imputers,
