@@ -5,21 +5,11 @@ from typing import Any, List, Optional
 # third party
 import numpy as np
 import pandas as pd
+import shap
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import shap
-
-        break
-    except ImportError:
-        depends = ["shap"]
-        install(depends)
 
 
 class KernelSHAPPlugin(ExplainerPlugin):
