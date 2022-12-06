@@ -1,6 +1,7 @@
 library(reticulate)
 library(survival)
 
+py_install(list("torch", "numpy"), pip = TRUE) # geomloss bug
 py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)
