@@ -256,3 +256,9 @@ class RiskEstimationStudy(Study):
                 break
 
         return best_model
+
+    def fit(self) -> Any:
+        model = self.run()
+        model.fit(self.X, self.T, self.Y)
+
+        return model

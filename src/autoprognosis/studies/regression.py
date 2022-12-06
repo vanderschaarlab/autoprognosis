@@ -221,3 +221,9 @@ class RegressionStudy(Study):
             self.save_progress(best_model)
 
         return best_model
+
+    def fit(self) -> Any:
+        model = self.run()
+        model.fit(self.X, self.Y)
+
+        return model
