@@ -8,6 +8,7 @@ import pandas as pd
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.pip import install
 
 for retry in range(2):
@@ -52,8 +53,9 @@ class KernelSHAPPlugin(ExplainerPlugin):
         eval_times: Optional[List] = None,  # for survival analysis
         random_state: int = 0,
     ) -> None:
-        if task_type not in ["classification", "risk_estimation"]:
+        if task_type not in ["classification", "regression", "risk_estimation"]:
             raise RuntimeError("invalid task type")
+        enable_reproducible_results(random_state)
 
         self.feature_names = (
             feature_names if feature_names is not None else pd.DataFrame(X).columns
@@ -71,6 +73,17 @@ class KernelSHAPPlugin(ExplainerPlugin):
             def model_fn(X: pd.DataFrame) -> pd.DataFrame:
                 X = pd.DataFrame(X, columns=self.feature_names)
                 return model.predict_proba(X)
+
+            self.explainer = shap.KernelExplainer(
+                model_fn, X_summary, feature_names=self.feature_names
+            )
+        elif task_type == "regression":
+            if not prefit:
+                model.fit(X, y)
+
+            def model_fn(X: pd.DataFrame) -> pd.DataFrame:
+                X = pd.DataFrame(X, columns=self.feature_names)
+                return model.predict(X)
 
             self.explainer = shap.KernelExplainer(
                 model_fn, X_summary, feature_names=self.feature_names
