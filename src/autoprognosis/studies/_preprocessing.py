@@ -21,10 +21,8 @@ def _fillna(df: pd.DataFrame, column: str) -> pd.Series:
     if is_numeric_dtype(df[column]):
         dummy = -9999
 
-    df[column] = df[column].astype(object)
-    df[column] = df[column].fillna(dummy)
-
-    return df[column].astype(object)
+    df[column] = df[column].astype(str)
+    return df[column].fillna(dummy)
 
 
 class EncodersCallbacks:
