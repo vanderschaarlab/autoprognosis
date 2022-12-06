@@ -31,6 +31,7 @@ jobs:
           r-version: ${{ matrix.r-version }}
       - name: Install depends
         run: |
+          pip install -r prereq.txt
           Rscript -e "install.packages(c('remotes','reticulate'))"
       - name: Test R
         run: |

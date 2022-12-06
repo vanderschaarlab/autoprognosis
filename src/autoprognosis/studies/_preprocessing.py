@@ -21,7 +21,10 @@ def _fillna(df: pd.DataFrame, column: str) -> pd.Series:
     if is_numeric_dtype(df[column]):
         dummy = -9999
 
-    return df[column].fillna(dummy)
+    df[column] = df[column].astype(object)
+    df[column] = df[column].fillna(dummy)
+
+    return df[column].astype(object)
 
 
 class EncodersCallbacks:
@@ -46,9 +49,7 @@ class EncodersCallbacks:
                     columns=enc.get_feature_names([col]),
                     index=output.index.copy(),
                 )
-
             else:
-
                 # label encoder
                 encoded = pd.DataFrame(
                     enc.transform(target),
