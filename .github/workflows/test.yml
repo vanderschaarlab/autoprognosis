@@ -25,7 +25,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install .[testing]
+        run: |
+            pip install -r prereq.txt
+            pip install .[testing]
       - name: pre-commit validation
         run: pre-commit run --files src/*
       - name: Security checks
