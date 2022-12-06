@@ -65,6 +65,8 @@ class ClassifierStudy(Study):
             The minimum metric score for a candidate.
         id: str.
             The id column in the dataset.
+        random_state: int
+            Random seed
     """
 
     def __init__(

@@ -21,6 +21,7 @@ from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import DefaultHooks, Study
 from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
@@ -66,6 +67,8 @@ class RiskEstimationStudy(Study):
             Where to store the output model.
         score_threshold: float.
             The minimum metric score for a candidate.
+        random_state: int
+            Random seed
     """
 
     def __init__(
@@ -87,8 +90,10 @@ class RiskEstimationStudy(Study):
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
+        random_state: int = 0,
     ) -> None:
         super().__init__()
+        enable_reproducible_results(random_state)
 
         # If only one imputation method is provided, we don't feed it into the optimizer
         imputation_method: Optional[str] = None

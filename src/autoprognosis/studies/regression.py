@@ -19,6 +19,7 @@ from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import DefaultHooks, Study
 from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
 from autoprognosis.utils.tester import evaluate_regression
 
@@ -64,7 +65,8 @@ class RegressionStudy(Study):
             The minimum metric score for a candidate.
         id: str.
             The id column in the dataset.
-
+        random_state: int
+            Random seed
     """
 
     def __init__(
@@ -85,8 +87,10 @@ class RegressionStudy(Study):
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
+        random_state: int = 0,
     ) -> None:
         super().__init__()
+        enable_reproducible_results(random_state)
 
         self.hooks = hooks
         dataset = pd.DataFrame(dataset)
