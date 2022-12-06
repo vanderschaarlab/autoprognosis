@@ -13,6 +13,7 @@ from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_classifiers_names,
     default_feature_scaling_names,
+    default_feature_selection_names,
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
 from autoprognosis.explorers.hooks import DefaultHooks
@@ -52,7 +53,9 @@ class EnsembleSeeker:
         metric: str.
             The metric to use for optimization. ["aucroc", "aucprc"]
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugins to use in the pipeline for preprocessing. "minmax_scaler", "scaler" etc.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection. ["nop", "variance_threshold", "pca", "fast_ica"]
         classifiers: list.
             Plugins to use in the pipeline for prediction.
         imputers: list.
@@ -72,6 +75,7 @@ class EnsembleSeeker:
         ensemble_size: int = 3,
         metric: str = "aucroc",
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
@@ -94,6 +98,7 @@ class EnsembleSeeker:
             top_k=ensemble_size,
             timeout=timeout,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             classifiers=classifiers,
             hooks=hooks,
             imputers=imputers,

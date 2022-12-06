@@ -13,6 +13,7 @@ from pydantic import validate_arguments
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_risk_estimation_names,
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
@@ -44,6 +45,8 @@ class RiskEstimatorSeeker:
             Number of candidates to return.
         feature_scaling: list.
             Plugins to use in the pipeline for preprocessing.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         estimators: list.
             Plugins to use in the pipeline for risk prediction.
         imputers: list.
@@ -63,6 +66,7 @@ class RiskEstimatorSeeker:
         top_k: int = 1,
         estimators: List[str] = default_risk_estimation_names,
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
@@ -84,7 +88,7 @@ class RiskEstimatorSeeker:
                 estimator,
                 classifier_category="risk_estimation",
                 calibration=[],
-                feature_selection=[],
+                feature_selection=feature_selection,
                 feature_scaling=feature_scaling,
                 imputers=imputers,
             )

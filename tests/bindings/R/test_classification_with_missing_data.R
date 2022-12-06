@@ -1,4 +1,10 @@
 library(reticulate)
+
+# geomloss bug
+py_install("numpy", pip = TRUE)
+py_install("torch", pip = TRUE)
+
+# autoprognosis install
 py_install(".", pip = TRUE)
 
 pathlib <- import("pathlib", convert=FALSE)

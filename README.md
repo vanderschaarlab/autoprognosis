@@ -80,6 +80,38 @@ study = ClassifierStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
+    workspace=workspace,
+)
+study.fit()
+
+# Predict the probabilities of each class using the model
+model.predict_proba(X)
+```
+
+
+__(Advanced)__ Customize the study for classifiers
+```python
+from pathlib import Path
+
+from sklearn.datasets import load_breast_cancer
+
+from autoprognosis.studies.classifiers import ClassifierStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_estimator
+
+
+X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
+
+df = X.copy()
+df["target"] = Y
+
+workspace = Path("workspace")
+study_name = "example"
+
+study = ClassifierStudy(
+    study_name=study_name,
+    dataset=df,  # pandas DataFrame
+    target="target",  # the label column in the dataset
     num_iter=100,  # how many trials to do for each candidate
     timeout=60,  # seconds
     classifiers=["logistic_regression", "lda", "qda"],
@@ -110,7 +142,55 @@ from autoprognosis.plugins.prediction.regression import Regression
 print(Regression().list_available())
 ```
 
-Regression study
+Create a Regression study
+```python
+# stdlib
+from pathlib import Path
+
+# third party
+import pandas as pd
+
+# autoprognosis absolute
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_regression
+from autoprognosis.studies.regression import RegressionStudy
+
+# Load dataset
+df = pd.read_csv(
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat",
+    header=None,
+    sep="\\t",
+)
+last_col = df.columns[-1]
+y = df[last_col]
+X = df.drop(columns=[last_col])
+
+df = X.copy()
+df["target"] = y
+
+# Search the model
+workspace = Path("workspace")
+workspace.mkdir(parents=True, exist_ok=True)
+
+study_name="regression_example"
+study = RegressionStudy(
+    study_name=study_name,
+    dataset=df,  # pandas DataFrame
+    target="target",  # the label column in the dataset
+    workspace=workspace,
+)
+study.fit()
+
+# Test the model
+output = workspace / study_name / "model.p"
+
+model = load_model_from_file(output)
+
+# Predict using the model
+model.predict(X)
+```
+
+__Advanced__ Customize the Regression study
 ```python
 # stdlib
 from pathlib import Path
@@ -178,8 +258,53 @@ List available survival analysis estimators
 from autoprognosis.plugins.prediction.risk_estimation import RiskEstimation
 print(RiskEstimation().list_available())
 ```
+Create a Survival analysis study
+```python
+# stdlib
+import os
+from pathlib import Path
 
-Survival analysis study
+# third party
+import numpy as np
+from pycox import datasets
+
+# autoprognosis absolute
+from autoprognosis.studies.risk_estimation import RiskEstimationStudy
+from autoprognosis.utils.serialization import load_model_from_file
+from autoprognosis.utils.tester import evaluate_survival_estimator
+
+df = datasets.gbsg.read_df()
+df = df[df["duration"] > 0]
+
+X = df.drop(columns = ["duration"])
+T = df["duration"]
+Y = df["event"]
+
+eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
+
+workspace = Path("workspace")
+study_name = "example_risks"
+
+study = RiskEstimationStudy(
+    study_name=study_name,
+    dataset=df,
+    target="event",
+    time_to_event="duration",
+    time_horizons=eval_time_horizons,
+    workspace=workspace,
+)
+
+study.fit()
+
+output = workspace / study_name / "model.p"
+
+model = load_model_from_file(output)
+
+# Predict using the model
+model.predict(X, eval_time_horizons)
+```
+
+__Advanced__ Customize the Survival analysis study
 ```python
 # stdlib
 import os

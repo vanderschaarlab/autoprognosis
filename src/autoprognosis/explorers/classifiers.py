@@ -13,6 +13,7 @@ from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_classifiers_names,
     default_feature_scaling_names,
+    default_feature_selection_names,
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
@@ -43,6 +44,8 @@ class ClassifierSeeker:
             Max wait time(in seconds) for the optimization output.
         feature_scaling: list.
             Plugins to use in the pipeline for preprocessing.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         classifiers: list.
             Plugins to use in the pipeline for prediction.
         imputers: list.
@@ -61,6 +64,7 @@ class ClassifierSeeker:
         top_k: int = 3,
         timeout: int = 360,
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         classifiers: List[str] = default_classifiers_names,
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
@@ -84,6 +88,7 @@ class ClassifierSeeker:
                 plugin,
                 calibration=[],
                 feature_scaling=feature_scaling,
+                feature_selection=feature_selection,
                 imputers=imputers,
             )
             for plugin in classifiers

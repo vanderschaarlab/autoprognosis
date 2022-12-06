@@ -10,6 +10,7 @@ import seaborn as sns
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
+from autoprognosis.utils.distributions import enable_reproducible_results
 
 
 class RiskEffectSizePlugin(ExplainerPlugin):
@@ -42,6 +43,7 @@ class RiskEffectSizePlugin(ExplainerPlugin):
         eval_times: Optional[List] = None,  # for survival analysis
         random_state: int = 0,
     ) -> None:
+        enable_reproducible_results(random_state)
         if task_type not in ["classification", "risk_estimation"]:
             raise RuntimeError("invalid task type")
 

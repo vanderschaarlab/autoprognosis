@@ -13,6 +13,7 @@ from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_risk_estimation_names,
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
@@ -47,6 +48,8 @@ class RiskEnsembleSeeker:
             Number of folds to use for evaluation
         feature_scaling: list.
             Plugins to use in the pipeline for preprocessing.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         estimators: list.
             Plugins to use in the pipeline for risk prediction.
         imputers: list.
@@ -68,6 +71,7 @@ class RiskEnsembleSeeker:
         ensemble_size: int = 2,
         imputers: List[str] = [],
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
     ) -> None:
@@ -92,6 +96,7 @@ class RiskEnsembleSeeker:
             estimators=estimators,
             hooks=hooks,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             imputers=imputers,
             optimizer_type=optimizer_type,
         )

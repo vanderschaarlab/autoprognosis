@@ -11,6 +11,7 @@ import pandas as pd
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
+    default_feature_selection_names,
     default_risk_estimation_names,
 )
 from autoprognosis.explorers.risk_estimation_combos import (
@@ -20,6 +21,7 @@ from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import DefaultHooks, Study
 from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
@@ -52,7 +54,9 @@ class RiskEstimationStudy(Study):
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugins to use in the pipeline for feature scaling.
+        feature_selection: list.
+            Plugins to use in the pipeline for feature selection.
         risk_estimators: list.
             Plugins to use in the pipeline for risk estimation.
         imputers: list.
@@ -63,6 +67,8 @@ class RiskEstimationStudy(Study):
             Where to store the output model.
         score_threshold: float.
             The minimum metric score for a candidate.
+        random_state: int
+            Random seed
     """
 
     def __init__(
@@ -79,12 +85,15 @@ class RiskEstimationStudy(Study):
         risk_estimators: List[str] = default_risk_estimation_names,
         imputers: List[str] = ["ice"],
         feature_scaling: List[str] = default_feature_scaling_names,
+        feature_selection: List[str] = default_feature_selection_names,
         hooks: Hooks = DefaultHooks(),
         score_threshold: float = SCORE_THRESHOLD,
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
+        random_state: int = 0,
     ) -> None:
         super().__init__()
+        enable_reproducible_results(random_state)
 
         # If only one imputation method is provided, we don't feed it into the optimizer
         imputation_method: Optional[str] = None
@@ -132,6 +141,7 @@ class RiskEstimationStudy(Study):
             timeout=timeout,
             estimators=risk_estimators,
             feature_scaling=feature_scaling,
+            feature_selection=feature_selection,
             imputers=imputers,
             hooks=hooks,
         )
@@ -256,3 +266,9 @@ class RiskEstimationStudy(Study):
                 break
 
         return best_model
+
+    def fit(self) -> Any:
+        model = self.run()
+        model.fit(self.X, self.T, self.Y)
+
+        return model
