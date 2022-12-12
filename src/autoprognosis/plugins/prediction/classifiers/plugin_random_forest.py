@@ -42,7 +42,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
         >>> plugin.fit_predict(X, y)
     """
 
-    criterions = ["gini", "entropy", "log_loss"]
+    criterions = ["gini", "entropy"]
     features = ["auto", "sqrt", "log2"]
 
     def __init__(
