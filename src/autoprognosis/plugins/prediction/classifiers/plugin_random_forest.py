@@ -11,6 +11,7 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -75,7 +76,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
             max_depth=4,
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
-            n_jobs=3,
+            n_jobs=n_learner_jobs(),
             random_state=random_state,
         )
         self.model = calibrated_model(model, calibration)

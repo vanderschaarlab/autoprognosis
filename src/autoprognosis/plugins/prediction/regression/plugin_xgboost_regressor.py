@@ -7,6 +7,7 @@ import pandas as pd
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -92,7 +93,7 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
             max_depth=max_depth,
             reg_lambda=reg_lambda,
             reg_alpha=reg_alpha,
-            nthread=3,
+            nthread=n_learner_jobs(),
             lr=lr,
             random_state=random_state,
             **kwargs,

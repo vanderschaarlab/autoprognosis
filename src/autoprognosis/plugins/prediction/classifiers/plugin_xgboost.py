@@ -12,6 +12,7 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -90,7 +91,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
         random_state: int = 0,
         calibration: int = 0,
         model: Any = None,
-        nthread: int = 3,
+        nthread: int = n_learner_jobs(),
         hyperparam_search_iterations: Optional[int] = None,
         **kwargs: Any
     ) -> None:

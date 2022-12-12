@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -32,7 +33,7 @@ class LinearRegressionPlugin(base.RegressionPlugin):
             return
 
         self.model = LinearRegression(
-            n_jobs=-1,
+            n_jobs=n_learner_jobs(),
         )
 
     @staticmethod

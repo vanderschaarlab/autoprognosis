@@ -20,9 +20,10 @@ from autoprognosis.explorers.core.selector import PipelineSelector
 from autoprognosis.explorers.hooks import DefaultHooks
 from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
+from autoprognosis.utils.parallel import n_opt_jobs
 from autoprognosis.utils.tester import evaluate_regression
 
-dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=1)
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
 
 class RegressionSeeker:

@@ -11,6 +11,7 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -56,7 +57,7 @@ class LogisticRegressionPlugin(base.ClassifierPlugin):
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
-        n_jobs: int = -1,
+        n_jobs: int = n_learner_jobs(),
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)

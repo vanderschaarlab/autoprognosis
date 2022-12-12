@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsRegressor
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -48,7 +49,7 @@ class KNeighborsRegressorPlugin(base.RegressionPlugin):
             weights=KNeighborsRegressorPlugin.weights[weights],
             leaf_size=leaf_size,
             p=p,
-            n_jobs=-1,
+            n_jobs=n_learner_jobs(),
         )
 
     @staticmethod

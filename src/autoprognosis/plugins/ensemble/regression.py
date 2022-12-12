@@ -12,10 +12,10 @@ import pandas as pd
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.pipeline import PipelineMeta
-from autoprognosis.utils.parallel import cpu_count
+from autoprognosis.utils.parallel import n_opt_jobs
 import autoprognosis.utils.serialization as serialization
 
-dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
 
 class BaseRegressionEnsemble(metaclass=ABCMeta):

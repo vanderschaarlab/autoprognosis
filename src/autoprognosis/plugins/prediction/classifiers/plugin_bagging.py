@@ -13,6 +13,7 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -93,7 +94,7 @@ class BaggingPlugin(base.ClassifierPlugin):
             max_samples=max_samples,
             base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[base_estimator]),
             random_state=random_state,
-            n_jobs=2,
+            n_jobs=n_learner_jobs(),
         )
         self.model = calibrated_model(model, calibration)
 

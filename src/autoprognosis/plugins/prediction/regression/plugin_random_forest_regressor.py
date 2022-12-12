@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -71,7 +72,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
             max_depth=4,
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
-            n_jobs=3,
+            n_jobs=n_learner_jobs(),
             random_state=random_state,
         )
 
