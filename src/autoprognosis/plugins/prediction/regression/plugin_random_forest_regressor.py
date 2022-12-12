@@ -39,7 +39,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y)
     """
 
-    criterions = ["mse", "mae"]
+    criterions = ["squared_error", "absolute_error", "friedman_mse", "poisson"]
     features = ["auto", "sqrt", "log2"]
 
     def __init__(
