@@ -20,7 +20,7 @@ from sklearn.experimental import enable_iterative_imputer  # noqa: F401,E402
 from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.utils import (
     check_array,
     check_random_state,
@@ -504,6 +504,17 @@ class Stacking(BaseAggregator):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
+        self.encoders = {}
+        for col in X.columns:
+            if X[col].dtype.name not in ["object", "category"]:
+                continue
+
+            encoder = LabelEncoder()
+            X[col] = encoder.fit_transform(X[col])
+
+            self._backup_encoders[col] = encoder
+        self.target_encoder = LabelEncoder().fit(y)
+        y = self.target_encoder.transform(y)
 
         # Validate inputs X and y
         X, y = check_X_y(X, y, force_all_finite=False)
@@ -576,6 +587,9 @@ class Stacking(BaseAggregator):
             The processed dataset of X.
         """
         check_is_fitted(self, ["fitted_"])
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
+
         X = check_array(X, force_all_finite=False)
         n_samples = X.shape[0]
 
@@ -691,7 +705,7 @@ class SimpleClassifierAggregator(BaseAggregator):
 
         # validate input parameters
         if method not in ["average", "maximization", "majority_vote", "median"]:
-            raise ValueError("{method} is not a valid parameter.".format(method=method))
+            raise ValueError(f"{method} is not a valid parameter.")
 
         self.method = method
         check_parameter(
@@ -718,6 +732,17 @@ class SimpleClassifierAggregator(BaseAggregator):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
+        self.encoders = {}
+        for col in X.columns:
+            if X[col].dtype.name not in ["object", "category"]:
+                continue
+
+            encoder = LabelEncoder()
+            X[col] = encoder.fit_transform(X[col])
+
+            self._backup_encoders[col] = encoder
+        self.target_encoder = LabelEncoder().fit(y)
+        y = self.target_encoder.transform(y)
 
         # Validate inputs X and y
         X, y = check_X_y(X, y, force_all_finite=False)
@@ -746,18 +771,21 @@ class SimpleClassifierAggregator(BaseAggregator):
         labels : numpy array of shape (n_samples,)
             Class labels for each data sample.
         """
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
+
         X = check_array(X, force_all_finite=False)
 
         all_scores = np.zeros([X.shape[0], self.n_base_estimators_])
 
         for i, clf in enumerate(self.base_estimators):
-            if clf.fitted_ is not True and self.pre_fitted == False:
+            if clf.fitted_ is not True and self.pre_fitted is False:
                 ValueError("Classifier should be fitted first!")
             else:
                 if hasattr(clf, "predict"):
                     all_scores[:, i] = clf.predict(X)
                 else:
-                    raise ValueError("{clf} does not have predict.".format(clf=clf))
+                    raise ValueError(f"{clf} does not have predict.")
 
         if self.method == "average":
             agg_score = average(all_scores, estimator_weights=self.weights)
@@ -784,20 +812,21 @@ class SimpleClassifierAggregator(BaseAggregator):
             The class probabilities of the input samples.
             Classes are ordered by lexicographic order.
         """
+        for col in self._backup_encoders:
+            X[col] = self._backup_encoders[col].transform(X[col])
+
         X = check_array(X, force_all_finite=False)
         all_scores = np.zeros([X.shape[0], self._classes, self.n_base_estimators_])
 
         for i in range(self.n_base_estimators_):
             clf = self.base_estimators[i]
-            if clf.fitted_ is not True and self.pre_fitted == False:
+            if clf.fitted_ is not True and self.pre_fitted is False:
                 ValueError("Classifier should be fitted first!")
             else:
                 if hasattr(clf, "predict_proba"):
                     all_scores[:, :, i] = clf.predict_proba(X)
                 else:
-                    raise ValueError(
-                        "{clf} does not have predict_proba.".format(clf=clf)
-                    )
+                    raise ValueError(f"{clf} does not have predict_proba.")
 
         if self.method == "average":
             return np.mean(all_scores * self.weights, axis=2)

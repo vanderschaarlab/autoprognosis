@@ -22,11 +22,19 @@ def load_model(buff: bytes) -> Any:
     return cloudpickle.loads(buff)
 
 
-def save_model_to_file(path: Union[str, Path], model: Any) -> Any:
+def save_to_file(path: Union[str, Path], model: Any) -> Any:
     with open(path, "wb") as f:
         return cloudpickle.dump(model, f)
 
 
-def load_model_from_file(path: Union[str, Path]) -> Any:
+def load_from_file(path: Union[str, Path]) -> Any:
     with open(path, "rb") as f:
         return cloudpickle.load(f)
+
+
+def save_model_to_file(path: Union[str, Path], model: Any) -> Any:
+    return save_to_file(path, model)
+
+
+def load_model_from_file(path: Union[str, Path]) -> Any:
+    return load_from_file(path)

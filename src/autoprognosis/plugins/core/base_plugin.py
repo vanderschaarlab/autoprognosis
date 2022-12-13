@@ -144,8 +144,10 @@ class Plugin(metaclass=ABCMeta):
             if X[col].dtype.name not in ["object", "category"]:
                 continue
 
-            encoder = LabelEncoder()
-            X[col] = encoder.fit_transform(X[col])
+            values = list(X[col].unique())
+            values.append("unknown")
+            encoder = LabelEncoder().fit(values)
+            X[col] = encoder.transform(X[col])
 
             self._backup_encoders[col] = encoder
         return X
@@ -157,7 +159,12 @@ class Plugin(metaclass=ABCMeta):
             self._backup_encoders = {}
 
         for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
+            inf_values = [
+                x if x in self._backup_encoders[col].classes_ else "unknown"
+                for x in X[col]
+            ]
+
+            X[col] = self._backup_encoders[col].transform(inf_values)
 
         return X
 

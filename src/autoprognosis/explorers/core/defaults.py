@@ -1,4 +1,5 @@
 # autoprognosis absolute
+from autoprognosis.plugins.Imputers import Imputers
 from autoprognosis.plugins.preprocessors import Preprocessors
 
 default_classifiers_names = [
@@ -19,12 +20,7 @@ default_regressors_names = [
     "catboost_regressor",
 ]
 
-default_imputers_names = [
-    "nop",
-    "median",
-    "mean",
-    "most_frequent",
-]
+default_imputers_names = Imputers().list_available()
 default_feature_scaling_names = Preprocessors(
     category="feature_scaling"
 ).list_available()
