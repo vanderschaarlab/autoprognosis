@@ -44,6 +44,18 @@ AutoPrognosis can use Redis as a backend to improve the performance and quality 
 
 For that, install the redis-server package following the steps described on the [official site](https://redis.io/topics/quickstart).
 
+## Environment variables
+The library can be configured from a set of environment variables.
+
+| Variable       | Description                                                     |
+|----------------|-----------------------------------------------------------------|
+| `N_OPT_JOBS`     | Number of cores to use for hyperparameter search. Default : all |
+| `N_LEARNER_JOBS` | Number of cores to use by inidividual learners. Default: 1      |
+| `REDIS_HOST`     | IP address for the Redis database. Default 127.0.0.1            |
+| `REDIS_PORT`     | Redis port. Default: 6379                                       |
+
+_Example_: `export N_OPT_JOBS = 2` to use 2 cores for hyperparam search.
+
 ## :boom: Sample Usage
 
 __Advanced Python tutorials__ can be found in the [Python tutorials section](#high_brightness-tutorials).
