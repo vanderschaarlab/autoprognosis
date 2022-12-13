@@ -17,10 +17,6 @@ from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
-from sklearn.experimental import (  # noqa: F401,E402, isort:skip
-    enable_hist_gradient_boosting,
-)
-
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
 
 
@@ -76,7 +72,7 @@ class BaggingPlugin(base.ClassifierPlugin):
         n_estimators: int = 10,
         max_samples: float = 1.0,
         max_features: float = 1.0,
-        base_estimator: int = 0,
+        estimator: int = 0,
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
@@ -92,7 +88,7 @@ class BaggingPlugin(base.ClassifierPlugin):
             n_estimators=n_estimators,
             max_features=max_features,
             max_samples=max_samples,
-            base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[base_estimator]),
+            estimator=copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
             random_state=random_state,
             n_jobs=n_learner_jobs(),
         )

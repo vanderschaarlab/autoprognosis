@@ -41,13 +41,11 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
     """
 
     criterions = ["squared_error", "absolute_error", "friedman_mse", "poisson"]
-    features = ["auto", "sqrt", "log2"]
 
     def __init__(
         self,
         n_estimators: int = 50,
         criterion: int = 0,
-        max_features: int = 0,
         min_samples_split: int = 2,
         bootstrap: bool = True,
         min_samples_leaf: int = 2,
@@ -67,7 +65,6 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         self.model = RandomForestRegressor(
             n_estimators=n_estimators,
             criterion=RandomForestRegressionPlugin.criterions[criterion],
-            max_features=RandomForestRegressionPlugin.features[max_features],
             min_samples_split=min_samples_split,
             max_depth=4,
             bootstrap=bootstrap,

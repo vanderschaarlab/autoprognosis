@@ -44,13 +44,11 @@ class RandomForestPlugin(base.ClassifierPlugin):
     """
 
     criterions = ["gini", "entropy"]
-    features = ["auto", "sqrt", "log2"]
 
     def __init__(
         self,
         n_estimators: int = 50,
         criterion: int = 0,
-        max_features: int = 0,
         min_samples_split: int = 2,
         bootstrap: bool = True,
         min_samples_leaf: int = 2,
@@ -71,7 +69,6 @@ class RandomForestPlugin(base.ClassifierPlugin):
         model = RandomForestClassifier(
             n_estimators=n_estimators,
             criterion=RandomForestPlugin.criterions[criterion],
-            max_features=RandomForestPlugin.features[max_features],
             min_samples_split=min_samples_split,
             max_depth=4,
             bootstrap=bootstrap,
@@ -89,9 +86,8 @@ class RandomForestPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("criterion", 0, len(RandomForestPlugin.criterions) - 1),
-            params.Integer("max_features", 0, len(RandomForestPlugin.features) - 1),
             params.Categorical("min_samples_split", [2, 5, 10]),
-            params.Categorical("bootstrap", [1, 0]),
+            params.Categorical("bootstrap", [True, False]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),
         ]
 

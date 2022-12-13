@@ -12,11 +12,6 @@ from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
 )
 import autoprognosis.utils.serialization as serialization
 
-from sklearn.experimental import (  # noqa: F401,E402, isort:skip
-    enable_hist_gradient_boosting,
-)
-
-
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
 
 
@@ -70,7 +65,7 @@ class HistGradientBoostingPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("max_depth", 5, 10),
-            params.Categorical("learning_rate", [10 ** -p for p in range(1, 5)]),
+            params.Categorical("learning_rate", [10**-p for p in range(1, 5)]),
         ]
 
     def _fit(
