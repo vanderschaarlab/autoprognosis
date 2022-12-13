@@ -88,7 +88,7 @@ class BaggingPlugin(base.ClassifierPlugin):
             n_estimators=n_estimators,
             max_features=max_features,
             max_samples=max_samples,
-            estimator=copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
+            base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
             random_state=random_state,
             n_jobs=n_learner_jobs(),
         )

@@ -19,7 +19,7 @@ def calibrated_model(model: Any, calibration: int = 1, **kwargs: Any) -> Any:
 
     if calibration != 0:
         return CalibratedClassifierCV(
-            estimator=model,
+            base_estimator=model,
             method=calibrations[calibration],
             n_jobs=n_learner_jobs(),
         )

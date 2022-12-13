@@ -81,7 +81,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
             return
 
         model = AdaBoostClassifier(
-            estimator=copy.deepcopy(AdaBoostPlugin.base_estimators[estimator]),
+            base_estimator=copy.deepcopy(AdaBoostPlugin.base_estimators[estimator]),
             n_estimators=n_estimators,
             learning_rate=learning_rate,
             random_state=random_state,
