@@ -15,11 +15,11 @@ def calibrated_model(model: Any, calibration: int = 1, **kwargs: Any) -> Any:
         raise RuntimeError("invalid calibration value")
 
     if not hasattr(model, "predict_proba"):
-        return CalibratedClassifierCV(estimator=model, n_jobs=n_learner_jobs())
+        return CalibratedClassifierCV(base_estimator=model, n_jobs=n_learner_jobs())
 
     if calibration != 0:
         return CalibratedClassifierCV(
-            estimator=model,
+            base_estimator=model,
             method=calibrations[calibration],
             n_jobs=n_learner_jobs(),
         )

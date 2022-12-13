@@ -17,12 +17,14 @@ class DataCompressionPlugin(base.PreprocessorPlugin):
     def __init__(
         self,
         threshold: float = 0,
+        vif_threshold: float = 10,
         drop_variance: bool = True,
         drop_multicollinearity: bool = True,
     ) -> None:
         super().__init__()
 
         self.var_threshold = VarianceThreshold(threshold=threshold)
+        self.vif_threshold = vif_threshold
         self.drop_variance = drop_variance
         self.drop_multicollinearity = drop_multicollinearity
 
@@ -66,7 +68,7 @@ class DataCompressionPlugin(base.PreprocessorPlugin):
             vif = self._compute_vif(X)
             vif_max = vif.loc[vif["VIF"].idxmax()]
             drop = []
-            while vif_max["VIF"] > 10:
+            while vif_max["VIF"] > self.vif_threshold:
                 drop.append(vif_max["features"])
                 eval_X = X.drop(columns=drop)
 
