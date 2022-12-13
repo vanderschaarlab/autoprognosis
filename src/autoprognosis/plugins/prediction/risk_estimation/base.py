@@ -54,7 +54,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         T = args[0]
         Y = args[1]
 
-        X = self._fit_input(X)
+        X = self._preprocess_training_data(X)
         self._fit(X, *args, **kwargs)
         self._fitted = True
 
@@ -85,7 +85,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
-        X = self._transform_input(X)
+        X = self._preprocess_inference_data(X)
         if self.explainer is None:
             raise ValueError("Interpretability is not enabled for this model")
 

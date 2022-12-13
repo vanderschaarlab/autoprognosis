@@ -33,7 +33,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         return "classifier"
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> plugin.Plugin:
-        X = self._fit_input(X)
+        X = self._preprocess_training_data(X)
 
         if len(args) == 0:
             raise RuntimeError("Training requires X, y")

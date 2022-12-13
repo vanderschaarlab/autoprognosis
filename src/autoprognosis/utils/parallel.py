@@ -10,9 +10,9 @@ def n_opt_jobs() -> int:
     try:
         n_jobs = int(os.environ["N_OPT_JOBS"])
     except BaseException as e:
-        log.info(f"failed to get N_JOBS {e}")
+        log.debug(f"failed to get N_JOBS {e}")
         n_jobs = multiprocessing.cpu_count()
-    log.info(f"Using {n_jobs} cores")
+    log.debug(f"Using {n_jobs} cores for HP")
     return n_jobs
 
 
@@ -20,7 +20,7 @@ def n_learner_jobs() -> int:
     try:
         n_jobs = int(os.environ["N_LEARNER_JOBS"])
     except BaseException as e:
-        log.info(f"failed to get N_LEARNER_JOBS {e}")
+        log.debug(f"failed to get N_LEARNER_JOBS {e}")
         n_jobs = 2
-    log.info(f"Using {n_jobs} cores")
+    log.debug(f"Using {n_jobs} cores for ")
     return n_jobs
