@@ -1,5 +1,5 @@
 # autoprognosis absolute
-from autoprognosis.plugins.Imputers import Imputers
+from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.preprocessors import Preprocessors
 
 default_classifiers_names = [
