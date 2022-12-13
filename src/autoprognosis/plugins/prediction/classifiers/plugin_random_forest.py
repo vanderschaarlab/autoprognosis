@@ -26,8 +26,6 @@ class RandomForestPlugin(base.ClassifierPlugin):
             The number of trees in the forest.
         criterion: str
             The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain.
-        max_features: str
-            The number of features to consider when looking for the best split.
         min_samples_split: int
             The minimum number of samples required to split an internal node.
         boostrap: bool
