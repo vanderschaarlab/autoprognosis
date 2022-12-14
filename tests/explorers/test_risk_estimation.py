@@ -3,9 +3,9 @@ from typing import Optional
 
 # third party
 from explorers_mocks import MockHook
+from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
-from pycox import datasets
 import pytest
 from sklearn.model_selection import train_test_split
 
@@ -42,12 +42,12 @@ def test_sanity(optimizer_type: str) -> None:
 
 @pytest.mark.parametrize("group_id", [False, True])
 def test_search(group_id: Optional[bool]) -> None:
-    df = datasets.gbsg.read_df()
-    df = df[df["duration"] > 0]
 
-    X = df.drop(["duration", "event"], axis=1)
-    Y = df["event"]
-    T = df["duration"]
+    rossi = load_rossi()
+
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
 
     group_ids = None
     if group_id:
@@ -60,10 +60,10 @@ def test_search(group_id: Optional[bool]) -> None:
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
-        num_iter=10,
-        CV=2,
+        num_iter=20,
+        CV=5,
         top_k=3,
-        timeout=100,
+        timeout=10,
         estimators=estimators,
     )
 
@@ -98,12 +98,11 @@ def test_eval_surv_estimator() -> None:
     predictions = Predictions(category="risk_estimation")
     estimator = predictions.get("cox_ph")
 
-    df = datasets.gbsg.read_df()
-    df = df[df["duration"] > 0]
+    rossi = load_rossi()
 
-    X = df.drop(["duration", "event"], axis=1)
-    Y = df["event"]
-    T = df["duration"]
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
@@ -115,13 +114,11 @@ def test_eval_surv_estimator() -> None:
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
 def test_hooks(optimizer_type: str) -> None:
     hooks = MockHook()
+    rossi = load_rossi()
 
-    df = datasets.gbsg.read_df()
-    df = df[df["duration"] > 0]
-
-    X = df.drop(["duration", "event"], axis=1)
-    Y = df["event"]
-    T = df["duration"]
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),

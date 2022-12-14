@@ -3,9 +3,9 @@ from typing import Optional
 
 # third party
 from explorers_mocks import MockHook
+from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
-from pycox import datasets
 import pytest
 from sklearn.model_selection import train_test_split
 
@@ -40,12 +40,11 @@ def test_sanity(optimizer_type: str) -> None:
 
 @pytest.mark.parametrize("group_id", [False, True])
 def test_search(group_id: Optional[bool]) -> None:
-    df = datasets.gbsg.read_df()
-    df = df[df["duration"] > 0]
+    rossi = load_rossi()
 
-    X = df.drop(["duration", "event"], axis=1)
-    Y = df["event"]
-    T = df["duration"]
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
 
     group_ids = None
     if group_id:
@@ -61,8 +60,8 @@ def test_search(group_id: Optional[bool]) -> None:
         num_ensemble_iter=3,
         CV=3,
         ensemble_size=3,
-        timeout=100,
-        estimators=["lognormal_aft", "loglogistic_aft"],
+        timeout=10,
+        estimators=["lognormal_aft", "cox_ph"],
     )
 
     ensemble = sq.search(X, T, Y, group_ids=group_ids)
@@ -123,12 +122,11 @@ def test_search(group_id: Optional[bool]) -> None:
 def test_hooks(optimizer_type: str) -> None:
     hooks = MockHook()
 
-    df = datasets.gbsg.read_df()
-    df = df[df["duration"] > 0]
+    rossi = load_rossi()
 
-    X = df.drop(["duration", "event"], axis=1)
-    Y = df["event"]
-    T = df["duration"]
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
