@@ -49,8 +49,8 @@ The library can be configured from a set of environment variables.
 
 | Variable       | Description                                                     |
 |----------------|-----------------------------------------------------------------|
-| `N_OPT_JOBS`     | Number of cores to use for hyperparameter search. Default : all |
-| `N_LEARNER_JOBS` | Number of cores to use by inidividual learners. Default: 1      |
+| `N_OPT_JOBS`     | Number of cores to use for hyperparameter search. Default : 1 |
+| `N_LEARNER_JOBS` | Number of cores to use by inidividual learners. Default: all cpus      |
 | `REDIS_HOST`     | IP address for the Redis database. Default 127.0.0.1            |
 | `REDIS_PORT`     | Redis port. Default: 6379                                       |
 
@@ -379,7 +379,7 @@ model.predict(X, eval_time_horizons)
 ## :high_brightness: Tutorials
 
 ### Plugins
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb) 
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)[ Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)[ Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)[ Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
@@ -408,14 +408,14 @@ imputer = Imputers().get(<NAME>)
 ```
 
 | Name | Description |
-|--- | --- | 
-|**hyperimpute**|Iterative imputer using both regression and classification methods based on linear models, trees, XGBoost, CatBoost and neural nets| 
-|**mean**|Replace the missing values using the mean along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)| 
+|--- | --- |
+|**hyperimpute**|Iterative imputer using both regression and classification methods based on linear models, trees, XGBoost, CatBoost and neural nets|
+|**mean**|Replace the missing values using the mean along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)|
 |**median**|Replace the missing values using the median along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html) |
 |**most_frequent**|Replace the missing values using the most frequent value along each column with [`SimpleImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html)|
-|**missforest**|Iterative imputation method based on Random Forests using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`ExtraTreesRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesRegressor.html)| 
-|**ice**| Iterative imputation method based on regularized linear regression using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
-|**mice**| Multiple imputations based on ICE using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)| 
+|**missforest**|Iterative imputation method based on Random Forests using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`ExtraTreesRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesRegressor.html)|
+|**ice**| Iterative imputation method based on regularized linear regression using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)|
+|**mice**| Multiple imputations based on ICE using [`IterativeImputer`](https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html#sklearn.impute.IterativeImputer) and [`BayesianRidge`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html)|
 |**softimpute**|  [`Low-rank matrix approximation via nuclear-norm regularization`](https://jmlr.org/papers/volume16/hastie15a/hastie15a.pdf)| [`plugin_softimpute.py`](src/hyperimpute/plugins/imputers/plugin_softimpute.py)|
 |**EM**|Iterative procedure which uses other variables to impute a value (Expectation), then checks whether that is the value most likely (Maximization) - [`EM imputation algorithm`](https://joon3216.github.io/research_materials/2019/em_imputation.html)|
 |**gain**|[`GAIN: Missing Data Imputation using Generative Adversarial Nets`](https://arxiv.org/abs/1806.02920)|
@@ -428,7 +428,7 @@ from autoprognosis.plugins.preprocessors import Preprocessors
 preprocessor = Preprocessors().get(<NAME>)
 ```
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **maxabs_scaler**  | Scale each feature by its maximum absolute value. [`MaxAbsScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MaxAbsScaler.html)|
 | **scaler** |Standardize features by removing the mean and scaling to unit variance. - [`StandardScaler`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html#sklearn.preprocessing.StandardScaler)|
 |**feature_normalizer** | Normalize samples individually to unit norm. [`Normalizer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Normalizer.html#sklearn.preprocessing.Normalizer)|
@@ -445,7 +445,7 @@ classifier = Classifiers().get(<NAME>)
 ```
 
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **neural_nets**  | PyTorch based neural net classifier.|
 | **logistic_regression**  | [`LogisticRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)|
 | **catboost**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
@@ -462,7 +462,7 @@ predictor = RiskEstimation().get(<NAME>)
 ```
 
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **survival_xgboost**  | [`XGBoost Survival Embeddings`](https://github.com/loft-br/xgboost-survival-embeddings)|
 | **loglogistic_aft**  | [` Log-Logistic AFT model`](https://lifelines.readthedocs.io/en/latest/fitters/regression/LogLogisticAFTFitter.html)|
 | **deephit**  | [`DeepHit: A Deep Learning Approach to Survival Analysis with Competing Risks`](https://github.com/chl8856/DeepHit)|
@@ -479,15 +479,15 @@ regressor = Regression().get(<NAME>)
 ```
 
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **tabnet_regressor**  |[`TabNet : Attentive Interpretable Tabular Learning`](https://github.com/dreamquark-ai/tabnet)|
 | **catboost_regressor**  |Gradient boosting on decision trees - [`CatBoost`](https://catboost.ai/)|
 | **random_forest_regressor**  |[`RandomForestRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)|
 | **xgboost_regressor**  |[`XGBoostClassifier`](https://xgboost.readthedocs.io/en/stable/)|
 | **neural_nets_regression**  |PyTorch-based neural net regressor.|
 | **linear_regression**  |[`LinearRegression`](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)|
-    
-    
+
+
 ### Explainers
 ```python
 from autoprognosis.plugins.explainers import Explainers
@@ -495,7 +495,7 @@ from autoprognosis.plugins.explainers import Explainers
 explainer = Explainers().get(<NAME>)
 ```
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **risk_effect_size**  | Feature importance using Cohen's distance between probabilities|
 | **lime**  |[`Lime: Explaining the predictions of any machine learning classifier`](https://github.com/marcotcr/lime)|
 | **symbolic_pursuit**  |[`Symbolic Pursuit`](Learning outside the black-box: at the pursuit of interpretable models)|
@@ -511,7 +511,7 @@ from autoprognosis.plugins.uncertainty import UncertaintyQuantification
 model = UncertaintyQuantification().get(<NAME>)
 ```
 | Name | Description |
-|--- | --- | 
+|--- | --- |
 | **cohort_explainer**  ||
 | **conformal_prediction**  ||
 | **jackknife**  ||
@@ -544,6 +544,3 @@ If you use this code, please cite the associated paper:
 1. [AutoPrognosis: Automated Clinical Prognostic Modeling via Bayesian Optimization with Structured Kernel Learning](https://arxiv.org/abs/1802.07207)
 2. [Prognostication and Risk Factors for Cystic Fibrosis via Automated Machine Learning](https://www.nature.com/articles/s41598-018-29523-2)
 3. [Cardiovascular Disease Risk Prediction using Automated Machine Learning: A Prospective Study of 423,604 UK Biobank Participants](https://www.ncbi.nlm.nih.gov/pubmed/31091238)
-
-
-
