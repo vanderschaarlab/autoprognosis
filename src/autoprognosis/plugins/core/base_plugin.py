@@ -147,7 +147,7 @@ class Plugin(metaclass=ABCMeta):
             values = list(X[col].unique())
             values.append("unknown")
             encoder = LabelEncoder().fit(values)
-            X[col][X[col].notna()] = encoder.transform(X[col][X[col].notna()])
+            X.loc[X[col].notna(), col] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
         return X
@@ -165,7 +165,9 @@ class Plugin(metaclass=ABCMeta):
                 for x in eval_data
             ]
 
-            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
+            X.loc[X[col].notna(), col] = self._backup_encoders[col].transform(
+                inf_values
+            )
 
         return X
 

@@ -513,7 +513,7 @@ class Stacking(BaseAggregator):
             values = list(X[col].unique())
             values.append("unknown")
             encoder = LabelEncoder().fit(values)
-            X[col][X[col].notna()] = encoder.transform(X[col][X[col].notna()])
+            X.loc[X[col].notna(), col] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
 
@@ -598,7 +598,9 @@ class Stacking(BaseAggregator):
                 for x in eval_data
             ]
 
-            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
+            X.loc[X[col].notna(), col] = self._backup_encoders[col].transform(
+                inf_values
+            )
 
         X = check_array(X, force_all_finite=False)
         n_samples = X.shape[0]
@@ -751,7 +753,7 @@ class SimpleClassifierAggregator(BaseAggregator):
             values = list(X[col].unique())
             values.append("unknown")
             encoder = LabelEncoder().fit(values)
-            X[col][X[col].notna()] = encoder.transform(X[col][X[col].notna()])
+            X.loc[X[col].notna(), col] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
 
@@ -792,7 +794,9 @@ class SimpleClassifierAggregator(BaseAggregator):
                 for x in eval_data
             ]
 
-            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
+            X.loc[X[col].notna(), col] = self._backup_encoders[col].transform(
+                inf_values
+            )
 
         X = check_array(X, force_all_finite=False)
 
@@ -839,7 +843,9 @@ class SimpleClassifierAggregator(BaseAggregator):
                 for x in eval_data
             ]
 
-            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
+            X.loc[X[col].notna(), col] = self._backup_encoders[col].transform(
+                inf_values
+            )
 
         X = check_array(X, force_all_finite=False)
         all_scores = np.zeros([X.shape[0], self._classes, self.n_base_estimators_])
