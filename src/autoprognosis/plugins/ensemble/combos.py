@@ -504,7 +504,7 @@ class Stacking(BaseAggregator):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
-        self.encoders = {}
+        self._backup_encoders = {}
         for col in X.columns:
             if X[col].dtype.name not in ["object", "category"]:
                 continue
@@ -732,7 +732,7 @@ class SimpleClassifierAggregator(BaseAggregator):
         y : numpy array of shape (n_samples,), optional (default=None)
             The ground truth of the input samples (labels).
         """
-        self.encoders = {}
+        self._backup_encoders = {}
         for col in X.columns:
             if X[col].dtype.name not in ["object", "category"]:
                 continue
