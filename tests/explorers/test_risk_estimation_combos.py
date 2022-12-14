@@ -3,9 +3,9 @@ from typing import Optional
 
 # third party
 from explorers_mocks import MockHook
-from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
+from pycox import datasets
 import pytest
 from sklearn.model_selection import train_test_split
 
@@ -40,11 +40,12 @@ def test_sanity(optimizer_type: str) -> None:
 
 @pytest.mark.parametrize("group_id", [False, True])
 def test_search(group_id: Optional[bool]) -> None:
-    rossi = load_rossi()
+    df = datasets.gbsg.read_df()
+    df = df[df["duration"] > 0]
 
-    X = rossi.drop(["week", "arrest"], axis=1)
-    Y = rossi["arrest"]
-    T = rossi["week"]
+    X = df.drop(["duration", "event"], axis=1)
+    Y = df["event"]
+    T = df["duration"]
 
     group_ids = None
     if group_id:
@@ -122,11 +123,12 @@ def test_search(group_id: Optional[bool]) -> None:
 def test_hooks(optimizer_type: str) -> None:
     hooks = MockHook()
 
-    rossi = load_rossi()
+    df = datasets.gbsg.read_df()
+    df = df[df["duration"] > 0]
 
-    X = rossi.drop(["week", "arrest"], axis=1)
-    Y = rossi["arrest"]
-    T = rossi["week"]
+    X = df.drop(["duration", "event"], axis=1)
+    Y = df["event"]
+    T = df["duration"]
 
     eval_time_horizons = [
         int(T[Y.iloc[:] == 1].quantile(0.50)),
