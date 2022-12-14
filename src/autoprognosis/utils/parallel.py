@@ -11,7 +11,7 @@ def n_opt_jobs() -> int:
         n_jobs = int(os.environ["N_OPT_JOBS"])
     except BaseException as e:
         log.debug(f"failed to get N_JOBS {e}")
-        n_jobs = 1
+        n_jobs = 2
     log.debug(f"Using {n_jobs} cores for HP")
     return n_jobs
 
