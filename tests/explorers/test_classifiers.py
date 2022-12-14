@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Optional
 
 # third party
@@ -54,6 +55,7 @@ def test_fails() -> None:
         ClassifierSeeker(study_name="test_classifiers", metric="invalid")
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 @pytest.mark.parametrize(
     "optimizer_type,group_id",
     [("bayesian", False), ("bayesian", True), ("hyperband", False)],

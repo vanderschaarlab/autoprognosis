@@ -13,7 +13,7 @@ def test_n_opt_jobs() -> None:
 
     del os.environ["N_OPT_JOBS"]
 
-    assert n_opt_jobs() == multiprocessing.cpu_count()
+    assert n_opt_jobs() == 2
 
 
 def test_n_learner_jobs() -> None:
@@ -23,4 +23,4 @@ def test_n_learner_jobs() -> None:
 
     del os.environ["N_LEARNER_JOBS"]
 
-    assert n_learner_jobs() == 2
+    assert n_learner_jobs() == multiprocessing.cpu_count()

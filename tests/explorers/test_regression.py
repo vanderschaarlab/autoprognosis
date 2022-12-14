@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Optional
 
 # third party
@@ -53,6 +54,7 @@ def test_fails() -> None:
         RegressionSeeker(study_name="test_regressors", metric="invalid")
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 @pytest.mark.parametrize("group_id", [False, True])
 def test_search(group_id: Optional[bool]) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)

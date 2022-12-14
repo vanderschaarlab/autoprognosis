@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Optional
 
 # third party
@@ -38,6 +39,7 @@ def test_sanity(optimizer_type: str) -> None:
     assert sq.timeout == 10
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 @pytest.mark.parametrize("group_id", [False])
 def test_search(group_id: Optional[bool]) -> None:
     rossi = load_rossi()

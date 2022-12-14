@@ -1,6 +1,7 @@
 # stdlib
 import os
 from pathlib import Path
+import sys
 
 # third party
 from helpers import MockHook
@@ -15,6 +16,7 @@ from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_regression
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 def test_regression_search() -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
 
