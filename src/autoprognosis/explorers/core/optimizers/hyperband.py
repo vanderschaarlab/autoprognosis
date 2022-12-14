@@ -97,7 +97,7 @@ class HyperbandOptimizer:
         for s in reversed(range(self.s_max + 1)):
 
             # initial number of configurations
-            n = int(math.ceil(self.B / self.max_iter / (s + 1) * self.eta ** s))
+            n = int(math.ceil(self.B / self.max_iter / (s + 1) * self.eta**s))
 
             # initial number of iterations per config
             r = self.max_iter * self.eta ** (-s)
@@ -206,4 +206,6 @@ class NpEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        if isinstance(obj, np.bool):
+            return int(obj)
         return super(NpEncoder, self).default(obj)
