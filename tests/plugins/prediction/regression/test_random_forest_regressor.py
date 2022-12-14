@@ -59,7 +59,7 @@ def test_random_forest_plugin_type(test_plugin: PredictionPlugin) -> None:
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
 def test_random_forest_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
-    assert len(test_plugin.hyperparameter_space()) == 4
+    assert len(test_plugin.hyperparameter_space()) == 3
 
 
 @pytest.mark.parametrize(
