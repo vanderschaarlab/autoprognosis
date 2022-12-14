@@ -393,6 +393,8 @@ model.predict(X, eval_time_horizons)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DtZCqebhaYdKB3ci5dr3hT0KvZPaTUOi?usp=sharing)[ Survival analysis tasks](tutorials/automl/tutorial_02_survival_analysis_study.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)[ Survival analysis tasks with imputation](tutorials/automl/tutorial_03_automl_survival_analysis_with_imputation.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1HLhWI-tRZn4e9ijQ6iEIuppuDszgWkCC?usp=sharing)[ Regression tasks](tutorials/automl/tutorial_04_regression.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1eHw1l79_m3vq9y-0WpllCMBSD7DQajWO?usp=sharing)[ Classifiers with explainers](tutorials/automl/tutorial_05_classification_with_explainers.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dm3cRmo-jD6x7V5WePciDpcauqtUt6lS?usp=sharing)[ Multiple imputation example](tutorials/automl/tutorial_06_automl_multiple_imputation_example.ipynb)
 
 ### Building a demonstrator
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)
