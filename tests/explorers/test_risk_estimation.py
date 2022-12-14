@@ -63,7 +63,7 @@ def test_search(group_id: Optional[bool]) -> None:
         num_iter=10,
         CV=2,
         top_k=3,
-        timeout=10,
+        timeout=100,
         estimators=estimators,
     )
 

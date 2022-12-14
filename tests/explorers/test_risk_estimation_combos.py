@@ -61,7 +61,7 @@ def test_search(group_id: Optional[bool]) -> None:
         num_ensemble_iter=3,
         CV=3,
         ensemble_size=3,
-        timeout=10,
+        timeout=100,
         estimators=["lognormal_aft", "loglogistic_aft"],
     )
 
