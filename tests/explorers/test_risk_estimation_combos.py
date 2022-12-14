@@ -38,7 +38,7 @@ def test_sanity(optimizer_type: str) -> None:
     assert sq.timeout == 10
 
 
-@pytest.mark.parametrize("group_id", [False, True])
+@pytest.mark.parametrize("group_id", [False])
 def test_search(group_id: Optional[bool]) -> None:
     rossi = load_rossi()
 
