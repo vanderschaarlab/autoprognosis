@@ -60,8 +60,8 @@ def test_search(group_id: Optional[bool]) -> None:
     sq = RiskEstimatorSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
-        num_iter=20,
-        CV=5,
+        num_iter=10,
+        CV=2,
         top_k=3,
         timeout=10,
         estimators=estimators,
