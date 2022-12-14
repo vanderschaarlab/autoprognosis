@@ -3,7 +3,9 @@ import copy
 from typing import Any, List
 
 # third party
+from packaging import version
 import pandas as pd
+import sklearn
 from sklearn.ensemble import BaggingClassifier
 from sklearn.linear_model import LogisticRegression
 
@@ -84,13 +86,24 @@ class BaggingPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
+        if version.parse(sklearn.__version__) >= version.parse("1.2"):
+            est_kwargs = {
+                "estimator": copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
+            }
+        else:
+            est_kwargs = {
+                "base_estimator": copy.deepcopy(
+                    BaggingPlugin.base_estimators[estimator]
+                ),
+            }
+
         model = BaggingClassifier(
             n_estimators=n_estimators,
             max_features=max_features,
             max_samples=max_samples,
-            base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
             random_state=random_state,
             n_jobs=n_learner_jobs(),
+            **est_kwargs,
         )
         self.model = calibrated_model(model, calibration)
 

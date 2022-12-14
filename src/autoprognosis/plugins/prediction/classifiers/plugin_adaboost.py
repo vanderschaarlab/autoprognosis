@@ -3,7 +3,9 @@ import copy
 from typing import Any, List
 
 # third party
+from packaging import version
 import pandas as pd
+import sklearn
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
 
@@ -80,8 +82,18 @@ class AdaBoostPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
+        if version.parse(sklearn.__version__) >= version.parse("1.2"):
+            est_kargs = {
+                "estimator": copy.deepcopy(AdaBoostPlugin.base_estimators[estimator]),
+            }
+        else:
+            est_kargs = {
+                "base_estimator": copy.deepcopy(
+                    AdaBoostPlugin.base_estimators[estimator]
+                ),
+            }
         model = AdaBoostClassifier(
-            base_estimator=copy.deepcopy(AdaBoostPlugin.base_estimators[estimator]),
+            **est_kargs,
             n_estimators=n_estimators,
             learning_rate=learning_rate,
             random_state=random_state,
