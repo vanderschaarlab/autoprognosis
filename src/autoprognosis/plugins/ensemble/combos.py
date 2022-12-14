@@ -505,14 +505,18 @@ class Stacking(BaseAggregator):
             The ground truth of the input samples (labels).
         """
         self._backup_encoders = {}
+
         for col in X.columns:
             if X[col].dtype.name not in ["object", "category"]:
                 continue
 
-            encoder = LabelEncoder()
-            X[col] = encoder.fit_transform(X[col])
+            values = list(X[col].unique())
+            values.append("unknown")
+            encoder = LabelEncoder().fit(values)
+            X[col][X[col].notna()] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
+
         self.target_encoder = LabelEncoder().fit(y)
         y = self.target_encoder.transform(y)
 
@@ -588,7 +592,13 @@ class Stacking(BaseAggregator):
         """
         check_is_fitted(self, ["fitted_"])
         for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
+            eval_data = X[col][X[col].notna()]
+            inf_values = [
+                x if x in self._backup_encoders[col].classes_ else "unknown"
+                for x in eval_data
+            ]
+
+            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
 
         X = check_array(X, force_all_finite=False)
         n_samples = X.shape[0]
@@ -733,14 +743,18 @@ class SimpleClassifierAggregator(BaseAggregator):
             The ground truth of the input samples (labels).
         """
         self._backup_encoders = {}
+
         for col in X.columns:
             if X[col].dtype.name not in ["object", "category"]:
                 continue
 
-            encoder = LabelEncoder()
-            X[col] = encoder.fit_transform(X[col])
+            values = list(X[col].unique())
+            values.append("unknown")
+            encoder = LabelEncoder().fit(values)
+            X[col][X[col].notna()] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
+
         self.target_encoder = LabelEncoder().fit(y)
         y = self.target_encoder.transform(y)
 
@@ -772,7 +786,13 @@ class SimpleClassifierAggregator(BaseAggregator):
             Class labels for each data sample.
         """
         for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
+            eval_data = X[col][X[col].notna()]
+            inf_values = [
+                x if x in self._backup_encoders[col].classes_ else "unknown"
+                for x in eval_data
+            ]
+
+            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
 
         X = check_array(X, force_all_finite=False)
 
@@ -813,7 +833,13 @@ class SimpleClassifierAggregator(BaseAggregator):
             Classes are ordered by lexicographic order.
         """
         for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
+            eval_data = X[col][X[col].notna()]
+            inf_values = [
+                x if x in self._backup_encoders[col].classes_ else "unknown"
+                for x in eval_data
+            ]
+
+            X[col][X[col].notna()] = self._backup_encoders[col].transform(inf_values)
 
         X = check_array(X, force_all_finite=False)
         all_scores = np.zeros([X.shape[0], self._classes, self.n_base_estimators_])

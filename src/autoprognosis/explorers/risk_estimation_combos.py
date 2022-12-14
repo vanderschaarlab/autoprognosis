@@ -26,7 +26,7 @@ from autoprognosis.utils.tester import evaluate_survival_estimator
 # autoprognosis relative
 from .risk_estimation import RiskEstimatorSeeker
 
-EPS = 10 ** -8
+EPS = 10**-8
 
 
 class RiskEnsembleSeeker:
@@ -164,9 +164,20 @@ class RiskEnsembleSeeker:
             for fold in pretrained_models:
                 cv_folds.append(RiskEnsemble(fold, [weights], [time_horizon]))
 
-            metrics = evaluate_survival_estimator(
-                cv_folds, X, T, Y, [time_horizon], pretrained=True, group_ids=group_ids
-            )
+            try:
+                metrics = evaluate_survival_estimator(
+                    cv_folds,
+                    X,
+                    T,
+                    Y,
+                    [time_horizon],
+                    pretrained=True,
+                    group_ids=group_ids,
+                )
+            except BaseException as e:
+                log.error(f"evaluate_survival_ensemble failed: {e}")
+
+                return 0
 
             self.hooks.heartbeat(
                 topic="risk_estimation",

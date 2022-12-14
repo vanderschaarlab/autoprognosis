@@ -106,7 +106,6 @@ class RiskEstimationStudy(Study):
 
             if len(imputers) == 1:
                 imputation_method = imputers[0]
-                imputers = []
         else:
             imputers = []
 

@@ -4,6 +4,7 @@ from typing import Any, List
 # third party
 import pandas as pd
 from sklearn.feature_selection import VarianceThreshold
+from sklearn.preprocessing import MinMaxScaler
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 # autoprognosis absolute
@@ -25,6 +26,7 @@ class DataCompressionPlugin(base.PreprocessorPlugin):
 
         self.var_threshold = VarianceThreshold(threshold=threshold)
         self.vif_threshold = vif_threshold
+        self.scaler = MinMaxScaler()
         self.drop_variance = drop_variance
         self.drop_multicollinearity = drop_multicollinearity
 
@@ -55,6 +57,9 @@ class DataCompressionPlugin(base.PreprocessorPlugin):
     ) -> "DataCompressionPlugin":
         X = X.copy()
         self.columns = X.columns
+
+        X = pd.DataFrame(self.scaler.fit_transform(X), columns=X.columns, index=X.index)
+
         self.drop: List[str] = []
         orig_index = X.index
 
@@ -84,6 +89,8 @@ class DataCompressionPlugin(base.PreprocessorPlugin):
 
     def _transform(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         X = X.copy()
+        X = pd.DataFrame(self.scaler.transform(X), columns=self.columns, index=X.index)
+
         if self.drop_variance:
             orig_index = X.index
             X = self.var_threshold.transform(X)
