@@ -26,6 +26,11 @@ class HistGradientBoostingPlugin(base.ClassifierPlugin):
             Learning rate shrinks the contribution of each tree by learning_rate. There is a trade-off between learning_rate and n_estimators.
         max_depth: int
             The maximum depth of the individual regression estimators.
+       calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
 
     Example:

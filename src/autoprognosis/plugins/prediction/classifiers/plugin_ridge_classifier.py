@@ -23,6 +23,12 @@ class RidgeClassifierPlugin(base.ClassifierPlugin):
     Args:
         solver: str
             Algorithm to use in the optimization problem: {‘auto’, ‘svd’, ‘cholesky’, ‘lsqr’, ‘sparse_cg’, ‘sag’, ‘saga’}
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

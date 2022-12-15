@@ -25,6 +25,12 @@ class PerceptronPlugin(base.ClassifierPlugin):
             The penalty to be used: {‘l2’,’l1’,’elasticnet’}
         alpha: float
             Constant that multiplies the regularization term if regularization is used.
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
 
 
     Example:

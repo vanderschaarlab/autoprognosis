@@ -53,6 +53,11 @@ class LightGBMPlugin(base.ClassifierPlugin):
              Maximum tree leaves for base learners.
         min_child_samples:int
             Minimum sum of instance weight (hessian) needed in a child (leaf).
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

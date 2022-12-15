@@ -23,6 +23,10 @@ class BernoulliNaiveBayesPlugin(base.ClassifierPlugin):
     Args:
         alpha: float
             Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

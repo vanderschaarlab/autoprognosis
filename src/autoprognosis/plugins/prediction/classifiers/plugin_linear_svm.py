@@ -21,8 +21,13 @@ class LinearSVMPlugin(base.ClassifierPlugin):
         The plugin is based on LinearSVC, an implementation of Support Vector Classification for the case of a linear kernel.
 
     Args:
-        penalty: str
-            Specifies the norm used in the penalization.
+        penalty: int
+            Specifies the norm used in the penalization. 0: l1, 1: l2
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
