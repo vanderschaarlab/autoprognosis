@@ -74,8 +74,6 @@ print(Classifiers().list_available())
 
 Create a study for classifiers
 ```python
-from pathlib import Path
-
 from sklearn.datasets import load_breast_cancer
 
 from autoprognosis.studies.classifiers import ClassifierStudy
@@ -88,16 +86,14 @@ X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 df = X.copy()
 df["target"] = Y
 
-workspace = Path("workspace")
 study_name = "example"
 
 study = ClassifierStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    workspace=workspace,
 )
-study.fit()
+model = study.fit()
 
 # Predict the probabilities of each class using the model
 model.predict_proba(X)
@@ -159,9 +155,6 @@ print(Regression().list_available())
 
 Create a Regression study
 ```python
-# stdlib
-from pathlib import Path
-
 # third party
 import pandas as pd
 
@@ -184,22 +177,13 @@ df = X.copy()
 df["target"] = y
 
 # Search the model
-workspace = Path("workspace")
-workspace.mkdir(parents=True, exist_ok=True)
-
 study_name="regression_example"
 study = RegressionStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    workspace=workspace,
 )
-study.fit()
-
-# Test the model
-output = workspace / study_name / "model.p"
-
-model = load_model_from_file(output)
+model = study.fit()
 
 # Predict using the model
 model.predict(X)
@@ -275,10 +259,6 @@ print(RiskEstimation().list_available())
 ```
 Create a Survival analysis study
 ```python
-# stdlib
-import os
-from pathlib import Path
-
 # third party
 import numpy as np
 from pycox import datasets
@@ -297,7 +277,6 @@ Y = df["event"]
 
 eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
 
-workspace = Path("workspace")
 study_name = "example_risks"
 
 study = RiskEstimationStudy(
@@ -306,14 +285,9 @@ study = RiskEstimationStudy(
     target="event",
     time_to_event="duration",
     time_horizons=eval_time_horizons,
-    workspace=workspace,
 )
 
-study.fit()
-
-output = workspace / study_name / "model.p"
-
-model = load_model_from_file(output)
+model = study.fit()
 
 # Predict using the model
 model.predict(X, eval_time_horizons)

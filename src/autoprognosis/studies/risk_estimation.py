@@ -69,6 +69,35 @@ class RiskEstimationStudy(Study):
             The minimum metric score for a candidate.
         random_state: int
             Random seed
+
+    Example:
+        >>> import numpy as np
+        >>> from pycox import datasets
+        >>> from autoprognosis.studies.risk_estimation import RiskEstimationStudy
+        >>> from autoprognosis.utils.serialization import load_model_from_file
+        >>> from autoprognosis.utils.tester import evaluate_survival_estimator
+        >>>
+        >>> df = datasets.gbsg.read_df()
+        >>> df = df[df["duration"] > 0]
+        >>>
+        >>> X = df.drop(columns = ["duration"])
+        >>> T = df["duration"]
+        >>> Y = df["event"]
+        >>>
+        >>> eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
+        >>>
+        >>> study_name = "example_risks"
+        >>> study = RiskEstimationStudy(
+        >>>     study_name=study_name,
+        >>>     dataset=df,
+        >>>     target="event",
+        >>>     time_to_event="duration",
+        >>>     time_horizons=eval_time_horizons,
+        >>> )
+        >>>
+        >>> model = study.fit()
+        >>> # Predict using the model
+        >>> model.predict(X, eval_time_horizons)
     """
 
     def __init__(

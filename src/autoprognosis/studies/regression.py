@@ -67,6 +67,38 @@ class RegressionStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
+
+    Example:
+        >>> import pandas as pd
+        >>> from autoprognosis.utils.serialization import load_model_from_file
+        >>> from autoprognosis.utils.tester import evaluate_regression
+        >>> from autoprognosis.studies.regression import RegressionStudy
+        >>>
+        >>> # Load dataset
+        >>> df = pd.read_csv(
+        >>>     "https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat",
+        >>>     header=None,
+        >>>     sep="\\t",
+        >>> )
+        >>> last_col = df.columns[-1]
+        >>> y = df[last_col]
+        >>> X = df.drop(columns=[last_col])
+        >>>
+        >>> df = X.copy()
+        >>> df["target"] = y
+        >>>
+        >>> # Search the model
+        >>>
+        >>> study_name="regression_example"
+        >>> study = RegressionStudy(
+        >>>     study_name=study_name,
+        >>>     dataset=df,  # pandas DataFrame
+        >>>     target="target",  # the label column in the dataset
+        >>> )
+        >>> model = study.fit()
+        >>>
+        >>> # Predict using the model
+        >>> model.predict(X)
     """
 
     def __init__(

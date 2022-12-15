@@ -67,6 +67,29 @@ class ClassifierStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
+    Example:
+        >>> from sklearn.datasets import load_breast_cancer
+        >>>
+        >>> from autoprognosis.studies.classifiers import ClassifierStudy
+        >>> from autoprognosis.utils.serialization import load_model_from_file
+        >>> from autoprognosis.utils.tester import evaluate_estimator
+        >>>
+        >>> X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
+        >>>
+        >>> df = X.copy()
+        >>> df["target"] = Y
+        >>>
+        >>> study_name = "example"
+        >>>
+        >>> study = ClassifierStudy(
+        >>>     study_name=study_name,
+        >>>     dataset=df,  # pandas DataFrame
+        >>>     target="target",  # the label column in the dataset
+        >>> )
+        >>> model = study.fit()
+        >>>
+        >>> # Predict the probabilities of each class using the model
+        >>> model.predict_proba(X)
     """
 
     def __init__(
