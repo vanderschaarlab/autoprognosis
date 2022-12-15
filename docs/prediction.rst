@@ -1,4 +1,4 @@
-Prediction
+Prediction plugins
 =========================
 
 .. toctree::

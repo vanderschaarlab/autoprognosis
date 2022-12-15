@@ -1,4 +1,4 @@
-AutoML
+AutoML studies
 =========================
 
 .. toctree:: 

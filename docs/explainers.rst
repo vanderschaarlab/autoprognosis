@@ -1,4 +1,4 @@
-Explainers
+Explainability plugins
 =========================
 
 .. toctree:: 

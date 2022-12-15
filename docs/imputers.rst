@@ -1,4 +1,4 @@
-Imputers
+Imputation plugins
 =========================
 
 .. toctree:: 

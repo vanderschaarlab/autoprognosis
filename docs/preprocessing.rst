@@ -1,4 +1,4 @@
-Preprocessing
+Preprocessing plugins
 =========================
 
 .. toctree:: 

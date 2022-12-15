@@ -21,40 +21,40 @@ Examples
     examples.rst
 
 
-AutoML
-==========
+AutoML studies
+===============
 .. toctree::
     :glob:
     :maxdepth: 2
 
     automl.rst
 
-Imputers
-==========
+Imputation plugins
+===================
 .. toctree::
     :glob:
     :maxdepth: 2
 
     imputers.rst
 
-Preprocessing
-===============
+Preprocessing plugins
+======================
 .. toctree::
     :glob:
     :maxdepth: 2
 
     preprocessing.rst
 
-Prediction
-=============
+Prediction plugins
+===================
 .. toctree::
     :glob:
     :maxdepth: 3
 
     prediction.rst
 
-Exmplainers
-==============
+Explainability plugins
+=======================
 .. toctree::
     :glob:
     :maxdepth: 3
