@@ -1,3 +1,6 @@
+# stdlib
+import sys
+
 # third party
 from pycox.datasets import metabric
 import pytest
@@ -66,6 +69,7 @@ def test_survival_xgboost_plugin_hyperparams(test_plugin: PredictionPlugin) -> N
         from_module(),
     ],
 )
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 def test_survival_xgboost_plugin_fit_predict(test_plugin: PredictionPlugin) -> None:
     df = metabric.read_df()
 

@@ -41,7 +41,7 @@ class RegressionPlugin(prediction_base.PredictionPlugin):
         if len(args) < 1:
             raise ValueError("Invalid input for fit. Expecting X and Y.")
 
-        X = self._fit_input(X)
+        X = self._preprocess_training_data(X)
         self._fit(X, *args, **kwargs)
         self._fitted = True
 

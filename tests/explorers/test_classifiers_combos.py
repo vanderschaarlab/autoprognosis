@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Optional
 
 # third party
@@ -57,6 +58,7 @@ def test_fails() -> None:
         EnsembleSeeker(study_name="test_classifiers_combos", metric="invalid")
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
 @pytest.mark.parametrize("group_id", [False, True])
 def test_search(optimizer_type: str, group_id: Optional[bool]) -> None:

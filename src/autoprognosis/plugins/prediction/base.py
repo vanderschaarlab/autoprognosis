@@ -46,7 +46,7 @@ class PredictionPlugin(plugin.Plugin):
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
 
-        X = self._transform_input(X)
+        X = self._preprocess_inference_data(X)
         return pd.DataFrame(self._predict_proba(X, *args, **kwargs))
 
     @abstractmethod

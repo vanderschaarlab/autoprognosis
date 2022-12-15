@@ -11,6 +11,7 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -32,7 +33,7 @@ class GaussianProcessPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
-        model = GaussianProcessClassifier(n_jobs=-1)
+        model = GaussianProcessClassifier(n_jobs=n_learner_jobs())
         self.model = calibrated_model(model, calibration)
 
     @staticmethod

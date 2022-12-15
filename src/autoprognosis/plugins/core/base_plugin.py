@@ -15,7 +15,6 @@ from sklearn.preprocessing import LabelEncoder
 # autoprognosis absolute
 import autoprognosis.logger as log
 import autoprognosis.plugins.utils.cast as cast
-from autoprognosis.utils.tester import constant_columns
 
 # autoprognosis relative
 from .params import Params
@@ -137,40 +136,43 @@ class Plugin(metaclass=ABCMeta):
     def fit_predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return pd.DataFrame(self.fit(X, *args, *kwargs).predict(X))
 
-    def _fit_input(self, X: pd.DataFrame) -> pd.DataFrame:
+    def _preprocess_training_data(self, X: pd.DataFrame) -> pd.DataFrame:
         X = cast.to_dataframe(X).copy()
         self._backup_encoders = {}
-        self._drop_features = []
 
         for col in X.columns:
             if X[col].dtype.name not in ["object", "category"]:
                 continue
 
-            encoder = LabelEncoder()
-            X[col] = encoder.fit_transform(X[col])
+            values = list(X[col].unique())
+            values.append("unknown")
+            encoder = LabelEncoder().fit(values)
+            X.loc[X[col].notna(), col] = encoder.transform(X[col][X[col].notna()])
 
             self._backup_encoders[col] = encoder
-        self._drop_features = constant_columns(X)
-        return X.drop(columns=self._drop_features)
+        return X
 
-    def _transform_input(self, X: pd.DataFrame) -> pd.DataFrame:
+    def _preprocess_inference_data(self, X: pd.DataFrame) -> pd.DataFrame:
         X = cast.to_dataframe(X).copy()
 
         if self._backup_encoders is None:
             self._backup_encoders = {}
-        if self._drop_features is None:
-            self._drop_features = []
 
         for col in self._backup_encoders:
-            X[col] = self._backup_encoders[col].transform(X[col])
-        for col in self._drop_features:
-            if col not in X.columns:
-                continue
-            X = X.drop(columns=[col])
+            eval_data = X[col][X[col].notna()]
+            inf_values = [
+                x if x in self._backup_encoders[col].classes_ else "unknown"
+                for x in eval_data
+            ]
+
+            X.loc[X[col].notna(), col] = self._backup_encoders[col].transform(
+                inf_values
+            )
+
         return X
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
-        X = self._fit_input(X)
+        X = self._preprocess_training_data(X)
 
         self._fit(X, *args, **kwargs)
 
@@ -185,7 +187,7 @@ class Plugin(metaclass=ABCMeta):
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
-        X = self._transform_input(X)
+        X = self._preprocess_inference_data(X)
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -195,7 +197,7 @@ class Plugin(metaclass=ABCMeta):
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
-        X = self._transform_input(X)
+        X = self._preprocess_inference_data(X)
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod

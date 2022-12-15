@@ -3,7 +3,9 @@ import copy
 from typing import Any, List
 
 # third party
+from packaging import version
 import pandas as pd
+import sklearn
 from sklearn.ensemble import BaggingClassifier
 from sklearn.linear_model import LogisticRegression
 
@@ -13,12 +15,9 @@ import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
+from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-from sklearn.experimental import (  # noqa: F401,E402, isort:skip
-    enable_hist_gradient_boosting,
-)
 
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
 
@@ -75,7 +74,7 @@ class BaggingPlugin(base.ClassifierPlugin):
         n_estimators: int = 10,
         max_samples: float = 1.0,
         max_features: float = 1.0,
-        base_estimator: int = 0,
+        estimator: int = 0,
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
@@ -87,13 +86,24 @@ class BaggingPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
+        if version.parse(sklearn.__version__) >= version.parse("1.2"):
+            est_kwargs = {
+                "estimator": copy.deepcopy(BaggingPlugin.base_estimators[estimator]),
+            }
+        else:
+            est_kwargs = {
+                "base_estimator": copy.deepcopy(
+                    BaggingPlugin.base_estimators[estimator]
+                ),
+            }
+
         model = BaggingClassifier(
             n_estimators=n_estimators,
             max_features=max_features,
             max_samples=max_samples,
-            base_estimator=copy.deepcopy(BaggingPlugin.base_estimators[base_estimator]),
             random_state=random_state,
-            n_jobs=2,
+            n_jobs=n_learner_jobs(),
+            **est_kwargs,
         )
         self.model = calibrated_model(model, calibration)
 

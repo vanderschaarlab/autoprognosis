@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.risk_estimation.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -81,12 +82,12 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
             "tree_method": tree_method,
             "booster": XGBoostRiskEstimationPlugin.booster[booster],
             "random_state": random_state,
-            "n_jobs": -1,
+            "n_jobs": n_learner_jobs(),
         }
         lr_params = {
             "C": 1e-3,
             "max_iter": 10000,
-            "n_jobs": -1,
+            "n_jobs": n_learner_jobs(),
         }
         if strategy == "debiased_bce":
             base_model = XGBSEDebiasedBCE(xgboost_params, lr_params)

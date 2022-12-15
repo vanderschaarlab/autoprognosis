@@ -103,6 +103,6 @@ def test_param_search() -> None:
         directions=["maximize"],
         study_name=f"test_param_search_{plugin.name()}",
     )
-    study.optimize(objective, n_trials=10, timeout=60)
+    study.optimize(objective, n_trials=2, timeout=60)
 
-    assert len(study.trials) == 10
+    assert len(study.trials) == 2

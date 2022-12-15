@@ -19,12 +19,7 @@ default_regressors_names = [
     "catboost_regressor",
 ]
 
-default_imputers_names = [
-    "nop",
-    "median",
-    "mean",
-    "most_frequent",
-]
+default_imputers_names = ["mean", "ice", "missforest", "hyperimpute"]
 default_feature_scaling_names = Preprocessors(
     category="feature_scaling"
 ).list_available()

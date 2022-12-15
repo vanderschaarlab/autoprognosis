@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
+from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
 
 
@@ -22,8 +23,6 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
             The number of trees in the forest.
         criterion: str
             The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain.
-        max_features: str
-            The number of features to consider when looking for the best split.
         min_samples_split: int
             The minimum number of samples required to split an internal node.
         boostrap: bool
@@ -39,14 +38,12 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y)
     """
 
-    criterions = ["mse", "mae"]
-    features = ["auto", "sqrt", "log2"]
+    criterions = ["squared_error", "absolute_error", "friedman_mse", "poisson"]
 
     def __init__(
         self,
         n_estimators: int = 50,
         criterion: int = 0,
-        max_features: int = 0,
         min_samples_split: int = 2,
         bootstrap: bool = True,
         min_samples_leaf: int = 2,
@@ -66,12 +63,11 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         self.model = RandomForestRegressor(
             n_estimators=n_estimators,
             criterion=RandomForestRegressionPlugin.criterions[criterion],
-            max_features=RandomForestRegressionPlugin.features[max_features],
             min_samples_split=min_samples_split,
             max_depth=4,
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
-            n_jobs=3,
+            n_jobs=n_learner_jobs(),
             random_state=random_state,
         )
 
@@ -84,9 +80,6 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         return [
             params.Integer(
                 "criterion", 0, len(RandomForestRegressionPlugin.criterions) - 1
-            ),
-            params.Integer(
-                "max_features", 0, len(RandomForestRegressionPlugin.features) - 1
             ),
             params.Categorical("min_samples_split", [2, 5, 10]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),

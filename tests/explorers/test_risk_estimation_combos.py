@@ -1,4 +1,5 @@
 # stdlib
+import sys
 from typing import Optional
 
 # third party
@@ -38,7 +39,8 @@ def test_sanity(optimizer_type: str) -> None:
     assert sq.timeout == 10
 
 
-@pytest.mark.parametrize("group_id", [False, True])
+@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
+@pytest.mark.parametrize("group_id", [False])
 def test_search(group_id: Optional[bool]) -> None:
     rossi = load_rossi()
 
@@ -61,7 +63,7 @@ def test_search(group_id: Optional[bool]) -> None:
         CV=3,
         ensemble_size=3,
         timeout=10,
-        estimators=["lognormal_aft", "loglogistic_aft"],
+        estimators=["lognormal_aft", "cox_ph"],
     )
 
     ensemble = sq.search(X, T, Y, group_ids=group_ids)

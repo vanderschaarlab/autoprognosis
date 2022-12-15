@@ -46,7 +46,11 @@ class FastICAPlugin(base.PreprocessorPlugin):
     """
 
     def __init__(
-        self, model: Any = None, random_state: int = 0, n_components: int = 2
+        self,
+        model: Any = None,
+        random_state: int = 0,
+        n_components: int = 2,
+        max_iter=10000,
     ) -> None:
         super().__init__()
         self.random_state = random_state
@@ -74,7 +78,8 @@ class FastICAPlugin(base.PreprocessorPlugin):
         self.model = FastICA(
             n_components=n_components,
             random_state=self.random_state,
-            max_iter=1000,
+            max_iter=10000,
+            tol=1e-2,
             whiten="unit-variance",
         )
 

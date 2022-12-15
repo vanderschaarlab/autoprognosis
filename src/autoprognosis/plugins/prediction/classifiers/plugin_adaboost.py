@@ -3,7 +3,9 @@ import copy
 from typing import Any, List
 
 # third party
+from packaging import version
 import pandas as pd
+import sklearn
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
 
@@ -16,9 +18,6 @@ from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
-from sklearn.experimental import (  # noqa: F401,E402, isort:skip
-    enable_hist_gradient_boosting,
-)
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
 
 for retry in range(2):
@@ -44,7 +43,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
             The maximum number of estimators at which boosting is terminated.
         learning_rate: float
             Weight applied to each classifier at each boosting iteration. A higher learning rate increases the contribution of each classifier. There is a trade-off between the learning_rate and n_estimators parameters.
-        base_estimator: int
+        estimator: int
             Base estimator to use
 
     Example:
@@ -69,7 +68,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
 
     def __init__(
         self,
-        base_estimator: int = 0,
+        estimator: int = 0,
         n_estimators: int = 10,
         learning_rate: float = 0.1,
         calibration: int = 0,
@@ -83,10 +82,18 @@ class AdaBoostPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
+        if version.parse(sklearn.__version__) >= version.parse("1.2"):
+            est_kargs = {
+                "estimator": copy.deepcopy(AdaBoostPlugin.base_estimators[estimator]),
+            }
+        else:
+            est_kargs = {
+                "base_estimator": copy.deepcopy(
+                    AdaBoostPlugin.base_estimators[estimator]
+                ),
+            }
         model = AdaBoostClassifier(
-            base_estimator=copy.deepcopy(
-                AdaBoostPlugin.base_estimators[base_estimator]
-            ),
+            **est_kargs,
             n_estimators=n_estimators,
             learning_rate=learning_rate,
             random_state=random_state,
@@ -101,7 +108,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("n_estimators", 10, 100, 10),
-            params.Categorical("learning_rate", [10 ** -p for p in range(1, 5)]),
+            params.Categorical("learning_rate", [10**-p for p in range(1, 5)]),
             params.Integer(
                 "base_estimator",
                 0,

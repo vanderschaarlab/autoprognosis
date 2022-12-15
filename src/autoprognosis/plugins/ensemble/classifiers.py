@@ -16,11 +16,11 @@ from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.plugins.prediction.classifiers import Classifiers
-from autoprognosis.utils.parallel import cpu_count
+from autoprognosis.utils.parallel import n_opt_jobs
 import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_evaluator
 
-dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=cpu_count())
+dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
 
 class BaseEnsemble(metaclass=ABCMeta):

@@ -206,6 +206,13 @@ class PipelineSelector:
             model_list.append(selected.fqdn())
             add_stage_hp(selected)
 
+        # Add data cleanup
+        cleaner = Preprocessors(category="dimensionality_reduction").get_type(
+            "data_cleanup"
+        )
+        model_list.append(cleaner.fqdn())
+
+        # Add predictor
         model_list.append(self.classifier.fqdn())
         add_stage_hp(self.classifier)
 
@@ -264,6 +271,13 @@ class PipelineSelector:
             model_list.append(selected.fqdn())
             add_stage_hp(selected)
 
+        # Add data cleanup
+        cleaner = Preprocessors(category="dimensionality_reduction").get_type(
+            "data_cleanup"
+        )
+        model_list.append(cleaner.fqdn())
+
+        # Add predictor
         model_list.append(self.classifier.fqdn())
         add_stage_hp(self.classifier)
 

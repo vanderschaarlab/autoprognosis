@@ -153,9 +153,14 @@ class RegressionEnsembleSeeker:
             for fold in pretrained_models:
                 folds.append(WeightedRegressionEnsemble(fold, weights))
 
-            metrics = evaluate_regression(
-                folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
-            )
+            try:
+                metrics = evaluate_regression(
+                    folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
+                )
+            except BaseException as e:
+                log.error(f"evaluate_regression_ensemble failed {e}")
+
+                return 0
 
             log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
             score = metrics["clf"][self.metric][0]

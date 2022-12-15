@@ -24,6 +24,7 @@ from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
 import autoprognosis.logger as log
+from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.metrics import (
     evaluate_auc,
     evaluate_skurv_brier_score,
@@ -124,6 +125,8 @@ def evaluate_estimator(
             The group_ids to use for stratified cross-validation
 
     """
+    enable_reproducible_results(seed)
+
     X = pd.DataFrame(X).reset_index(drop=True)
     Y = LabelEncoder().fit_transform(Y)
     Y = pd.Series(Y).reset_index(drop=True)
@@ -175,6 +178,50 @@ def evaluate_estimator(
 
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
+def evaluate_estimator_multiple_seeds(
+    estimator: Any,
+    X: Union[pd.DataFrame, np.ndarray],
+    Y: Union[pd.Series, np.ndarray, List],
+    n_folds: int = 3,
+    metric: str = "aucroc",
+    seeds: List[int] = [0, 1, 2],
+    pretrained: bool = False,
+    group_ids: Optional[pd.Series] = None,
+) -> Dict:
+    results = {
+        "seeds": {},
+        "agg": {},
+        "str": {},
+    }
+
+    repeats = []
+    for seed in seeds:
+        score = evaluate_estimator(
+            estimator,
+            X=X,
+            Y=Y,
+            n_folds=n_folds,
+            metric=metric,
+            seed=seed,
+            pretrained=pretrained,
+            group_ids=group_ids,
+        )
+
+        results["seeds"][seed] = score["str"]
+        repeats.append(score["clf"][metric][0])
+
+    output_clf = generate_score(repeats)
+    results["agg"] = {
+        metric: output_clf,
+    }
+    results["str"] = {
+        metric: print_score(output_clf),
+    }
+
+    return results
+
+
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_survival_estimator(
     estimator: Any,
     X: Union[pd.DataFrame, np.ndarray],
@@ -210,6 +257,7 @@ def evaluate_survival_estimator(
         group_ids:
             Group labels for the samples used while splitting the dataset into train/test set.
     """
+    enable_reproducible_results(seed)
 
     results = {}
     X = pd.DataFrame(X).reset_index(drop=True)
@@ -260,17 +308,14 @@ def evaluate_survival_estimator(
             eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
 
             def get_score(fn: Callable) -> float:
-                return (
-                    fn(
-                        T_train,
-                        Y_train,
-                        pred[:, k],
-                        T_test,
-                        Y_test,
-                        eval_horizon,
-                    )
-                    / (len(time_horizons))
-                )
+                return fn(
+                    T_train,
+                    Y_train,
+                    pred[:, k],
+                    T_test,
+                    Y_test,
+                    eval_horizon,
+                ) / (len(time_horizons))
 
             c_index += get_score(evaluate_skurv_c_index)
             brier_score += get_score(evaluate_skurv_brier_score)
@@ -453,6 +498,56 @@ def evaluate_survival_estimator(
 
 
 @validate_arguments(config=dict(arbitrary_types_allowed=True))
+def evaluate_survival_estimator_multiple_seeds(
+    estimator: Any,
+    X: Union[pd.DataFrame, np.ndarray],
+    T: Union[pd.Series, np.ndarray, List],
+    Y: Union[pd.Series, np.ndarray, List],
+    time_horizons: Union[List[float], np.ndarray],
+    n_folds: int = 3,
+    metrics: List[str] = survival_supported_metrics,
+    pretrained: bool = False,
+    risk_threshold: float = 0.5,
+    group_ids: Optional[pd.Series] = None,
+    seeds: List[int] = [0, 1, 2],
+) -> Dict:
+    results = {
+        "seeds": {},
+        "agg": {},
+        "str": {},
+    }
+
+    repeats = {}
+    for metric in metrics:
+        repeats[metric] = []
+    for seed in seeds:
+        score = evaluate_regression(
+            estimator,
+            X=X,
+            T=T,
+            Y=Y,
+            time_horizons=time_horizons,
+            n_folds=n_folds,
+            metrics=metrics,
+            risk_threshold=risk_threshold,
+            seed=seed,
+            pretrained=pretrained,
+            group_ids=group_ids,
+        )
+
+        results["seeds"][seed] = score["str"]
+        for metric in metrics:
+            repeats[metric].append(score["clf"][metric][0])
+
+    for metric in metrics:
+        output_clf = generate_score(repeats[metric])
+        results["agg"][metric] = output_clf
+        results["str"][metric] = print_score(output_clf)
+
+    return results
+
+
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
 def evaluate_regression(
     estimator: Any,
     X: Union[pd.DataFrame, np.ndarray],
@@ -484,6 +579,8 @@ def evaluate_regression(
             Optional group_ids for stratified cross-validation
 
     """
+    enable_reproducible_results(seed)
+
     X = pd.DataFrame(X).reset_index(drop=True)
     Y = pd.Series(Y).reset_index(drop=True)
     if group_ids is not None:
@@ -534,6 +631,50 @@ def evaluate_regression(
             "r2": print_score(output_r2),
         },
     }
+
+
+@validate_arguments(config=dict(arbitrary_types_allowed=True))
+def evaluate_regression_multiple_seeds(
+    estimator: Any,
+    X: Union[pd.DataFrame, np.ndarray],
+    Y: Union[pd.Series, np.ndarray, List],
+    n_folds: int = 3,
+    metrics: str = ["rmse", "r2"],
+    pretrained: bool = False,
+    group_ids: Optional[pd.Series] = None,
+    seeds: List[int] = [0, 1, 2],
+) -> Dict:
+    results = {
+        "seeds": {},
+        "agg": {},
+        "str": {},
+    }
+
+    repeats = {}
+    for metric in metrics:
+        repeats[metric] = []
+    for seed in seeds:
+        score = evaluate_regression(
+            estimator,
+            X=X,
+            Y=Y,
+            n_folds=n_folds,
+            metrics=metrics,
+            seed=seed,
+            pretrained=pretrained,
+            group_ids=group_ids,
+        )
+
+        results["seeds"][seed] = score["str"]
+        for metric in metrics:
+            repeats[metric].append(score["clf"][metric][0])
+
+    for metric in metrics:
+        output_clf = generate_score(repeats[metric])
+        results["agg"][metric] = output_clf
+        results["str"][metric] = print_score(output_clf)
+
+    return results
 
 
 def score_classification_model(
