@@ -12,6 +12,13 @@ Welcome to AutoPrognosis's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+AutoML
+==========
+.. toctree::
+    :glob:
+    :maxdepth: 2
+
+    automl.rst
 
 Imputers
 ==========
@@ -44,3 +51,11 @@ Exmplainers
     :maxdepth: 3
 
     explainers.rst
+
+Benchmarks
+==============
+.. toctree::
+    :glob:
+    :maxdepth: 3
+
+    benchmarks.rst
