@@ -42,6 +42,32 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         maxiter: float.  Maximum number of iterations for optimization
         eps: float. Number used for numerical stability
         random_state: float. Random seed for reproducibility
+
+    Example:
+        >>> import pandas as pd
+        >>> from sklearn.datasets import load_iris
+        >>> from sklearn.model_selection import train_test_split
+        >>>from autoprognosis.plugins.explainers import Explainers
+        >>> from autoprognosis.plugins.prediction.classifiers import Classifiers
+        >>>
+        >>> X, y = load_iris(return_X_y=True)
+        >>>
+        >>> X = pd.DataFrame(X)
+        >>> y = pd.Series(y)
+        >>>
+        >>> X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        >>> model = Classifiers().get("logistic_regression")
+        >>>
+        >>> explainer = Explainers().get(
+        >>>     "symbolic_pursuit",
+        >>>     model,
+        >>>     X_train,
+        >>>     y_train,
+        >>>     task_type="classification",
+        >>> )
+        >>>
+        >>> explainer.explain(X_test)
+
     """
 
     def __init__(

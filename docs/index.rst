@@ -22,7 +22,7 @@ Imputers
     imputers.rst
 
 Preprocessing
-==========
+===============
 .. toctree::
     :glob:
     :maxdepth: 2
@@ -30,9 +30,17 @@ Preprocessing
     preprocessing.rst
 
 Prediction
-==========
+=============
 .. toctree::
     :glob:
     :maxdepth: 3
 
     prediction.rst
+
+Exmplainers
+==============
+.. toctree::
+    :glob:
+    :maxdepth: 3
+
+    explainers.rst
