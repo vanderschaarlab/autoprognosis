@@ -91,6 +91,8 @@ class RiskEstimationStudy(Study):
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
         random_state: int = 0,
+        sample: bool = True,
+        max_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -118,6 +120,8 @@ class RiskEstimationStudy(Study):
             time_to_event=time_to_event,
             imputation_method=imputation_method,
             group_id=group_id,
+            sample=sample,
+            max_sample_size=max_sample_size,
         )
 
         self.internal_name = dataframe_hash(dataset)

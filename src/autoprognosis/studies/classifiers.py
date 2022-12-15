@@ -88,6 +88,8 @@ class ClassifierStudy(Study):
         group_id: Optional[str] = None,
         nan_placeholder: Any = None,
         random_state: int = 0,
+        sample: bool = True,
+        max_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -109,7 +111,12 @@ class ClassifierStudy(Study):
             imputers = []
 
         self.X, _, self.Y, _, _, group_ids = dataframe_preprocess(
-            dataset, target, imputation_method=imputation_method, group_id=group_id
+            dataset,
+            target,
+            imputation_method=imputation_method,
+            group_id=group_id,
+            sample=sample,
+            max_sample_size=max_sample_size,
         )
 
         self.internal_name = dataframe_hash(dataset)

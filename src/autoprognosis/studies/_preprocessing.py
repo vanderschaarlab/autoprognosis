@@ -218,9 +218,11 @@ def dataframe_encode_and_impute(
     return df, encoder_ctx
 
 
-def dataframe_sample(X: pd.DataFrame, Y: pd.DataFrame, max_size: int = 10000) -> List:
-    log.debug(f"preprocess: dataset subsampling {max_size}")
-    df_limit = len(Y.unique()) * max_size
+def dataframe_sample(
+    X: pd.DataFrame, Y: pd.DataFrame, max_sample_size: int = 10000
+) -> List:
+    log.debug(f"preprocess: dataset subsampling {max_sample_size}")
+    df_limit = len(Y.unique()) * max_sample_size
     ratio = df_limit / len(X)
 
     if ratio >= 1:
@@ -250,6 +252,7 @@ def dataframe_preprocess(
     time_to_event: Optional[str] = None,
     special_cols: List[str] = [],
     sample: bool = True,
+    max_sample_size: int = 10000,
     imputation_method: Optional[str] = None,
     group_id: Optional[str] = None,
 ) -> Tuple[
@@ -295,7 +298,7 @@ def dataframe_preprocess(
     X = dataframe_drop_low_variance(X)
 
     if sample:
-        indices = dataframe_sample(X, Y)
+        indices = dataframe_sample(X, Y, max_sample_size=max_sample_size)
 
         X = X.loc[X.index[indices]]
         Y = Y.loc[Y.index[indices]]
