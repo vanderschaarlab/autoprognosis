@@ -35,11 +35,6 @@ class EMPlugin(base.ImputerPlugin):
         >>> from autoprognosis.plugins.imputers import Imputers
         >>> plugin = Imputers().get("EM")
         >>> plugin.fit_transform([[1, 1, 1, 1], [np.nan, np.nan, np.nan, np.nan], [1, 2, 2, 1], [2, 2, 2, 2]])
-                  0         1         2         3
-        0  1.000000  1.000000  1.000000  1.000000
-        1  1.333333  1.666667  1.666667  1.333333
-        2  1.000000  2.000000  2.000000  1.000000
-        3  2.000000  2.000000  2.000000  2.000000
     """
 
     def __init__(self, random_state: int = 0, **kwargs: Any) -> None:

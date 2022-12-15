@@ -26,22 +26,10 @@ class FeatureAgglomerationPlugin(base.PreprocessorPlugin):
 
     Example:
         >>> from autoprognosis.plugins.preprocessors import Preprocessors
-        >>> plugin = Preprocessors().get("feature_agglomeration")
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("feature_agglomeration")
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_transform(X, y)
-                    0    1
-        0    1.700000  5.1
-        1    1.533333  4.9
-        2    1.566667  4.7
-        3    1.600000  4.6
-        4    1.733333  5.0
-        ..        ...  ...
-        145  3.500000  6.7
-        146  3.133333  6.3
-        147  3.400000  6.5
-        148  3.700000  6.2
-        149  3.300000  5.9
     """
 
     def __init__(

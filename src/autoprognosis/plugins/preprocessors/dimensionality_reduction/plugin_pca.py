@@ -26,24 +26,10 @@ class PCAPlugin(base.PreprocessorPlugin):
 
     Example:
         >>> from autoprognosis.plugins.preprocessors import Preprocessors
-        >>> plugin = Preprocessors().get("pca")
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("pca")
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_transform(X, y)
-                    0         1
-        0   -2.684126  0.319397
-        1   -2.714142 -0.177001
-        2   -2.888991 -0.144949
-        3   -2.745343 -0.318299
-        4   -2.728717  0.326755
-        ..        ...       ...
-        145  1.944110  0.187532
-        146  1.527167 -0.375317
-        147  1.764346  0.078859
-        148  1.900942  0.116628
-        149  1.390189 -0.282661
-
-        [150 rows x 2 columns]
     """
 
     def __init__(
