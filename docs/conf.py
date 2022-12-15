@@ -45,6 +45,7 @@ subprocess.run(
      ]
  )
 
+
 emojis = [":rocket:", ":key:", ":cyclone:", ":fire:", ":zap:", ":hammer:", ":boom:"]
 
 #with open("../README.md", "rt") as fin:
@@ -66,6 +67,7 @@ extensions = [
      "sphinx.ext.napoleon",
      "m2r2",
      "sphinxemoji.sphinxemoji",
+     "nbsphinx",
 ]
 
 autodoc_default_options = {
@@ -101,3 +103,15 @@ sphinxemoji_style = 'twemoji'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+nbsphinx_execute = "never"
+
+nbsphinx_prolog = r"""
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. only:: html
+    .. role:: raw-html(raw)
+        :format: html
+    .. nbinfo::
+        :raw-html:`<a href="https://colab.research.google.com/github/DTUWindEnergy/PyWake/blob/master/{{ docname }}"><img alt="Open and run in Colab (interactive)" src="https://colab.research.google.com/assets/colab-badge.svg" style="vertical-align:text-bottom"></a>
+        <a href="https://gitlab.windenergy.dtu.dk/TOPFARM/PyWake/-/tree/master/{{ docname }}"><img alt="Edit on Gitlab" src="https://img.shields.io/badge/Edit%20on-Gitlab-blue?style=flat&logo=gitlab" style="vertical-align:text-bottom"></a>`
+"""

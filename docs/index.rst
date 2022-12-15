@@ -12,6 +12,15 @@ Welcome to AutoPrognosis's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+Examples
+==========
+.. toctree::
+    :glob:
+    :maxdepth: 3
+
+    examples.rst
+
+
 AutoML
 ==========
 .. toctree::
