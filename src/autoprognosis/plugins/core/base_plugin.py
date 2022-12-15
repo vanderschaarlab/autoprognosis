@@ -23,16 +23,18 @@ from .params import Params
 class Plugin(metaclass=ABCMeta):
     """Base class for all plugins.
     Each derived class must implement the following methods:
-        type() - a static method that returns the type of the plugin. e.g., imputation, preprocessing, prediction, etc.
-        subtype() - optional method that returns the subtype of the plugin. e.g. Potential subtypes:
+
+        - type() - a static method that returns the type of the plugin. e.g., imputation, preprocessing, prediction, etc.
+        - subtype() - optional method that returns the subtype of the plugin. e.g. Potential subtypes:
+
             - preprocessing: feature_scaling, dimensionality reduction
             - prediction: classifiers, prediction, survival analysis
-        name() - a static method that returns the name of the plugin. e.g., EM, mice, etc.
-        hyperparameter_space() - a static method that returns the hyperparameters that can be tuned during the optimization. The method will return a list of `Params` derived objects.
-        _fit() - internal method, called by `fit` on each training set.
-        _transform() - internal method, called by `transform`. Used by imputation or preprocessing plugins.
-        _predict() - internal method, called by `predict`. Used by classification/prediction plugins.
-        load/save - serialization methods
+        - name() - a static method that returns the name of the plugin. e.g., EM, mice, etc.
+        - hyperparameter_space() - a static method that returns the hyperparameters that can be tuned during the optimization. The method will return a list of `Params` derived objects.
+        - _fit() - internal method, called by `fit` on each training set.
+        - _transform() - internal method, called by `transform`. Used by imputation or preprocessing plugins.
+        - _predict() - internal method, called by `predict`. Used by classification/prediction plugins.
+        - load/save - serialization methods
 
     If any method implementation is missing, the class constructor will fail.
     """
@@ -54,12 +56,14 @@ class Plugin(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[Params]:
+        """The hyperparameter search domain, used for tuning."""
         ...
 
     @classmethod
     def sample_hyperparameters(
         cls, trial: Trial, *args: Any, **kwargs: Any
     ) -> Dict[str, Any]:
+        """Sample hyperparameters for Optuna."""
         param_space = cls.hyperparameter_space(*args, **kwargs)
 
         results = {}
@@ -71,6 +75,7 @@ class Plugin(metaclass=ABCMeta):
 
     @classmethod
     def sample_hyperparameters_np(cls, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        """Sample hyperparameters as a dict."""
         param_space = cls.hyperparameter_space(*args, **kwargs)
 
         results = {}
@@ -82,6 +87,7 @@ class Plugin(metaclass=ABCMeta):
 
     @classmethod
     def hyperparameter_space_fqdn(cls, *args: Any, **kwargs: Any) -> List[Params]:
+        """The hyperparameter domain using they fully-qualified name."""
         res = []
         for param in cls.hyperparameter_space(*args, **kwargs):
             fqdn_param = param
@@ -96,6 +102,7 @@ class Plugin(metaclass=ABCMeta):
     def sample_hyperparameters_fqdn(
         cls, trial: Trial, *args: Any, **kwargs: Any
     ) -> Dict[str, Any]:
+        """Sample hyperparameters using they fully-qualified name."""
         param_space = cls.hyperparameter_space_fqdn(*args, **kwargs)
 
         results = {}
@@ -108,35 +115,43 @@ class Plugin(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def name() -> str:
+        """The name of the plugin, e.g.: xgboost"""
         ...
 
     @staticmethod
     @abstractmethod
     def type() -> str:
+        """The type of the plugin, e.g.: prediction"""
         ...
 
     @staticmethod
     @abstractmethod
     def subtype() -> str:
+        """The type of the plugin, e.g.: classifier"""
         ...
 
     @classmethod
     def fqdn(cls) -> str:
+        """The fully-qualified name of the plugin: type->subtype->name"""
         return cls.type() + "." + cls.subtype() + "." + cls.name()
 
     def is_fitted(self) -> bool:
+        """Check if the model was trained"""
         try:
             return self._fitted
         except BaseException:
             return True
 
     def fit_transform(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        """Fit the model and transform the training data. Used by imputers and preprocessors."""
         return pd.DataFrame(self.fit(X, *args, *kwargs).transform(X))
 
     def fit_predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        """Fit the model and predict the training data. Used by predictors."""
         return pd.DataFrame(self.fit(X, *args, *kwargs).predict(X))
 
     def _preprocess_training_data(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Encode the input"""
         X = cast.to_dataframe(X).copy()
         self._backup_encoders = {}
 
@@ -153,6 +168,7 @@ class Plugin(metaclass=ABCMeta):
         return X
 
     def _preprocess_inference_data(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Encode the inference input"""
         X = cast.to_dataframe(X).copy()
 
         if self._backup_encoders is None:
@@ -172,6 +188,11 @@ class Plugin(metaclass=ABCMeta):
         return X
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
+        """Train the plugin
+
+        Args:
+            X: pd.DataFrame
+        """
         log.info("Training {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
 
@@ -187,6 +208,12 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Transform the input. Used by imputers and preprocessors.
+
+        Args:
+            X: pd.DataFrame
+
+        """
         log.info("Transforming using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
@@ -199,6 +226,12 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        """Run predictions for the input. Used by predictors.
+
+        Args:
+            X: pd.DataFrame
+
+        """
         log.info("Predicting using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
@@ -212,11 +245,13 @@ class Plugin(metaclass=ABCMeta):
 
     @abstractmethod
     def save(self) -> bytes:
+        """Save the plugin to bytes"""
         ...
 
     @classmethod
     @abstractmethod
     def load(cls, buff: bytes) -> "Plugin":
+        """Load the plugin from bytes"""
         ...
 
 

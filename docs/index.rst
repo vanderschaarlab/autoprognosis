@@ -6,25 +6,11 @@
 Welcome to AutoPrognosis's documentation!
 =========================================
 
+.. mdinclude:: README.md
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-AutoML
-=================
-.. toctree::
-    :glob:
-    :maxdepth: 2
-
-    automl.rst
-
-Building demonstrators
-=================
-.. toctree::
-    :glob:
-    :maxdepth: 2
-
-    demonstrators.rst
 
 
 Imputers
@@ -43,30 +29,10 @@ Preprocessing
 
     preprocessing.rst
 
-
-Prediction models
+Prediction
 ==========
 .. toctree::
     :glob:
-    :maxdepth: 2
+    :maxdepth: 3
 
-    predictions.rst
-
-
-Explainers
-==========
-.. toctree::
-    :glob:
-    :maxdepth: 2
-
-    explainers.rst
-
-Benchmarks and evaluation
-=================
-.. toctree::
-    :glob:
-    :maxdepth: 2
-
-    benchmarks.rst
-
-
+    prediction.rst

@@ -30,6 +30,8 @@ class Params(metaclass=ABCMeta):
 
 
 class Categorical(Params):
+    """Sample from a categorical distribution."""
+
     def __init__(self, name: str, choices: List[Any]) -> None:
         super().__init__(name, (min(choices), max(choices)))
         self.name = name
@@ -46,6 +48,8 @@ class Categorical(Params):
 
 
 class Float(Params):
+    """Sample from a float distribution."""
+
     def __init__(self, name: str, low: float, high: float) -> None:
         low = float(low)
         high = float(high)
@@ -66,6 +70,8 @@ class Float(Params):
 
 
 class Integer(Params):
+    """Sample from an integer distribution."""
+
     def __init__(self, name: str, low: int, high: int, step: int = 1) -> None:
         self.low = low
         self.high = high

@@ -497,7 +497,7 @@ from autoprognosis.plugins.uncertainty import UncertaintyQuantification
 model = UncertaintyQuantification().get(<NAME>)
 ```
 | Name | Description |
-|--- | --- |
+| --- | --- |
 | **cohort_explainer**  ||
 | **conformal_prediction**  ||
 | **jackknife**  ||

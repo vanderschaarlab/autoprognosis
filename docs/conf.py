@@ -41,7 +41,7 @@ subprocess.run(
          "-f",
          "-o",
          "generated",
-         "../src/hyperimpute/",
+         "../src/autoprognosis/",
      ]
  )
 
@@ -70,8 +70,9 @@ extensions = [
 
 autodoc_default_options = {
      "members": True,
-     "inherited-members": False,
-     "inherit_docstrings": False,
+     "inherited-members": True,
+     "inherit_docstrings": True,
+     "private-members": False,
 }
 
 add_module_names = False

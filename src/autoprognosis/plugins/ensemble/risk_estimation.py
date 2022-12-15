@@ -14,7 +14,7 @@ from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
 
-EPS = 10 ** -8
+EPS = 10**-8
 
 
 class RiskEnsemble:
@@ -24,7 +24,7 @@ class RiskEnsemble:
     Args:
         models: List [N]
             List of base models.
-        weights: List [|time_horizons| x N]
+        weights: List (time_horizons|, N)
             list of weights for each model and each time horizon.
         time_horizons: List
             List of time horizons used for evaluation.
@@ -211,7 +211,7 @@ class RiskEnsembleCV(RiskEnsemble):
             Base ensembles. Excludes models/weights
         models: List [N]
             List of base models.
-        weights: List [|time_horizons| x N]
+        weights: List (time_horizons, N)
             list of weights for each model and each time horizon.
         time_horizons: List
             List of time horizons used for evaluation.

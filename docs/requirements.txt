@@ -27,3 +27,4 @@ lifelines
 loguru
 redis
 joblib
+streamlit
