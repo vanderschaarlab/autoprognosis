@@ -7,6 +7,8 @@ scikit-learn
 cloudpickle
 catboost
 xgboost
+jupyhai
+valohai-utils
 pydantic
 scipy
 myst-parser
