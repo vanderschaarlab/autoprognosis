@@ -5,6 +5,7 @@ from typing import Any
 import pandas as pd
 
 # autoprognosis absolute
+import autoprognosis.logger as log
 import autoprognosis.plugins.core.base_plugin as plugin
 import autoprognosis.plugins.prediction.base as prediction_base
 import autoprognosis.plugins.utils.cast as cast
@@ -33,6 +34,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         return "classifier"
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> plugin.Plugin:
+        log.info("Training using {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
 
         if len(args) == 0:
@@ -42,6 +44,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         self._fit(X, Y, **kwargs)
 
         self._fitted = True
+        log.info("Done training using {self.fqdn()}, input shape = {X.shape}")
 
         return self
 

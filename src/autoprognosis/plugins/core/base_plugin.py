@@ -172,11 +172,13 @@ class Plugin(metaclass=ABCMeta):
         return X
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
+        log.info("Training {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
 
         self._fit(X, *args, **kwargs)
 
         self._fitted = True
+        log.info("Done Training {self.fqdn()}, input shape = {X.shape}")
 
         return self
 
@@ -185,9 +187,11 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        log.info("Transforming using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._preprocess_inference_data(X)
+        log.info("Done transforming using {self.fqdn()}, input shape = {X.shape}")
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -195,9 +199,11 @@ class Plugin(metaclass=ABCMeta):
         ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
+        log.info("Predicting using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._preprocess_inference_data(X)
+        log.info("Done predcting using {self.fqdn()}, input shape = {X.shape}")
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod
