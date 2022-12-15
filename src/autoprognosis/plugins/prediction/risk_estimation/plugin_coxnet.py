@@ -30,6 +30,47 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class CoxnetRiskEstimationPlugin(base.RiskEstimationPlugin):
+    """CoxPH neural net plugin for survival analysis.
+
+    Args:
+        hidden_dim: int
+            Number of neurons in the hidden layers
+        hidden_len: int
+            Number of hidden layers
+        batch_norm: bool.
+            Batch norm on/off.
+        dropout: float.
+            Dropout value.
+        lr: float.
+            Learning rate.
+        epochs: int.
+            Number of training epochs
+        patience: int.
+            Number of iterations without validation improvement.
+        batch_size: int.
+            Batch size
+        verbose: bool.
+            Enable debug logs
+        random_state: int
+            Random seed
+
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> from pycox.datasets import metabric
+        >>>
+        >>> df = metabric.read_df()
+        >>> X = df.drop(["duration", "event"], axis=1)
+        >>> Y = df["event"]
+        >>> T = df["duration"]
+        >>>
+        >>> plugin = Predictions(category="risk_estimation").get("coxnet")
+        >>> plugin.fit(X, T, Y)
+        >>>
+        >>> eval_time_horizons = [int(T[Y.iloc[:] == 1].quantile(0.50))]
+        >>> plugin.predict(X, eval_time_horizons)
+
+    """
+
     def __init__(
         self,
         hidden_dim: int = 100,
@@ -44,19 +85,7 @@ class CoxnetRiskEstimationPlugin(base.RiskEstimationPlugin):
         random_state: int = 0,
         **kwargs: Any
     ) -> None:
-        """
-        CoxPH neural net.
 
-        Args:
-            hidden_nodes: list. shape of the hidden layers
-            batch_norm: bool. Batch norm on/off.
-            Dropout: float. Dropout value.
-            lr: float. Learning rate.
-            epochs: int. Number of training epochs
-            patience: int. Number of iterations without validation improvement.
-            batch_size: int. Number of rows per iterations.
-            verbose: bool. Enable debug logs
-        """
         super().__init__(**kwargs)
 
         enable_reproducible_results(random_state)

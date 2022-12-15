@@ -30,6 +30,54 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
+    """DeepHit plugin for survival analysis. DeepHit, that uses a deep neural network to learn the distribution of survival times directly.DeepHit makes no assumptions about the underlying stochastic process and allows for the possibility that the relationship between covariates and risk(s) changes over time. Most importantly, DeepHit smoothly handles competing risks; i.e. settings in which there is more than one possible event of interest.
+
+    Args:
+        num_durations: int
+            Number of points in the survival function
+        batch_size: int
+            Batch size
+        epochs: int
+            Number of iterations
+        lr: float
+            learning rate
+        dim_hidden: int
+            Number of neurons in the hidden layers
+        alpha: float
+            Weighting (0, 1) likelihood and rank loss (L2 in paper). 1 gives only likelihood, and 0 gives only rank loss. (default: {0.2})
+        sigma: float
+            From eta in rank loss (L2 in paper) (default: {0.1})
+        dropout: float
+            Dropout value
+        patience: int
+            Number of epochs without improvement.
+        batch_norm: bool
+            Enable/Disable batch_norm
+        random_state: int
+            Random seed
+
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> from pycox.datasets import metabric
+        >>>
+        >>> df = metabric.read_df()
+        >>> X = df.drop(["duration", "event"], axis=1)
+        >>> Y = df["event"]
+        >>> T = df["duration"]
+        >>>
+        >>> plugin = Predictions(category="risk_estimation").get("deephit")
+        >>> plugin.fit(X, T, Y)
+        >>>
+        >>> eval_time_horizons = [int(T[Y.iloc[:] == 1].quantile(0.50))]
+        >>> plugin.predict(X, eval_time_horizons)
+
+    References:
+    [1] Changhee Lee, William R Zame, Jinsung Yoon, and Mihaela van der Schaar. Deephit: A deep learning
+        approach to survival analysis with competing risks. In Thirty-Second AAAI Conference on Artificial
+        Intelligence, 2018.
+        http://medianetlab.ee.ucla.edu/papers/AAAI_2018_DeepHit
+    """
+
     def __init__(
         self,
         model: Any = None,

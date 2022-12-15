@@ -134,7 +134,6 @@ class XGBoostPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Float("eta", 1e-3, 0.5),
             params.Float("reg_lambda", 1e-3, 10.0),
             params.Float("reg_alpha", 1e-3, 10.0),
             params.Float("colsample_bytree", 0.1, 0.9),
