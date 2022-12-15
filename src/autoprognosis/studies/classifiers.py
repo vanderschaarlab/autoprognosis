@@ -40,9 +40,9 @@ class ClassifierStudy(Study):
         target: str.
             The target column in the dataset.
         num_iter: int.
-            Number of optimization iteration.
+            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
         num_study_iter: int.
-            The number of study iterations.
+            The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
             Max wait time for each estimator hyperparameter search.
         metric: str.
