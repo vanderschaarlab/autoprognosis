@@ -7,8 +7,7 @@ scikit-learn
 cloudpickle
 catboost
 xgboost
-jupyhai
-valohai-utils
+mistune==0.8.4
 pydantic
 scipy
 myst-parser
