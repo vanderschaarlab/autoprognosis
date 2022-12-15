@@ -10,10 +10,25 @@ import autoprognosis.plugins.imputers.base as base
 
 
 class GainPlugin(base.ImputerPlugin):
-    """Imputation plugin for completing missing values using the GAIN strategy.
+    """GAIN Imputation for static data using Generative Adversarial Nets.
+     The training steps are:
+      - The generato imputes the missing components conditioned on what is actually observed, and outputs a           completed vector.
+      - The discriminator takes a completed vector and attempts to determine which components were actually observed  and which were imputed.
 
-    Method:
-        Details in the GainImputation class implementation.
+     Args:
+
+         batch_size: int
+             The batch size for the training steps.
+         n_epochs: int
+             Number of epochs for training.
+         hint_rate: float
+             Percentage of additional information for the discriminator.
+         loss_alpha: int
+             Hyperparameter for the generator loss.
+
+     Paper: J. Yoon, J. Jordon, M. van der Schaar, "GAIN: Missing Data Imputation using Generative Adversarial Nets,  " ICML, 2018.
+     Original code: https://github.com/jsyoon0823/GAIN
+
 
     Example:
         >>> import numpy as np
