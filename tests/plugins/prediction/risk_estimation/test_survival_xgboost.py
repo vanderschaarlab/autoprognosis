@@ -59,7 +59,7 @@ def test_survival_xgboost_plugin_type(test_plugin: PredictionPlugin) -> None:
 
 @pytest.mark.parametrize("test_plugin", [from_api(), from_module(), from_serde()])
 def test_survival_xgboost_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
-    assert len(test_plugin.hyperparameter_space()) == 4
+    assert len(test_plugin.hyperparameter_space()) == 14
 
 
 @pytest.mark.parametrize(

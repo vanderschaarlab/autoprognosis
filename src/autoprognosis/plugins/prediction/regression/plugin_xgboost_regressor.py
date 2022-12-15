@@ -64,6 +64,9 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
         >>> plugin.fit_predict(X, y)
     """
 
+    booster = ["gbtree", "gblinear", "dart"]
+    grow_policy = ["depthwise", "lossguide"]
+
     def __init__(
         self,
         reg_lambda: Optional[float] = None,
