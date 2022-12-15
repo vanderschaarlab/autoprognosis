@@ -226,6 +226,7 @@ class RiskEstimationStudy(Study):
             save_model_to_file(self.output_file, model)
 
     def run(self) -> Any:
+        """Run the study. The call returns the optimal model architecture - not fitted."""
         self._should_continue()
 
         best_score, best_model = self._load_progress()
@@ -300,6 +301,7 @@ class RiskEstimationStudy(Study):
         return best_model
 
     def fit(self) -> Any:
+        """Run the study and train the model. The call returns the fitted model."""
         model = self.run()
         model.fit(self.X, self.T, self.Y)
 

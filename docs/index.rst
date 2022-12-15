@@ -67,4 +67,4 @@ Benchmarks
     :glob:
     :maxdepth: 3
 
-    benchmarks.rst
+    Evaluation <generated/autoprognosis.utils.tester.rst>

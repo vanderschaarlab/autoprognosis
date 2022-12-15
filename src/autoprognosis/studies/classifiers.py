@@ -173,7 +173,7 @@ class ClassifierStudy(Study):
         if self.hooks.cancel():
             raise StudyCancelled("Classifier study search cancelled")
 
-    def load_progress(self) -> Tuple[int, Any]:
+    def _load_progress(self) -> Tuple[int, Any]:
         self._should_continue()
 
         if not self.output_file.is_file():
@@ -201,16 +201,17 @@ class ClassifierStudy(Study):
         except BaseException:
             return -1, None
 
-    def save_progress(self, model: Any) -> None:
+    def _save_progress(self, model: Any) -> None:
         self._should_continue()
 
         if self.output_file:
             save_model_to_file(self.output_file, model)
 
     def run(self) -> Any:
+        """Run the study. The call returns the optimal model architecture - not fitted."""
         self._should_continue()
 
-        best_score, best_model = self.load_progress()
+        best_score, best_model = self._load_progress()
 
         patience = 0
         for it in range(self.num_study_iter):
@@ -262,11 +263,12 @@ class ClassifierStudy(Study):
                 f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
             )
 
-            self.save_progress(best_model)
+            self._save_progress(best_model)
 
         return best_model
 
     def fit(self) -> Any:
+        """Run the study and train the model. The call returns the fitted model."""
         model = self.run()
         model.fit(self.X, self.Y)
 
