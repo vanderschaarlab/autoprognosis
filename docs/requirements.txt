@@ -4,6 +4,7 @@ sphinx_gallery==0.10.1
 m2r2==0.3.1
 mistune<2.0.0
 Pillow==8.4.0
+nbconvert==6.5.3
 sphinx-autopackagesummary
 sphinxcontrib-napoleon
 sphinxemoji
