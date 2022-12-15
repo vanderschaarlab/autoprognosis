@@ -87,7 +87,7 @@ def test_dataframe_sample() -> None:
         {"test": [0, 1, 0, 1, 0, 1], "not_encoded": ["1", "2", "3", "4", 5, 6]}
     )
 
-    indices = dataframe_sample(df, df["test"], max_size=2)
+    indices = dataframe_sample(df, df["test"], max_sample_size=2)
 
     assert len(indices) == 4
 
