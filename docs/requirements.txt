@@ -5,7 +5,6 @@ pandas
 numpy
 scikit-learn
 cloudpickle
-miracle-imputation
 catboost
 xgboost
 pydantic
@@ -18,7 +17,6 @@ sphinx-autopackagesummary
 sphinxcontrib-napoleon
 sphinxemoji
 shap
-hyperimpute
 pyod
 pydantic
 seaborn
