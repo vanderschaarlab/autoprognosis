@@ -67,6 +67,10 @@ class ClassifierStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
+        sample: bool
+            Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
+        max_sample_size: int
+            Subsample size for the evaluation dataset, if `sample` is True.
     Example:
         >>> from sklearn.datasets import load_breast_cancer
         >>>
