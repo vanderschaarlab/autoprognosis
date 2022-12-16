@@ -24,7 +24,7 @@
 
 ## :key: Features
 
-- :rocket:Automatically learns ensembles of pipelines for classification, regression or survival analysis tasks.
+- :rocket: Automatically learns ensembles of pipelines for classification, regression or survival analysis tasks.
 - :cyclone: Easy to extend pluginable architecture.
 - :fire: Interpretability and uncertainty quantification tools.
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
@@ -32,7 +32,7 @@
 - :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
 
 
-## :rocket:Installation
+## :rocket: Installation
 
 #### Using pip
 
@@ -360,7 +360,7 @@ model.predict(X, eval_time_horizons)
 ### Plugins
 
 
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)[ Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)[ Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)[ Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)

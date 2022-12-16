@@ -5,13 +5,15 @@
 
 ## |:key:| Features
 
-- |:rocket:|Automatically learns ensembles of pipelines for classification, regression or survival analysis tasks.
+- |:rocket:| Automatically learns ensembles of pipelines for classification, regression or survival analysis tasks.
 - |:cyclone:| Easy to extend pluginable architecture.
 - |:fire:| Interpretability and uncertainty quantification tools.
-- :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
+- |:adhesive_bandage:| Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - |:zap:| Build demonstrators using [Streamlit](https://streamlit.io/).
-- :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
-## |:rocket:|Installation
+- |:notebook:| [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
+
+
+## |:rocket:| Installation
 
 #### Using pip
 
@@ -55,8 +57,6 @@ print(Classifiers().list_available())
 
 Create a study for classifiers
 ```python
-from pathlib import Path
-
 from sklearn.datasets import load_breast_cancer
 
 from autoprognosis.studies.classifiers import ClassifierStudy
@@ -69,16 +69,14 @@ X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 df = X.copy()
 df["target"] = Y
 
-workspace = Path("workspace")
 study_name = "example"
 
 study = ClassifierStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    workspace=workspace,
 )
-study.fit()
+model = study.fit()
 
 # Predict the probabilities of each class using the model
 model.predict_proba(X)
@@ -140,9 +138,6 @@ print(Regression().list_available())
 
 Create a Regression study
 ```python
-# stdlib
-from pathlib import Path
-
 # third party
 import pandas as pd
 
@@ -165,22 +160,13 @@ df = X.copy()
 df["target"] = y
 
 # Search the model
-workspace = Path("workspace")
-workspace.mkdir(parents=True, exist_ok=True)
-
 study_name="regression_example"
 study = RegressionStudy(
     study_name=study_name,
     dataset=df,  # pandas DataFrame
     target="target",  # the label column in the dataset
-    workspace=workspace,
 )
-study.fit()
-
-# Test the model
-output = workspace / study_name / "model.p"
-
-model = load_model_from_file(output)
+model = study.fit()
 
 # Predict using the model
 model.predict(X)
@@ -256,10 +242,6 @@ print(RiskEstimation().list_available())
 ```
 Create a Survival analysis study
 ```python
-# stdlib
-import os
-from pathlib import Path
-
 # third party
 import numpy as np
 from pycox import datasets
@@ -278,7 +260,6 @@ Y = df["event"]
 
 eval_time_horizons = np.linspace(T.min(), T.max(), 5)[1:-1]
 
-workspace = Path("workspace")
 study_name = "example_risks"
 
 study = RiskEstimationStudy(
@@ -287,14 +268,9 @@ study = RiskEstimationStudy(
     target="event",
     time_to_event="duration",
     time_horizons=eval_time_horizons,
-    workspace=workspace,
 )
 
-study.fit()
-
-output = workspace / study_name / "model.p"
-
-model = load_model_from_file(output)
+model = study.fit()
 
 # Predict using the model
 model.predict(X, eval_time_horizons)
@@ -360,33 +336,11 @@ model.fit(X, T, Y)
 model.predict(X, eval_time_horizons)
 ```
 
-## :high_brightness: Tutorials
-
-### Plugins
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)[ Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)[ Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/17bLtKUjN8ilHw4Cm7-53kiC0vCJO_pVb?usp=sharing)[ Pipelines](tutorials/plugins/tutorial_03_pipelines.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1K0yVwm4jQrXRbMKJ-em7tTYgHXWtoK5c?usp=sharing)[ Interpretability](tutorials/plugins/tutorial_04_interpretability.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1bY4CbiqMe2uoqeUu2d49aIdYRbtP156X?usp=sharing)[ Survival Analysis](tutorials/plugins/tutorial_05_survival_analysis_plugins.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UK6WbsviT5nOQ_BAHSFYIjhpKtwppnUU?usp=sharing)[ Regression](tutorials/plugins/tutorial_06_regression_plugins.ipynb)
-
-### AutoML
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-lPuQAtjHESl32ahFQYsFl8ujAnDWxEJ?usp=sharing)[ Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/16UDaA3F5JGw_YVY8XlYqWjfxcUV1OHJo?usp=sharing)[ Classification tasks with imputation](tutorials/automl/tutorial_01_automl_classification_with_imputation.ipynb)
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DtZCqebhaYdKB3ci5dr3hT0KvZPaTUOi?usp=sharing)[ Survival analysis tasks](tutorials/automl/tutorial_02_survival_analysis_study.ipynb)
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1sFVnnxjRMCNVIn-Ikc--Ja44U0Ll4joY?usp=sharing)[ Survival analysis tasks with imputation](tutorials/automl/tutorial_03_automl_survival_analysis_with_imputation.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1HLhWI-tRZn4e9ijQ6iEIuppuDszgWkCC?usp=sharing)[ Regression tasks](tutorials/automl/tutorial_04_regression.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1eHw1l79_m3vq9y-0WpllCMBSD7DQajWO?usp=sharing)[ Classifiers with explainers](tutorials/automl/tutorial_05_classification_with_explainers.ipynb)
-- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dm3cRmo-jD6x7V5WePciDpcauqtUt6lS?usp=sharing)[ Multiple imputation example](tutorials/automl/tutorial_06_automl_multiple_imputation_example.ipynb)
-
-### Building a demonstrator
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)
- - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)[ Survival analysis demonstrator](tutorials/demonstrators/tutorial_01_build_a_demonstrator_survival_analysis.ipynb)
-
 ## |:zap:| Plugins
 
 ### Imputation methods
+
+
 ```python
 from autoprognosis.plugins.imputers import  Imputers
 
@@ -497,7 +451,7 @@ from autoprognosis.plugins.uncertainty import UncertaintyQuantification
 model = UncertaintyQuantification().get(<NAME>)
 ```
 | Name | Description |
-| --- | --- |
+|--- | --- |
 | **cohort_explainer**  ||
 | **conformal_prediction**  ||
 | **jackknife**  ||
