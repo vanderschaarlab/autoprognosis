@@ -26,24 +26,10 @@ class GaussianRandomProjectionPlugin(base.PreprocessorPlugin):
 
     Example:
         >>> from autoprognosis.plugins.preprocessors import Preprocessors
-        >>> plugin = Preprocessors().get("gauss_projection")
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("gauss_projection")
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_transform(X, y)
-                    0         1
-        0    7.718004  3.193113
-        1    7.019081  2.797991
-        2    7.068800  2.911076
-        3    7.010516  2.645119
-        4    7.772388  3.209621
-        ..        ...       ...
-        145  7.650295 -0.532885
-        146  7.227596 -0.649175
-        147  7.915538 -0.466192
-        148  7.924933 -0.671648
-        149  7.748649 -0.550050
-
-        [150 rows x 2 columns]
     """
 
     def __init__(

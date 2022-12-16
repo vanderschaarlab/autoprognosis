@@ -25,24 +25,10 @@ class FastICAPlugin(base.PreprocessorPlugin):
             Number of components to use.
     Example:
         >>> from autoprognosis.plugins.preprocessors import Preprocessors
-        >>> plugin = Preprocessors().get("fast_ica")
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("fast_ica")
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_transform(X, y)
-                    0         1
-        0    0.112081  0.041168
-        1    0.104289 -0.041024
-        2    0.111794 -0.036483
-        3    0.102969 -0.064518
-        4    0.113980  0.042191
-        ..        ...       ...
-        145 -0.073602  0.039428
-        146 -0.067272 -0.055427
-        147 -0.068449  0.020683
-        148 -0.073175  0.027519
-        149 -0.060171 -0.040703
-
-        [150 rows x 2 columns]
     """
 
     def __init__(

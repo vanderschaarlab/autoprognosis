@@ -39,12 +39,17 @@ class AdaBoostPlugin(base.ClassifierPlugin):
         An AdaBoost classifier is a meta-estimator that begins by fitting a classifier on the original dataset and then fits additional copies of the classifier on the same dataset but where the weights of incorrectly classified instances are adjusted such that subsequent classifiers focus more on difficult cases.
 
     Args:
+        estimator: int
+            Base Learner to use. 0: HistGradientBoostingClassifier, 1: CatBoostClassifier, 2: LGBM, 3: LogisticRegression
         n_estimators: int
             The maximum number of estimators at which boosting is terminated.
         learning_rate: float
             Weight applied to each classifier at each boosting iteration. A higher learning rate increases the contribution of each classifier. There is a trade-off between the learning_rate and n_estimators parameters.
-        estimator: int
-            Base estimator to use
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

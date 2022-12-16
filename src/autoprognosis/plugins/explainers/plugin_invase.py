@@ -572,15 +572,49 @@ class INVASEPlugin(ExplainerPlugin):
     Interpretability plugin based on the INVASE algorithm.
 
     Args:
-        estimator: model. The model to explain.
-        X: dataframe. Training set
-        y: dataframe. Training labels
-        time_to_event: dataframe. Used for risk estimation tasks.
-        eval_times: list. Used for risk estimation tasks.
-        n_epoch: int. training epochs
-        task_type: str. classification of risk_estimation
-        samples: int. Number of samples to use.
-        prefit: bool. If true, the estimator won't be trained.
+        estimator: model.
+            The model to explain.
+        X: dataframe.
+            Training set
+        y: dataframe.
+            Training labels
+        time_to_event: dataframe.
+            Used for risk estimation tasks.
+        eval_times: list.
+            Used for risk estimation tasks.
+        n_epoch: int.
+            training epochs
+        task_type: str.
+            classification or risk_estimation
+        samples: int.
+            Number of samples to use.
+        prefit: bool.
+            If true, the estimator won't be trained.
+
+    Example:
+        >>> import pandas as pd
+        >>> from sklearn.datasets import load_iris
+        >>> from sklearn.model_selection import train_test_split
+        >>>from autoprognosis.plugins.explainers import Explainers
+        >>> from autoprognosis.plugins.prediction.classifiers import Classifiers
+        >>>
+        >>> X, y = load_iris(return_X_y=True)
+        >>>
+        >>> X = pd.DataFrame(X)
+        >>> y = pd.Series(y)
+        >>>
+        >>> X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        >>> model = Classifiers().get("logistic_regression")
+        >>>
+        >>> explainer = Explainers().get(
+        >>>     "invase",
+        >>>     model,
+        >>>     X_train,
+        >>>     y_train,
+        >>>     task_type="classification",
+        >>> )
+        >>>
+        >>> explainer.explain(X_test)
     """
 
     def __init__(

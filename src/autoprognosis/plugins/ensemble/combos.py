@@ -36,6 +36,9 @@ from sklearn.utils.validation import check_is_fitted
 class BaseAggregator(ABC):
     """Abstract class for all combination classes.
 
+        Stacking (meta ensembling). See http://blog.kaggle.com/2016/12/27/a-kagglers-guide-to-model-stacking-in-practice/for more information.
+
+
     Parameters
     ----------
     base_estimators: list, length must be greater than 1

@@ -40,9 +40,9 @@ class RegressionStudy(Study):
         target: str.
             The target column in the dataset.
         num_iter: int.
-            Number of optimization iteration.
+            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
         num_study_iter: int.
-            The number of study iterations.
+            The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
             Max wait time for each estimator hyperparameter search.
         metric: str.
@@ -67,6 +67,38 @@ class RegressionStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
+
+    Example:
+        >>> import pandas as pd
+        >>> from autoprognosis.utils.serialization import load_model_from_file
+        >>> from autoprognosis.utils.tester import evaluate_regression
+        >>> from autoprognosis.studies.regression import RegressionStudy
+        >>>
+        >>> # Load dataset
+        >>> df = pd.read_csv(
+        >>>     "https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat",
+        >>>     header=None,
+        >>>     sep="\\t",
+        >>> )
+        >>> last_col = df.columns[-1]
+        >>> y = df[last_col]
+        >>> X = df.drop(columns=[last_col])
+        >>>
+        >>> df = X.copy()
+        >>> df["target"] = y
+        >>>
+        >>> # Search the model
+        >>>
+        >>> study_name="regression_example"
+        >>> study = RegressionStudy(
+        >>>     study_name=study_name,
+        >>>     dataset=df,  # pandas DataFrame
+        >>>     target="target",  # the label column in the dataset
+        >>> )
+        >>> model = study.fit()
+        >>>
+        >>> # Predict using the model
+        >>> model.predict(X)
     """
 
     def __init__(
@@ -88,6 +120,8 @@ class RegressionStudy(Study):
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
         random_state: int = 0,
+        sample: bool = True,
+        max_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -108,7 +142,12 @@ class RegressionStudy(Study):
             imputers = []
 
         self.X, _, self.Y, _, _, self.group_ids = dataframe_preprocess(
-            dataset, target, imputation_method=imputation_method, group_id=group_id
+            dataset,
+            target,
+            imputation_method=imputation_method,
+            group_id=group_id,
+            sample=sample,
+            max_sample_size=max_sample_size,
         )
 
         self.internal_name = dataframe_hash(dataset)
@@ -141,7 +180,7 @@ class RegressionStudy(Study):
         if self.hooks.cancel():
             raise StudyCancelled("Regression study search cancelled")
 
-    def load_progress(self) -> Tuple[int, Any]:
+    def _load_progress(self) -> Tuple[int, Any]:
         self._should_continue()
 
         if not self.output_file.is_file():
@@ -169,16 +208,17 @@ class RegressionStudy(Study):
         except BaseException:
             return -1, None
 
-    def save_progress(self, model: Any) -> None:
+    def _save_progress(self, model: Any) -> None:
         self._should_continue()
 
         if self.output_file:
             save_model_to_file(self.output_file, model)
 
     def run(self) -> Any:
+        """Run the study. The call returns the optimal model architecture - not fitted."""
         self._should_continue()
 
-        best_score, best_model = self.load_progress()
+        best_score, best_model = self._load_progress()
 
         patience = 0
         for it in range(self.num_study_iter):
@@ -226,11 +266,12 @@ class RegressionStudy(Study):
                 f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
             )
 
-            self.save_progress(best_model)
+            self._save_progress(best_model)
 
         return best_model
 
     def fit(self) -> Any:
+        """Run the study and train the model. The call returns the fitted model."""
         model = self.run()
         model.fit(self.X, self.Y)
 

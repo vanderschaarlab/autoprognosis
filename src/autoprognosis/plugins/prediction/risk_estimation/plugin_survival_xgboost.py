@@ -26,20 +26,82 @@ for retry in range(2):
 
 
 class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
+    """Survival XGBoost plugin for survival analysis.
+
+    Args:
+        n_estimators: int
+            The maximum number of estimators at which boosting is terminated.
+        max_depth: int
+            Maximum depth of a tree.
+        reg_lambda: float
+            L2 regularization term on weights (xgb’s lambda).
+        reg_alpha: float
+            L1 regularization term on weights (xgb’s alpha).
+        colsample_bytree: float
+            Subsample ratio of columns when constructing each tree.
+        colsample_bynode: float
+             Subsample ratio of columns for each split.
+        colsample_bylevel: float
+             Subsample ratio of columns for each level.
+        subsample: float
+            Subsample ratio of the training instance.
+        learning_rate: float
+            Boosting learning rate
+        booster: int index
+            Specify which booster to use: gbtree, gblinear or dart.
+        min_child_weight: int
+            Minimum sum of instance weight(hessian) needed in a child.
+        max_bin: int
+            Number of bins for histogram construction.
+        grow_policy: int index
+            Controls a way new nodes are added to the tree. 0: "depthwise", 1 : "lossguide"
+        random_state: float
+            Random number seed.
+        objective: str
+            Survival analysis objective. Can be "aft" or "cox"
+        strategy: str
+            Survival analysis model. Can be "weibull", "debiased_bce"
+
+
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> from pycox.datasets import metabric
+        >>>
+        >>> df = metabric.read_df()
+        >>> X = df.drop(["duration", "event"], axis=1)
+        >>> Y = df["event"]
+        >>> T = df["duration"]
+        >>>
+        >>> plugin = Predictions(category="risk_estimation").get("survival_xgboost")
+        >>> plugin.fit(X, T, Y)
+        >>>
+        >>> eval_time_horizons = [int(T[Y.iloc[:] == 1].quantile(0.50))]
+        >>> plugin.predict(X, eval_time_horizons)
+
+    """
+
     booster = ["gbtree", "gblinear", "dart"]
+    grow_policy = ["depthwise", "lossguide"]
 
     def __init__(
         self,
         n_estimators: int = 100,
-        colsample_bynode: float = 0.5,
-        max_depth: int = 8,
-        subsample: float = 0.5,
-        learning_rate: float = 5e-2,
-        min_child_weight: int = 50,
-        tree_method: str = "hist",
+        reg_lambda: float = 1e-3,
+        reg_alpha: float = 1e-3,
+        colsample_bytree: float = 0.1,
+        colsample_bynode: float = 0.1,
+        colsample_bylevel: float = 0.1,
+        max_depth: int = 6,
+        subsample: float = 0.1,
+        learning_rate: float = 1e-2,
+        min_child_weight: int = 0,
+        max_bin: int = 256,
         booster: int = 0,
+        grow_policy: int = 0,
+        # survival params
         objective: str = "aft",  # "aft", "cox"
         strategy: str = "weibull",  # "weibull", "debiased_bce"
+        # misc
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
@@ -73,14 +135,19 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
             **kwargs,
             # basic xgboost
             "n_estimators": n_estimators,
+            "reg_lambda": reg_lambda,
+            "reg_alpha": reg_alpha,
             "colsample_bynode": colsample_bynode,
+            "colsample_bytree": colsample_bytree,
+            "colsample_bylevel": colsample_bylevel,
             "max_depth": max_depth,
             "subsample": subsample,
             "learning_rate": learning_rate,
             "min_child_weight": min_child_weight,
+            "max_bin": max_bin,
             "verbosity": 0,
-            "tree_method": tree_method,
             "booster": XGBoostRiskEstimationPlugin.booster[booster],
+            "grow_policy": XGBoostRiskEstimationPlugin.grow_policy[grow_policy],
             "random_state": random_state,
             "n_jobs": n_learner_jobs(),
         }
@@ -161,8 +228,20 @@ class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Integer("max_depth", 2, 6),
-            params.Integer("min_child_weight", 0, 50),
+            params.Float("reg_lambda", 1e-3, 10.0),
+            params.Float("reg_alpha", 1e-3, 10.0),
+            params.Float("colsample_bytree", 0.1, 0.9),
+            params.Float("colsample_bynode", 0.1, 0.9),
+            params.Float("colsample_bylevel", 0.1, 0.9),
+            params.Float("subsample", 0.1, 0.9),
+            params.Categorical("lr", [1e-4, 1e-3, 1e-2]),
+            params.Integer("max_depth", 2, 5),
+            params.Integer("n_estimators", 10, 300),
+            params.Integer("min_child_weight", 0, 300),
+            params.Integer("max_bin", 256, 512),
+            params.Integer(
+                "grow_policy", 0, len(XGBoostRiskEstimationPlugin.grow_policy) - 1
+            ),
             params.Categorical("objective", ["aft", "cox"]),
             params.Categorical("strategy", ["weibull", "debiased_bce"]),
         ]

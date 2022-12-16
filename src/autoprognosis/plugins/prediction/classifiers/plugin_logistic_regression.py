@@ -24,14 +24,21 @@ class LogisticRegressionPlugin(base.ClassifierPlugin):
     Args:
         C: float
             Inverse of regularization strength; must be a positive float.
-        solver: str
+        solver: int index
             Algorithm to use in the optimization problem: [‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’]
-        multi_class: str
+        multi_class: int
             If the option chosen is ‘ovr’, then a binary problem is fit for each label. For ‘multinomial’ the loss minimised is the multinomial loss fit across the entire probability distribution, even when the data is binary. ‘multinomial’ is unavailable when solver=’liblinear’. ‘auto’ selects ‘ovr’ if the data is binary, or if solver=’liblinear’, and otherwise selects ‘multinomial’.
-        class_weight: str
+        class_weight: int index
             Weights associated with classes in the form {class_label: weight}. If not given, all classes are supposed to have weight one.
         max_iter: int
             Maximum number of iterations taken for the solvers to converge.
+        penalty: str
+            Specify the norm of the penalty:
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

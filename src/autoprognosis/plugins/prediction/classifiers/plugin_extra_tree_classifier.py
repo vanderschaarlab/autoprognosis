@@ -21,8 +21,13 @@ class ExtraTreeClassifierPlugin(base.ClassifierPlugin):
          The Extra-Trees classifierimplements a meta estimator that fits a number of randomized decision trees (a.k.a. extra-trees) on various sub-samples of the dataset and uses averaging to improve the predictive accuracy and control over-fitting.
 
     Args:
-        criterion: str
-            The function to measure the quality of a split. Supported criteria are “gini” for the Gini impurity and “entropy” for the information gain.
+        criterion: int
+            The function to measure the quality of a split. Supported criteria are “gini”(0) for the Gini impurity and “entropy”(1) for the information gain.
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

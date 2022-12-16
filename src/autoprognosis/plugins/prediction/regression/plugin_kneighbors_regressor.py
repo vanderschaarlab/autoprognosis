@@ -15,6 +15,20 @@ import autoprognosis.utils.serialization as serialization
 class KNeighborsRegressorPlugin(base.RegressionPlugin):
     """Regression plugin based on the KNeighborsRegressor.
 
+    Args:
+        n_neighbors: int
+            Number of neighbors to use
+        weights: str
+            Weight function used in prediction. Possible values: "uniform", "distance"
+        algorithm: int index
+            Algorithm used to compute the nearest neighbors: "ball_tree", "kd_tree", "brute" or "auto".
+        leaf_size: int
+            Leaf size passed to BallTree or KDTree.
+        p: int
+            Power parameter for the Minkowski metric.
+        random_state: int, default 0
+            Random seed
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
         >>> plugin = Predictions(category="regression").get("kneighbors_regressor")

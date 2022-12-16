@@ -231,9 +231,39 @@ class BasicNet(nn.Module):
 class NeuralNetsPlugin(base.ClassifierPlugin):
     """Classification plugin based on Neural networks.
 
+    Parameters
+    ----------
+    n_layers_hidden: int
+        Number of hypothesis layers (n_layers_hidden x n_units_hidden + 1 x Linear layer)
+    n_units_hidden: int
+        Number of hidden units in each hypothesis layer
+    nonlin: string, default 'elu'
+        Nonlinearity to use in NN. Can be 'elu', 'relu', 'selu' or 'leaky_relu'.
+    lr: float
+        learning rate for optimizer. step_size equivalent in the JAX version.
+    weight_decay: float
+        l2 (ridge) penalty for the weights.
+    n_iter: int
+        Maximum number of iterations.
+    batch_size: int
+        Batch size
+    n_iter_print: int
+        Number of iterations after which to print updates and check the validation loss.
+    val_split_prop: float
+        Proportion of samples used for validation split (can be 0)
+    patience: int
+        Number of iterations to wait before early stopping after decrease in validation loss
+    n_iter_min: int
+        Minimum number of iterations to go through before starting early stopping
+    clipping_value: int, default 1
+        Gradients clipping value
+    random_state: int, default 0
+        Random seed
+
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
-        >>> plugin = Predictions(category="classifiers").get("neural_nets")
+        >>> plugin = Predictions(category="classifiers").get("neural_nets", n_layers_hidden = 2)
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class

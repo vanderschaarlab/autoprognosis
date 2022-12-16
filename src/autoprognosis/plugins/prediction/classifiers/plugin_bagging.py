@@ -47,8 +47,8 @@ class BaggingPlugin(base.ClassifierPlugin):
             The number of samples to draw from X to train each base estimator.
         max_features: float
             The number of features to draw from X to train each base estimator.
-        base_estimator: int
-            Base estimator to use
+        estimator: int
+            Base estimator to use. 0: HistGradientBoostingClassifier, 1: CatBoostClassifier, 2: LGBM, 3: LogisticRegression.
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

@@ -21,6 +21,13 @@ class GaussianProcessPlugin(base.ClassifierPlugin):
     Method:
         The plugin uses GaussianProcessClassifier, which implements Gaussian processes for classification purposes, more specifically for probabilistic classification, where test predictions take the form of class probabilities.
 
+    Args:
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
         >>> plugin = Predictions(category="classifiers").get("gaussian_process")

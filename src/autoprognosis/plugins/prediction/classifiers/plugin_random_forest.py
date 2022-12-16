@@ -32,6 +32,12 @@ class RandomForestPlugin(base.ClassifierPlugin):
             Whether bootstrap samples are used when building trees. If False, the whole dataset is used to build each tree.
         min_samples_leaf: int
             The minimum number of samples required to be at a leaf node.
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

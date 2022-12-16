@@ -28,14 +28,49 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class TabNetPlugin(base.ClassifierPlugin):
-    """Classification plugin based on TabNet.
+    """Classification plugin based on TabNet. TabNet uses sequential attention to choose which features to reason from at each decision step, enabling interpretability and more efficient learning as the learning capacity is used for the most salient features.
+
+    Args:
+        n_d: int
+            Width of the decision prediction layer. Bigger values gives more capacity to the model with the risk of overfitting. Values typically range from 8 to 64.
+        n_a: int
+            Width of the attention embedding for each mask. According to the paper n_d=n_a is usually a good choice. (default=8)
+        lr: float
+            Learning rate
+        n_steps: int
+            Number of steps in the architecture (usually between 3 and 10)
+        gamma: float
+            This is the coefficient for feature reusage in the masks. A value close to 1 will make mask selection least correlated between layers. Values range from 1.0 to 2.0.
+        n_independent: int
+            Number of independent Gated Linear Units layers at each step. Usual values range from 1 to 5.
+        n_shared: int
+            Number of shared Gated Linear Units at each step Usual values range from 1 to 5
+        lambda_sparse: float
+            This is the extra sparsity loss coefficient as proposed in the original paper. The bigger this coefficient is, the sparser your model will be in terms of feature selection. Depending on the difficulty of your problem, reducing this value could help.
+
+        momentum: float
+            Momentum for batch normalization, typically ranges from 0.01 to 0.4 (default=0.02)
+        clip_value: float
+           If a float is given this will clip the gradient at clip_value.
+        max_epochs: int
+            Maximum number of epochs for trainng.
+        patience: int
+            Number of consecutive epochs without improvement before performing early stopping.
+        batch_size: int
+            Batch size
+        random_state: int
+            Random seed
+
+
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
-        >>> plugin = Predictions(category="classifiers").get("tabnet")
+        >>> plugin = Predictions(category="classifiers").get("tabnet", max_epochs = 100)
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_predict(X, y) # returns the probabilities for each class
+
+    Original implementation: https://github.com/dreamquark-ai/tabnet
     """
 
     def __init__(
@@ -50,7 +85,6 @@ class TabNetPlugin(base.ClassifierPlugin):
         lambda_sparse: float = 1e-4,
         momentum: float = 0.3,
         clip_value: float = 2.0,
-        epsilon: float = 1e-15,
         max_epochs: int = 1000,
         patience: int = 20,
         batch_size: int = 50,
@@ -77,7 +111,6 @@ class TabNetPlugin(base.ClassifierPlugin):
             optimizer_params=dict(lr=lr),
             scheduler_params={"gamma": 0.95, "step_size": 20},
             scheduler_fn=torch.optim.lr_scheduler.StepLR,
-            epsilon=epsilon,
             verbose=0,
             seed=random_state,
         )

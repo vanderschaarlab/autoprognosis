@@ -23,6 +23,32 @@ for retry in range(2):
 
 
 class WeibullAFTPlugin(base.RiskEstimationPlugin):
+    """Weibull AFT plugin for survival analysis.
+
+    Args:
+        alpha: float
+            the level in the confidence intervals.
+        l1_ratio: float
+            the penalizer coefficient to the size of the coefficients.
+        random_state: int
+            Random seed
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> from pycox.datasets import metabric
+        >>>
+        >>> df = metabric.read_df()
+        >>> X = df.drop(["duration", "event"], axis=1)
+        >>> Y = df["event"]
+        >>> T = df["duration"]
+        >>>
+        >>> plugin = Predictions(category="risk_estimation").get("weibull_aft")
+        >>> plugin.fit(X, T, Y)
+        >>>
+        >>> eval_time_horizons = [int(T[Y.iloc[:] == 1].quantile(0.50))]
+        >>> plugin.predict(X, eval_time_horizons)
+
+    """
+
     def __init__(
         self,
         alpha: float = 0.05,

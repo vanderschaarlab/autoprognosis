@@ -27,6 +27,24 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
     Method:
         CatBoost provides a gradient boosting framework which attempts to solve for Categorical features using a permutation driven alternative compared to the classical algorithm. It uses Ordered Boosting to overcome over fitting and Symmetric Trees for faster execution.
 
+    Args:
+        n_estimators: int
+            Number of gradient boosted trees. Equivalent to number of boosting rounds.
+        depth: int
+            Depth of the tree.
+        grow_policy: int
+            The tree growing policy. Defines how to perform greedy tree construction: [SymmetricTree, Depthwise]
+        l2_leaf_reg: float
+            Coefficient at the L2 regularization term of the cost function.
+        learning_rate: float
+            The learning rate used for reducing the gradient step.
+        min_data_in_leaf: int
+            The minimum number of training samples in a leaf.
+        random_strength: float
+            The amount of randomness to use for scoring splits when the tree structure is selected. Use this parameter to avoid overfitting the model.
+        random_state: int, default 0
+            Random seed
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
         >>> plugin = Predictions(category="regression").get("catboost_regressor")
@@ -42,6 +60,10 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
         depth: int = 5,
         grow_policy: int = 0,
         n_estimators: int = 100,
+        l2_leaf_reg: float = 3,
+        learning_rate: float = 1e-3,
+        min_data_in_leaf: int = 1,
+        random_strength: float = 1,
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
@@ -63,6 +85,10 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
             n_estimators=n_estimators,
             grow_policy=CatBoostRegressorPlugin.grow_policies[grow_policy],
             random_state=random_state,
+            l2_leaf_reg=l2_leaf_reg,
+            learning_rate=learning_rate,
+            min_data_in_leaf=min_data_in_leaf,
+            random_strength=random_strength,
         )
 
     @staticmethod
@@ -74,11 +100,13 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
         return [
             params.Integer("depth", 1, 5),
             params.Integer("n_estimators", 10, 100),
-            params.Categorical("learning_rate", [1e-4, 1e-3, 1e-2]),
-            params.Float("l2_leaf_reg", 0, 5),
             params.Integer(
                 "grow_policy", 0, len(CatBoostRegressorPlugin.grow_policies) - 1
             ),
+            params.Float("learning_rate", 1e-2, 4e-2),
+            params.Float("l2_leaf_reg", 1e-4, 1e3),
+            params.Float("random_strength", 0, 3),
+            params.Integer("min_data_in_leaf", 1, 300),
         ]
 
     def _fit(

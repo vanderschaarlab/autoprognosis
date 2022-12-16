@@ -15,6 +15,27 @@ import autoprognosis.utils.serialization as serialization
 
 
 class DataCompressionPlugin(base.PreprocessorPlugin):
+    """Preprocessing plugin used for droping constant features, and for fixing multicollinearity issues.
+
+    Args:
+
+        threshold: float
+            The variance threshold.
+        vif_threshold: float
+            The limit for the VIF values.
+        drop_variance:
+            enable VarianceThreshold
+        drop_multicollinearity:
+            enable multicollinearity filtering.
+
+    Example:
+        >>> from autoprognosis.plugins.preprocessors import Preprocessors
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("data_cleanup")
+        >>> from sklearn.datasets import load_iris
+        >>> X, y = load_iris(return_X_y=True)
+        >>> plugin.fit_transform(X, y)
+    """
+
     def __init__(
         self,
         threshold: float = 0,

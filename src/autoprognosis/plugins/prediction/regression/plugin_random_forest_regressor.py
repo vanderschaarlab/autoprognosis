@@ -29,6 +29,8 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
             Whether bootstrap samples are used when building trees. If False, the whole dataset is used to build each tree.
         min_samples_leaf: int
             The minimum number of samples required to be at a leaf node.
+        random_state: int
+            Random seed
 
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions

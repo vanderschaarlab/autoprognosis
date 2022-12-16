@@ -188,6 +188,27 @@ def evaluate_estimator_multiple_seeds(
     pretrained: bool = False,
     group_ids: Optional[pd.Series] = None,
 ) -> Dict:
+    """Helper for evaluating classifiers with multiple seeds.
+
+    Args:
+        estimator:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X:
+            The covariates
+        Y:
+            The labels
+        n_folds: int
+            cross-validation folds
+        metric: str
+            The metric to use: aucroc or aucprc
+        seeds: List
+            Random seeds
+        pretrained: bool
+            If the estimator was already trained or not.
+        group_ids: pd.Series
+            The group_ids to use for stratified cross-validation
+
+    """
     results = {
         "seeds": {},
         "agg": {},
@@ -511,6 +532,29 @@ def evaluate_survival_estimator_multiple_seeds(
     group_ids: Optional[pd.Series] = None,
     seeds: List[int] = [0, 1, 2],
 ) -> Dict:
+    """Helper for evaluating survival analysis tasks with multiple random seeds.
+
+    Args:
+        X: DataFrame
+            The covariates
+        T: Series
+            time to event
+        Y: Series
+            event or censored
+        time_horizons: list
+            Horizons where to evaluate the performance.
+        n_folds: int
+            Number of folds for cross validation
+        metrics: list
+            Available metrics: "c_index", "brier_score", "aucroc"
+        seeds: List
+            Random seeds
+        pretrained: bool
+            If the estimator was trained or not
+        group_ids:
+            Group labels for the samples used while splitting the dataset into train/test set.
+    """
+
     results = {
         "seeds": {},
         "agg": {},
@@ -644,6 +688,25 @@ def evaluate_regression_multiple_seeds(
     group_ids: Optional[pd.Series] = None,
     seeds: List[int] = [0, 1, 2],
 ) -> Dict:
+    """Helper for evaluating regression tasks with multiple seeds.
+
+    Args:
+        estimator:
+            The regressor to evaluate
+        X:
+            covariates
+        Y:
+            outcomes
+        n_folds: int
+            Number of cross-validation folds
+        metrics: str
+            rmse, r2
+        seeds: list
+            Random seeds
+        group_ids: pd.Series
+            Optional group_ids for stratified cross-validation
+
+    """
     results = {
         "seeds": {},
         "agg": {},

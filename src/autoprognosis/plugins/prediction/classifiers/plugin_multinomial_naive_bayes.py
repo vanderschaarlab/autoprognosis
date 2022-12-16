@@ -20,6 +20,14 @@ class MultinomialNaiveBayesPlugin(base.ClassifierPlugin):
     Method:
         The multinomial Naive Bayes classifier is suitable for classification with discrete features (e.g., word counts for text classification).
 
+    Args:
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
         >>> plugin = Predictions(category="classifiers").get("multinomial_naive_bayes")

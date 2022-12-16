@@ -5,6 +5,7 @@ from typing import Any, List
 import pandas as pd
 
 # autoprognosis absolute
+import autoprognosis.logger as log
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.base as prediction_base
 
@@ -38,12 +39,14 @@ class RegressionPlugin(prediction_base.PredictionPlugin):
         return []
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "RegressionPlugin":
+        log.info("Training using {self.fqdn()}, input shape = {X.shape}")
         if len(args) < 1:
             raise ValueError("Invalid input for fit. Expecting X and Y.")
 
         X = self._preprocess_training_data(X)
         self._fit(X, *args, **kwargs)
         self._fitted = True
+        log.info("Done using {self.fqdn()}, input shape = {X.shape}")
 
         return self
 

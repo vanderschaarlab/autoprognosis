@@ -23,6 +23,32 @@ for retry in range(2):
 
 
 class CoxPHPlugin(base.RiskEstimationPlugin):
+    """CoxPH plugin for survival analysis
+
+    Args:
+        alpha: float
+            the level in the confidence intervals.
+        penalizer: float
+            Attach a penalty to the size of the coefficients during regression. This improves stability of the estimates and controls for high correlation between covariates.
+        random_state: int
+            Random seed
+
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> from pycox.datasets import metabric
+        >>>
+        >>> df = metabric.read_df()
+        >>> X = df.drop(["duration", "event"], axis=1)
+        >>> Y = df["event"]
+        >>> T = df["duration"]
+        >>>
+        >>> plugin = Predictions(category="risk_estimation").get("cox_ph")
+        >>> plugin.fit(X, T, Y)
+        >>>
+        >>> eval_time_horizons = [int(T[Y.iloc[:] == 1].quantile(0.50))]
+        >>> plugin.predict(X, eval_time_horizons)
+    """
+
     def __init__(
         self,
         alpha: float = 0.05,

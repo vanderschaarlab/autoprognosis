@@ -27,6 +27,10 @@ class GradientBoostingPlugin(base.ClassifierPlugin):
             Learning rate shrinks the contribution of each tree by learning_rate. There is a trade-off between learning_rate and n_estimators.
         max_depth: int
             The maximum depth of the individual regression estimators.
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
 
 
     Example:
@@ -69,7 +73,7 @@ class GradientBoostingPlugin(base.ClassifierPlugin):
         return [
             params.Integer("n_estimators", 10, 500, 10),
             params.Integer("max_depth", 5, 10),
-            params.Categorical("learning_rate", [10 ** -p for p in range(1, 5)]),
+            params.Categorical("learning_rate", [10**-p for p in range(1, 5)]),
         ]
 
     def _fit(

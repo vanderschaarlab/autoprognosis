@@ -26,24 +26,10 @@ class VarianceThresholdPlugin(base.PreprocessorPlugin):
 
     Example:
         >>> from autoprognosis.plugins.preprocessors import Preprocessors
-        >>> plugin = Preprocessors().get("variance_threshold", threshold=1.0)
+        >>> plugin = Preprocessors(category="dimensionality_reduction").get("variance_threshold", threshold=1.0)
         >>> from sklearn.datasets import load_iris
         >>> X, y = load_iris(return_X_y=True)
         >>> plugin.fit_transform(X, y)
-               0
-        0    1.4
-        1    1.4
-        2    1.3
-        3    1.5
-        4    1.4
-        ..   ...
-        145  5.2
-        146  5.0
-        147  5.2
-        148  5.4
-        149  5.1
-
-        [150 rows x 1 columns]
     """
 
     def __init__(

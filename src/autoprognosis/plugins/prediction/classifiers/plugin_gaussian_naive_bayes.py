@@ -20,6 +20,13 @@ class GaussianNaiveBayesPlugin(base.ClassifierPlugin):
     Method:
         The plugin implements the Gaussian Naive Bayes algorithm for classification. The likelihood of the features is assumed to be Gaussian.
 
+    Args:
+        calibration: int
+            Enable/disable calibration. 0: disabled, 1 : sigmoid, 2: isotonic.
+        random_state: int, default 0
+            Random seed
+
+
     Example:
         >>> from autoprognosis.plugins.prediction import Predictions
         >>> plugin = Predictions(category="classifiers").get("gaussian_naive_bayes")

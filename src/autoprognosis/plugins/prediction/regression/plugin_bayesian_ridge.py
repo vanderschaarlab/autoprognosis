@@ -12,6 +12,24 @@ import autoprognosis.utils.serialization as serialization
 
 
 class BayesianRidgePlugin(base.RegressionPlugin):
+    """Bayesian ridge regression.
+
+    Args:
+        n_iter: int
+            Maximum number of iterations. Should be greater than or equal to 1.
+        tol: float
+            Stop the algorithm if w has converged.
+        random_state: int
+            Random seed
+
+    Example:
+        >>> from autoprognosis.plugins.prediction import Predictions
+        >>> plugin = Predictions(category="regression").get("bayesian_ridge")
+        >>> from sklearn.datasets import load_iris
+        >>> X, y = load_iris(return_X_y=True)
+        >>> plugin.fit_predict(X, y)
+    """
+
     def __init__(
         self,
         n_iter: int = 1000,
