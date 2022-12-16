@@ -69,7 +69,10 @@ class RiskEstimationStudy(Study):
             The minimum metric score for a candidate.
         random_state: int
             Random seed
-
+        sample: bool
+            Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
+        max_sample_size: int
+            Subsample size for the evaluation dataset, if `sample` is True.
     Example:
         >>> import numpy as np
         >>> from pycox import datasets
