@@ -30,6 +30,8 @@
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
 - :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
+
+
 ## :rocket:Installation
 
 #### Using pip
@@ -356,6 +358,8 @@ model.predict(X, eval_time_horizons)
 ## :high_brightness: Tutorials
 
 ### Plugins
+
+
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1QO7K3JqW8l4pgVSLxjVezTu5IfD9yHB-?usp=sharing) [ Imputation ](tutorials/plugins/tutorial_00_imputation_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WQGZXQkQs0Wg5stB9fk-RvYey35ADIZu?usp=sharing)[ Preprocessing](tutorials/plugins/tutorial_01_preprocessing_plugins.ipynb)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1WTzO_2hqaEOvvATHPSIcW220xc1WaJlC?usp=sharing)[ Classification](tutorials/plugins/tutorial_02_classification_plugins.ipynb)
@@ -365,6 +369,8 @@ model.predict(X, eval_time_horizons)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UK6WbsviT5nOQ_BAHSFYIjhpKtwppnUU?usp=sharing)[ Regression](tutorials/plugins/tutorial_06_regression_plugins.ipynb)
 
 ### AutoML
+
+
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1-lPuQAtjHESl32ahFQYsFl8ujAnDWxEJ?usp=sharing)[ Classification tasks](tutorials/automl/tutorial_00_classification_study.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/16UDaA3F5JGw_YVY8XlYqWjfxcUV1OHJo?usp=sharing)[ Classification tasks with imputation](tutorials/automl/tutorial_01_automl_classification_with_imputation.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1DtZCqebhaYdKB3ci5dr3hT0KvZPaTUOi?usp=sharing)[ Survival analysis tasks](tutorials/automl/tutorial_02_survival_analysis_study.ipynb)
@@ -374,12 +380,16 @@ model.predict(X, eval_time_horizons)
 - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dm3cRmo-jD6x7V5WePciDpcauqtUt6lS?usp=sharing)[ Multiple imputation example](tutorials/automl/tutorial_06_automl_multiple_imputation_example.ipynb)
 
 ### Building a demonstrator
+
+
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)[ Survival analysis demonstrator](tutorials/demonstrators/tutorial_01_build_a_demonstrator_survival_analysis.ipynb)
 
 ## :zap: Plugins
 
 ### Imputation methods
+
+
 ```python
 from autoprognosis.plugins.imputers import  Imputers
 
