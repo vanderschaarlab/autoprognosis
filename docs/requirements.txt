@@ -3,7 +3,7 @@ sphinx_rtd_theme==1.0.0
 sphinx_gallery==0.10.1
 m2r2==0.3.1
 mistune<2.0.0
-Pillow==8.4.0
+Pillow==9.3.0
 nbconvert==6.5.3
 nbsphinx
 sphinx-autopackagesummary

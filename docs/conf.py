@@ -46,7 +46,7 @@ subprocess.run(
  )
 
 
-emojis = [":rocket:", ":key:", ":cyclone:", ":fire:", ":zap:", ":hammer:", ":boom:"]
+emojis = [":rocket:", ":key:", ":cyclone:", ":fire:", ":zap:", ":hammer:", ":boom:", ":notebook:", ":adhesive_bandage:"]
 
 #with open("../README.md", "rt") as fin:
 #    with open("README.md", "wt") as fout:
