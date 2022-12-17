@@ -32,7 +32,7 @@ study <- ClassifierStudy(
 	num_iter=as.integer(10),
 	num_study_iter=as.integer(2),
 	timeout=as.integer(60),
-	classifiers=list("logistic_regression", "xgboost"),
+	classifiers=list("logistic_regression", "catboost"),
 	workspace=workspace
 )
 
