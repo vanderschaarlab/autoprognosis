@@ -6,49 +6,62 @@
 
 # -- Path setup --------------------------------------------------------------
 
+# stdlib
+import datetime
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
 import subprocess
-import datetime
+import sys
 
-sys.path.insert(0, os.path.abspath('../src/'))
+sys.path.insert(0, os.path.abspath("../src/"))
 
 
 # -- Project information -----------------------------------------------------
 now = datetime.datetime.now()
 
-project = 'autoprognosis'
-author = 'vanderschaar-lab'
+project = "autoprognosis"
+author = "vanderschaar-lab"
 copyright = f"{now.year}, {author}"
 
 
 subprocess.run(
-     [
-         "sphinx-apidoc",
-         "--ext-autodoc",
-         "--ext-doctest",
-         "--ext-mathjax",
-         "--ext-viewcode",
-         "-e",
-         "-T",
-         "-M",
-         "-F",
-         "-P",
-         "-f",
-         "-o",
-         "generated",
-         "../src/autoprognosis/",
-     ]
- )
+    [
+        "sphinx-apidoc",
+        "--ext-autodoc",
+        "--ext-doctest",
+        "--ext-mathjax",
+        "--ext-viewcode",
+        "-e",
+        "-T",
+        "-M",
+        "-F",
+        "-P",
+        "-f",
+        "-o",
+        "generated",
+        "../src/autoprognosis/",
+    ]
+)
 
 
-emojis = [":rocket:", ":key:", ":cyclone:", ":fire:", ":zap:", ":hammer:", ":boom:", ":notebook:", ":adhesive_bandage:", ":high_brightness:"]
+emojis = [
+    ":rocket:",
+    ":key:",
+    ":cyclone:",
+    ":fire:",
+    ":zap:",
+    ":hammer:",
+    ":boom:",
+    ":notebook:",
+    ":adhesive_bandage:",
+    ":high_brightness:",
+]
 
-#with open("../README.md", "rt") as fin:
+# with open("../README.md", "rt") as fin:
 #    with open("README.md", "wt") as fout:
 #        for line in fin:
 #            for emoji in emojis:
@@ -62,19 +75,19 @@ emojis = [":rocket:", ":key:", ":cyclone:", ":fire:", ":zap:", ":hammer:", ":boo
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-     "sphinx.ext.autodoc",
-     "sphinx.ext.autosummary",
-     "sphinx.ext.napoleon",
-     "m2r2",
-     "sphinxemoji.sphinxemoji",
-     "nbsphinx",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "m2r2",
+    "sphinxemoji.sphinxemoji",
+    "nbsphinx",
 ]
 
 autodoc_default_options = {
-     "members": True,
-     "inherited-members": True,
-     "inherit_docstrings": True,
-     "private-members": False,
+    "members": True,
+    "inherited-members": True,
+    "inherit_docstrings": True,
+    "private-members": False,
 }
 
 add_module_names = False
@@ -82,12 +95,12 @@ autosummary_generate = True
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -96,13 +109,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-sphinxemoji_style = 'twemoji'
+sphinxemoji_style = "twemoji"
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 nbsphinx_execute = "never"
 

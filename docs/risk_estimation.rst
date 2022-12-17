@@ -1,7 +1,7 @@
 Risk estimation
 =========================
 
-.. toctree:: 
+.. toctree::
     :glob:
     :maxdepth: 2
 

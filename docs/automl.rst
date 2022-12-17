@@ -1,7 +1,7 @@
 AutoML studies
 =========================
 
-.. toctree:: 
+.. toctree::
     :glob:
     :maxdepth: 2
 

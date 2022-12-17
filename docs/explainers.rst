@@ -1,7 +1,7 @@
 Explainability plugins
 =========================
 
-.. toctree:: 
+.. toctree::
     :glob:
     :maxdepth: 2
 

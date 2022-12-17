@@ -1,7 +1,7 @@
 Tutorials
 =========================
 
-.. toctree:: 
+.. toctree::
     :glob:
     :maxdepth: 2
 
@@ -12,4 +12,3 @@ Tutorials
     Survival analysis studies with imputation <tutorials/automl/tutorial_03_automl_survival_analysis_with_imputation.ipynb>
     Regression studies <tutorials/automl/tutorial_04_regression.ipynb>
     Multiple imputation studies <tutorials/automl/tutorial_06_automl_multiple_imputation_example.ipynb>
-

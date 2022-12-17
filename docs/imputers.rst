@@ -1,7 +1,7 @@
 Imputation plugins
 =========================
 
-.. toctree:: 
+.. toctree::
     :glob:
     :maxdepth: 2
 
