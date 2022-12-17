@@ -32,13 +32,13 @@ target <- "V6"
 
 # Create AutoPrognosis Study
 study <- RegressionStudy(
-	dataset = airfoil, 
+	dataset = airfoil,
 	target = target,
-	study_name=study_name,  
-	num_iter=as.integer(10), 
-	num_study_iter=as.integer(2), 
-	timeout=as.integer(60), 
-	regressors=list("linear_regression", "kneighbors_regressor"), 
+	study_name=study_name,
+	num_iter=as.integer(10),
+	num_study_iter=as.integer(2),
+	timeout=as.integer(60),
+	regressors=list("linear_regression", "kneighbors_regressor"),
 	workspace=workspace
 )
 
@@ -62,6 +62,5 @@ sprintf("Performance metrics %s", metrics["str"])
 # Fit the model
 model$fit(X, Y)
 
-# Predict 
+# Predict
 model$predict(X)
-

@@ -4,7 +4,7 @@ from typing import Any
 # third party
 from lifelines.datasets import load_rossi
 import pytest
-from sklearn.datasets import load_diabetes, load_breast_cancer
+from sklearn.datasets import load_breast_cancer, load_diabetes
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute

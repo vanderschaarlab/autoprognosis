@@ -1,8 +1,11 @@
+# stdlib
+from typing import Any, Optional
+
+# third party
 import numpy as np
 import pandas
 from pandas.api.types import is_categorical_dtype
 from sklearn.utils import check_array, check_consistent_length
-from typing import Optional, Any
 
 __all__ = ["check_arrays_survival", "check_y_survival", "safe_concat", "Surv"]
 
@@ -13,7 +16,12 @@ class Surv:
     """
 
     @staticmethod
-    def from_arrays(event:np.ndarray, time: np.ndarray, name_event: Optional[str]=None, name_time: Optional[str]=None) -> Any:
+    def from_arrays(
+        event: np.ndarray,
+        time: np.ndarray,
+        name_event: Optional[str] = None,
+        name_time: Optional[str] = None,
+    ) -> Any:
         """Create structured array.
 
         Parameters
@@ -62,7 +70,7 @@ class Surv:
         return y
 
     @staticmethod
-    def from_dataframe(event: Any, time: Any, data : Any) -> np.ndarray:
+    def from_dataframe(event: Any, time: Any, data: Any) -> np.ndarray:
         """Create structured array from data frame.
 
         Parameters
@@ -90,7 +98,9 @@ class Surv:
         )
 
 
-def check_y_survival(y_or_event: np.ndarray, *args: Any, allow_all_censored: bool=False) -> tuple:
+def check_y_survival(
+    y_or_event: np.ndarray, *args: Any, allow_all_censored: bool = False
+) -> tuple:
     """Check that array correctly represents an outcome for survival analysis.
 
     Parameters

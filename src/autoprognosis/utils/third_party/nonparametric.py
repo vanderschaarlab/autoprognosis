@@ -1,3 +1,7 @@
+# stdlib
+from typing import Optional
+
+# third party
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import (
@@ -5,7 +9,6 @@ from sklearn.utils.validation import (
     check_consistent_length,
     check_is_fitted,
 )
-from typing import Optional
 
 # autoprognosis relative
 from .util import check_y_survival
@@ -13,12 +16,13 @@ from .util import check_y_survival
 __all__ = [
     "CensoringDistributionEstimator",
     "kaplan_meier_estimator",
-    "ipc_weights",
     "SurvivalFunctionEstimator",
 ]
 
 
-def _compute_counts(event: np.ndarray, time: np.ndarray, order: Optional[np.ndarray]=None) -> tuple:
+def _compute_counts(
+    event: np.ndarray, time: np.ndarray, order: Optional[np.ndarray] = None
+) -> tuple:
     """Count right censored and uncensored samples at each unique time point.
 
     Parameters
@@ -91,7 +95,9 @@ def _compute_counts(event: np.ndarray, time: np.ndarray, order: Optional[np.ndar
     return times, n_events, n_at_risk[:-1], n_censored
 
 
-def _compute_counts_truncated(event: np.ndarray, time_enter: np.ndarray, time_exit: np.ndarray) -> tuple:
+def _compute_counts_truncated(
+    event: np.ndarray, time_enter: np.ndarray, time_exit: np.ndarray
+) -> tuple:
     """Compute counts for left truncated and right censored survival data.
 
     Parameters
@@ -122,9 +128,7 @@ def _compute_counts_truncated(event: np.ndarray, time_enter: np.ndarray, time_ex
 
     n_samples = event.shape[0]
 
-    uniq_times = np.sort(
-        np.unique(np.r_[time_enter, time_exit]), kind="mergesort"
-    )
+    uniq_times = np.sort(np.unique(np.r_[time_enter, time_exit]), kind="mergesort")
     total_counts = np.empty(len(uniq_times), dtype=int)
     event_counts = np.empty(len(uniq_times), dtype=int)
 
@@ -169,7 +173,11 @@ def _compute_counts_truncated(event: np.ndarray, time_enter: np.ndarray, time_ex
 
 
 def kaplan_meier_estimator(
-        event: np.ndarray, time_exit: np.ndarray, time_enter: Optional[np.ndarray]=None, time_min: Optional[float]=None, reverse: bool=False
+    event: np.ndarray,
+    time_exit: np.ndarray,
+    time_enter: Optional[np.ndarray] = None,
+    time_min: Optional[float] = None,
+    reverse: bool = False,
 ) -> tuple:
     """Kaplan-Meier estimator of survival function.
 
@@ -221,9 +229,9 @@ def kaplan_meier_estimator(
     .. [1] Kaplan, E. L. and Meier, P., "Nonparametric estimation from incomplete observations",
            Journal of The American Statistical Association, vol. 53, pp. 457-481, 1958.
     """
-    #event, time_enter, time_exit = check_y_survival(
+    # event, time_enter, time_exit = check_y_survival(
     #    event, time_enter, time_exit, allow_all_censored=True
-    #)
+    # )
     check_consistent_length(event, time_enter, time_exit)
 
     if time_enter is None:

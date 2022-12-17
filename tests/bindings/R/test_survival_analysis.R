@@ -37,15 +37,15 @@ eval_time_horizons <- list(2000)
 
 # Create the AutoPrognosis Study
 study <- RiskEstimationStudy(
-	dataset = df, 
+	dataset = df,
 	target = "death",
     time_to_event="dtime",
     time_horizons = eval_time_horizons,
-	study_name=study_name,  
-	num_iter=as.integer(10), 
-	num_study_iter=as.integer(2), 
-	timeout=as.integer(60), 
-	risk_estimators=list("cox_ph", "survival_xgboost"), 
+	study_name=study_name,
+	num_iter=as.integer(10),
+	num_study_iter=as.integer(2),
+	timeout=as.integer(60),
+	risk_estimators=list("cox_ph", "survival_xgboost"),
 	workspace=workspace
 )
 
