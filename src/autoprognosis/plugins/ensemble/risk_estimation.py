@@ -141,6 +141,13 @@ class RiskEnsemble:
 
         return self
 
+    def is_fitted(self) -> bool:
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
+
+        return _fitted
+
     def predict(
         self,
         X_: pd.DataFrame,
@@ -299,6 +306,13 @@ class RiskEnsembleCV(RiskEnsemble):
             self.explainers[exp] = exp_model
 
         return self
+
+    def is_fitted(self) -> bool:
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
+
+        return _fitted
 
     def predict(
         self,

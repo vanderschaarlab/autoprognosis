@@ -15,7 +15,6 @@ from autoprognosis.studies._preprocessing import (
     dataframe_imputation,
     dataframe_preprocess,
     dataframe_remove_zeros,
-    dataframe_sample,
 )
 
 
@@ -80,16 +79,6 @@ def test_dataframe_encode_impute() -> None:
 
     df = encoders.numeric_decode(df)
     assert len(df.columns) == 2
-
-
-def test_dataframe_sample() -> None:
-    df = pd.DataFrame(
-        {"test": [0, 1, 0, 1, 0, 1], "not_encoded": ["1", "2", "3", "4", 5, 6]}
-    )
-
-    indices = dataframe_sample(df, df["test"], max_sample_size=2)
-
-    assert len(indices) == 4
 
 
 @pytest.mark.parametrize("group_id", [None, "group_id"])

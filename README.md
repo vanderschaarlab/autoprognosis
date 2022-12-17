@@ -30,6 +30,7 @@
 - :adhesive_bandage: Data imputation using [HyperImpute](https://github.com/vanderschaarlab/hyperimpute).
 - :zap: Build demonstrators using [Streamlit](https://streamlit.io/).
 - :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
+- :book: [Read the docs](https://autoprognosis.readthedocs.io/)
 
 
 ## :rocket: Installation

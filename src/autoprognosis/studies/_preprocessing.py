@@ -4,7 +4,6 @@ from typing import Any, List, Optional, Tuple
 # third party
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
-from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
@@ -218,23 +217,6 @@ def dataframe_encode_and_impute(
     return df, encoder_ctx
 
 
-def dataframe_sample(
-    X: pd.DataFrame, Y: pd.DataFrame, max_sample_size: int = 10000
-) -> List:
-    log.debug(f"preprocess: dataset subsampling {max_sample_size}")
-    df_limit = len(Y.unique()) * max_sample_size
-    ratio = df_limit / len(X)
-
-    if ratio >= 1:
-        return list(range(len(X)))
-
-    sss = StratifiedShuffleSplit(n_splits=1, test_size=ratio, random_state=0)
-    for _, sample_index in sss.split(X, Y):
-        return sample_index
-
-    raise ValueError("should not be here")
-
-
 def dataframe_drop_low_variance(df: pd.DataFrame) -> pd.DataFrame:
     log.debug("preprocess: dataset drop column with low variance")
     plugin = Preprocessors(category="dimensionality_reduction").get(
@@ -251,8 +233,6 @@ def dataframe_preprocess(
     target: str,
     time_to_event: Optional[str] = None,
     special_cols: List[str] = [],
-    sample: bool = True,
-    max_sample_size: int = 10000,
     imputation_method: Optional[str] = None,
     group_id: Optional[str] = None,
 ) -> Tuple[
@@ -263,7 +243,6 @@ def dataframe_preprocess(
     EncodersCallbacks,
     pd.Series,
 ]:
-
     drop_columns = [target]
 
     others = []
@@ -296,19 +275,5 @@ def dataframe_preprocess(
     ) = dataframe_encode_and_impute(X, imputation_method)
 
     X = dataframe_drop_low_variance(X)
-
-    if sample:
-        indices = dataframe_sample(X, Y, max_sample_size=max_sample_size)
-
-        X = X.loc[X.index[indices]]
-        Y = Y.loc[Y.index[indices]]
-        if T is not None:
-            T = T.loc[T.index[indices]]
-
-        if group_ids is not None:
-            group_ids = group_ids.loc[group_ids.index[indices]]
-
-        for idx, other in enumerate(others):
-            others[idx] = other.loc[other.index[indices]]
 
     return X, T, Y, others, encoders, group_ids

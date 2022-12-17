@@ -140,7 +140,7 @@ class Plugin(metaclass=ABCMeta):
         try:
             return self._fitted
         except BaseException:
-            return True
+            return True  # backwards compatible
 
     def fit_transform(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         """Fit the model and transform the training data. Used by imputers and preprocessors."""

@@ -69,9 +69,9 @@ class RiskEstimationStudy(Study):
             The minimum metric score for a candidate.
         random_state: int
             Random seed
-        sample: bool
+        sample_for_search: bool
             Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
-        max_sample_size: int
+        max_search_sample_size: int
             Subsample size for the evaluation dataset, if `sample` is True.
     Example:
         >>> import numpy as np
@@ -123,8 +123,8 @@ class RiskEstimationStudy(Study):
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
         random_state: int = 0,
-        sample: bool = True,
-        max_sample_size: int = 10000,
+        sample_for_search: bool = True,
+        max_search_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -152,9 +152,26 @@ class RiskEstimationStudy(Study):
             time_to_event=time_to_event,
             imputation_method=imputation_method,
             group_id=group_id,
-            sample=sample,
-            max_sample_size=max_sample_size,
         )
+
+        if sample_for_search:
+            sample_size = min(len(self.Y), max_search_sample_size)
+            counts = self.Y.value_counts().to_dict()
+            weights = self.Y.apply(lambda s: counts[s])
+
+            self.search_Y = self.Y.sample(
+                sample_size, random_state=random_state, weights=weights
+            )
+            self.search_X = self.X.loc[self.search_Y.index].copy()
+            self.search_T = self.T.loc[self.search_Y.index].copy()
+            self.search_group_ids = None
+            if self.group_ids:
+                self.search_group_ids = self.group_ids.loc[self.search_Y.index].copy()
+        else:
+            self.search_X = self.X
+            self.search_Y = self.Y
+            self.search_T = self.T
+            self.search_group_ids = self.group_ids
 
         self.internal_name = dataframe_hash(dataset)
         self.study_name = study_name if study_name is not None else self.internal_name
@@ -197,11 +214,11 @@ class RiskEstimationStudy(Study):
             best_model = load_model_from_file(self.output_file)
             metrics = evaluate_survival_estimator(
                 best_model,
-                self.X,
-                self.T,
-                self.Y,
+                self.search_X,
+                self.search_T,
+                self.search_Y,
                 self.time_horizons,
-                group_ids=self.group_ids,
+                group_ids=self.search_group_ids,
             )
             best_score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
             self.hooks.heartbeat(
@@ -245,20 +262,20 @@ class RiskEstimationStudy(Study):
                 start = time.time()
 
                 current_model = seeker.search(
-                    self.X,
-                    self.T,
-                    self.Y,
+                    self.search_X,
+                    self.search_T,
+                    self.search_Y,
                     skip_recap=(it > 0),
-                    group_ids=self.group_ids,
+                    group_ids=self.search_group_ids,
                 )
 
                 metrics = evaluate_survival_estimator(
                     current_model,
-                    self.X,
-                    self.T,
-                    self.Y,
+                    self.search_X,
+                    self.search_T,
+                    self.search_Y,
                     self.time_horizons,
-                    group_ids=self.group_ids,
+                    group_ids=self.search_group_ids,
                 )
                 score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
                 self.hooks.heartbeat(

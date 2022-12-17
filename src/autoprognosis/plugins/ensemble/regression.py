@@ -56,6 +56,10 @@ class BaseRegressionEnsemble(metaclass=ABCMeta):
     def load(cls, buff: bytes) -> "BaseRegressionEnsemble":
         ...
 
+    @abstractmethod
+    def is_fitted(self) -> bool:
+        ...
+
 
 class WeightedRegressionEnsemble(BaseRegressionEnsemble):
     """
@@ -114,6 +118,13 @@ class WeightedRegressionEnsemble(BaseRegressionEnsemble):
             self.explainers[exp] = exp_model
 
         return self
+
+    def is_fitted(self) -> bool:
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
+
+        return _fitted
 
     def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         preds_ = []
