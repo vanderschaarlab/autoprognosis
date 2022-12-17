@@ -66,6 +66,10 @@ class BaseEnsemble(metaclass=ABCMeta):
     def load(cls, buff: bytes) -> "BaseEnsemble":
         ...
 
+    @abstractmethod
+    def is_fitted(self) -> bool:
+        ...
+
 
 class WeightedEnsemble(BaseEnsemble):
     """
@@ -93,10 +97,6 @@ class WeightedEnsemble(BaseEnsemble):
         self.explanations_nepoch = explanations_nepoch
         self.explainers = explainers
 
-        self._fitted = True
-        for model in models:
-            self._fitted = self._fitted or model.is_fitted()
-
         for idx, weight in enumerate(weights):
             if weight == 0:
                 continue
@@ -105,6 +105,10 @@ class WeightedEnsemble(BaseEnsemble):
 
     def is_fitted(self) -> bool:
         try:
+            _fitted = True
+            for model in self.models:
+                _fitted = _fitted or model.is_fitted()
+
             return self._fitted
         except BaseException:
             return True  # backwards compatible
@@ -234,6 +238,16 @@ class WeightedEnsembleCV(BaseEnsemble):
 
         self.n_folds = n_folds
         self.seed = 42
+
+    def is_fitted(self) -> bool:
+        try:
+            _fitted = True
+            for model in self.models:
+                _fitted = _fitted or model.is_fitted()
+
+            return self._fitted
+        except BaseException:
+            return True  # backwards compatible
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsembleCV":
         skf = StratifiedKFold(

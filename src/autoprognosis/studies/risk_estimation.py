@@ -163,7 +163,7 @@ class RiskEstimationStudy(Study):
                 sample_size, random_state=random_state, weights=weights
             )
             self.search_X = self.X.loc[self.search_Y.index].copy()
-            self.search_T = self.X.loc[self.search_T.index].copy()
+            self.search_T = self.T.loc[self.search_Y.index].copy()
             self.search_group_ids = None
             if self.group_ids:
                 self.search_group_ids = self.group_ids.loc[self.search_Y.index].copy()
