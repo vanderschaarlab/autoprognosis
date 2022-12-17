@@ -16,7 +16,8 @@ from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
 @pytest.mark.slow
-def test_surv_search() -> None:
+@pytest.mark.parametrize("sample_for_search", [True, False])
+def test_surv_search(sample_for_search: bool) -> None:
     rossi = load_rossi()
 
     X = rossi.drop(["week", "arrest"], axis=1)
@@ -50,6 +51,7 @@ def test_surv_search() -> None:
         risk_estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
         score_threshold=0.4,
         workspace=storage_folder,
+        sample_for_search=sample_for_search,
     )
 
     study.run()
@@ -57,6 +59,7 @@ def test_surv_search() -> None:
     assert output.is_file()
 
     model_v1 = load_model_from_file(output)
+    assert not model_v1.is_fitted()
 
     metrics = evaluate_survival_estimator(
         model_v1, X, T.values, Y.values.tolist(), eval_time_horizons
@@ -74,6 +77,9 @@ def test_surv_search() -> None:
     score_v2 = metrics["clf"]["c_index"][0]
 
     assert score_v2 >= score_v1
+
+    model = study.fit()
+    assert model.is_fitted()
 
 
 def test_hooks() -> None:

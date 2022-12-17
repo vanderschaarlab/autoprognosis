@@ -17,7 +17,8 @@ from autoprognosis.utils.tester import evaluate_estimator
 
 
 @pytest.mark.skipif(sys.platform == "darwin", reason="slow")
-def test_search() -> None:
+@pytest.mark.parametrize("sample_for_search", [True, False])
+def test_search(sample_for_search: bool) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
 
     df = X.copy()
@@ -40,6 +41,7 @@ def test_search() -> None:
         timeout=10,
         classifiers=["logistic_regression", "lda", "qda"],
         workspace=storage_folder,
+        sample_for_search=sample_for_search,
     )
     print("study name", study.study_name)
 
@@ -48,6 +50,7 @@ def test_search() -> None:
     assert output.is_file()
 
     model_v1 = load_model_from_file(output)
+    assert not model_v1.is_fitted()
 
     metrics = evaluate_estimator(model_v1, X, Y)
     score_v1 = metrics["clf"]["aucroc"][0]
@@ -64,6 +67,9 @@ def test_search() -> None:
 
     EPS = 1e-2
     assert score_v2 + EPS >= score_v1
+
+    model = study.fit()
+    assert model.is_fitted()
 
 
 def test_hooks() -> None:

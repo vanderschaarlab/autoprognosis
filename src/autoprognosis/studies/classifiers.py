@@ -67,9 +67,9 @@ class ClassifierStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
-        sample: bool
+        sample_for_search: bool
             Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
-        max_sample_size: int
+        max_search_sample_size: int
             Subsample size for the evaluation dataset, if `sample` is True.
     Example:
         >>> from sklearn.datasets import load_breast_cancer
@@ -115,8 +115,8 @@ class ClassifierStudy(Study):
         group_id: Optional[str] = None,
         nan_placeholder: Any = None,
         random_state: int = 0,
-        sample: bool = True,
-        max_sample_size: int = 10000,
+        sample_for_search: bool = True,
+        max_search_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -137,14 +137,29 @@ class ClassifierStudy(Study):
         else:
             imputers = []
 
-        self.X, _, self.Y, _, _, group_ids = dataframe_preprocess(
+        self.X, _, self.Y, _, _, self.group_ids = dataframe_preprocess(
             dataset,
             target,
             imputation_method=imputation_method,
             group_id=group_id,
-            sample=sample,
-            max_sample_size=max_sample_size,
         )
+
+        if sample_for_search:
+            sample_size = min(len(self.Y), max_search_sample_size)
+
+            counts = self.Y.value_counts().to_dict()
+            weights = self.Y.apply(lambda s: counts[s])
+            self.search_Y = self.Y.sample(
+                sample_size, random_state=random_state, weights=weights
+            )
+            self.search_X = self.X.loc[self.search_Y.index].copy()
+            self.search_group_ids = None
+            if self.group_ids:
+                self.search_group_ids = self.group_ids.loc[self.search_Y.index].copy()
+        else:
+            self.search_X = self.X
+            self.search_Y = self.Y
+            self.search_group_ids = self.group_ids
 
         self.internal_name = dataframe_hash(dataset)
         self.study_name = study_name if study_name is not None else self.internal_name
@@ -158,7 +173,6 @@ class ClassifierStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
-        self.group_ids = group_ids
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
@@ -187,7 +201,11 @@ class ClassifierStudy(Study):
             start = time.time()
             best_model = load_model_from_file(self.output_file)
             metrics = evaluate_estimator(
-                best_model, self.X, self.Y, metric=self.metric, group_ids=self.group_ids
+                best_model,
+                self.search_X,
+                self.search_Y,
+                metric=self.metric,
+                group_ids=self.search_group_ids,
             )
             best_score = metrics["clf"][self.metric][0]
             self.hooks.heartbeat(
@@ -222,14 +240,16 @@ class ClassifierStudy(Study):
             self._should_continue()
             start = time.time()
 
-            current_model = self.seeker.search(self.X, self.Y, group_ids=self.group_ids)
+            current_model = self.seeker.search(
+                self.search_X, self.search_Y, group_ids=self.search_group_ids
+            )
 
             metrics = evaluate_estimator(
                 current_model,
-                self.X,
-                self.Y,
+                self.search_X,
+                self.search_Y,
                 metric=self.metric,
-                group_ids=self.group_ids,
+                group_ids=self.search_group_ids,
             )
             score = metrics["clf"][self.metric][0]
 

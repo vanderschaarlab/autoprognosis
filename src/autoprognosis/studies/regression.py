@@ -67,9 +67,9 @@ class RegressionStudy(Study):
             The id column in the dataset.
         random_state: int
             Random seed
-        sample: bool
+        sample_for_search: bool
             Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
-        max_sample_size: int
+        max_search_sample_size: int
             Subsample size for the evaluation dataset, if `sample` is True.
     Example:
         >>> import pandas as pd
@@ -123,8 +123,8 @@ class RegressionStudy(Study):
         nan_placeholder: Any = None,
         group_id: Optional[str] = None,
         random_state: int = 0,
-        sample: bool = True,
-        max_sample_size: int = 10000,
+        sample_for_search: bool = True,
+        max_search_sample_size: int = 10000,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -149,9 +149,20 @@ class RegressionStudy(Study):
             target,
             imputation_method=imputation_method,
             group_id=group_id,
-            sample=sample,
-            max_sample_size=max_sample_size,
         )
+
+        if sample_for_search:
+            sample_size = min(len(self.Y), max_search_sample_size)
+
+            self.search_Y = self.Y.sample(sample_size, random_state=random_state)
+            self.search_X = self.X.loc[self.search_Y.index].copy()
+            self.search_group_ids = None
+            if self.group_ids:
+                self.search_group_ids = self.group_ids.loc[self.search_Y.index].copy()
+        else:
+            self.search_X = self.X
+            self.search_Y = self.Y
+            self.search_group_ids = self.group_ids
 
         self.internal_name = dataframe_hash(dataset)
         self.study_name = study_name if study_name is not None else self.internal_name
@@ -193,7 +204,10 @@ class RegressionStudy(Study):
             start = time.time()
             best_model = load_model_from_file(self.output_file)
             metrics = evaluate_regression(
-                best_model, self.X, self.Y, group_ids=self.group_ids
+                best_model,
+                self.search_X,
+                self.search_Y,
+                group_ids=self.search_group_ids,
             )
             best_score = metrics["clf"][self.metric][0]
             self.hooks.heartbeat(
@@ -228,10 +242,15 @@ class RegressionStudy(Study):
             self._should_continue()
             start = time.time()
 
-            current_model = self.seeker.search(self.X, self.Y, group_ids=self.group_ids)
+            current_model = self.seeker.search(
+                self.search_X, self.search_Y, group_ids=self.search_group_ids
+            )
 
             metrics = evaluate_regression(
-                current_model, self.X, self.Y, group_ids=self.group_ids
+                current_model,
+                self.search_X,
+                self.search_Y,
+                group_ids=self.search_group_ids,
             )
             score = metrics["clf"][self.metric][0]
 
