@@ -115,3 +115,45 @@ nbsphinx_prolog = r"""
         :raw-html:`<a href="https://colab.research.google.com/github/DTUWindEnergy/PyWake/blob/master/{{ docname }}"><img alt="Open and run in Colab (interactive)" src="https://colab.research.google.com/assets/colab-badge.svg" style="vertical-align:text-bottom"></a>
         <a href="https://gitlab.windenergy.dtu.dk/TOPFARM/PyWake/-/tree/master/{{ docname }}"><img alt="Edit on Gitlab" src="https://img.shields.io/badge/Edit%20on-Gitlab-blue?style=flat&logo=gitlab" style="vertical-align:text-bottom"></a>`
 """
+
+autodoc_mock_imports = [
+    "cloudpickle",
+    "ctgan",
+    "decaf-synthetic-data",
+    "decaf",
+    "diffprivlib",
+    "dython",
+    "fflows",
+    "igraph",
+    "lifelines",
+    "nflows",
+    "opacus",
+    "optuna",
+    "loguru",
+    "deepecho",
+    "pgmpy",
+    "pycox",
+    "pykeops",
+    "pyod",
+    "pydantic",
+    "rdt",
+    "redis",
+    "scikit-learn",
+    "sklearn",
+    "pytorch_lightning",
+    "scipy",
+    "torchtuples",
+    "copulas",
+    "geomloss",
+    "joblib",
+    "sdv",
+    "shap",
+    "torch",
+    "tsai",
+    "xgboost",
+    "xgbse",
+    "streamlit",
+    "catboost",
+]
+
+autodoc_mock_imports = autodoc_mock_imports
