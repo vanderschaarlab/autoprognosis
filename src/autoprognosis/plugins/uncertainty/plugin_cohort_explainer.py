@@ -278,7 +278,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
     def _sample_calibration_filter(self, _filter: pd.Index) -> pd.Index:
         _selected_size = int(0.2 * _filter.sum())
 
-        _selected_rows = _filter.index[_filter == True].tolist()
+        _selected_rows = _filter.index[_filter == True].tolist()  # noqa
 
         _discarded_rows = _selected_rows[_selected_size:]
         _filter.iloc[_discarded_rows] = False

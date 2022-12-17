@@ -62,7 +62,7 @@ class PREDICT_prostate:
 
         cancer_risk = 1 - np.exp(
             -np.exp(pred1)
-            * np.exp(-16.40532 + 1.653947 * (np.log(time)) + 1.89e-12 * (time ** 3))
+            * np.exp(-16.40532 + 1.653947 * (np.log(time)) + 1.89e-12 * (time**3))
         )
 
         return cancer_risk.to_numpy()

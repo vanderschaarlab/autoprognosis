@@ -14,7 +14,7 @@ def install(install_pack: str) -> None:
 
 
 if __name__ == "__main__":
-    #install("third_party/autoprognosis-0.1.1-py2.py3-none-any.whl")
+    # install("third_party/autoprognosis-0.1.1-py2.py3-none-any.whl")
     # third party
     from run_demonstrator import run
 

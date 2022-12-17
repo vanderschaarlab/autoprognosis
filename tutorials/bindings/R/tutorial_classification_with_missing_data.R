@@ -15,10 +15,10 @@ workspace <- Path("workspace")
 study_name <- "example_classifier_with_miss"
 
 # Load the data
-adult <- read.table('https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data', 
+adult <- read.table('https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data',
                     sep = ',', fill = F, strip.white = T)
-colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin', 
-                     'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex', 
+colnames(adult) <- c('age', 'workclass', 'fnlwgt', 'educatoin',
+                     'educatoin_num', 'marital_status', 'occupation', 'relationship', 'race', 'sex',
                      'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'income')
 adult[adult == "?"] <- NA
 adult <- adult[ , !(names(adult) %in% c("native_country"))]
@@ -29,13 +29,13 @@ target <- "income"
 
 # Create the AutoPrognosis Study
 study <- ClassifierStudy(
-	dataset = df, 
+	dataset = df,
 	target = target,
-	study_name=study_name,  
-	num_iter=as.integer(10), 
-	num_study_iter=as.integer(2), 
-	timeout=as.integer(60), 
-	classifiers=list("logistic_regression", "lda", "qda"), 
+	study_name=study_name,
+	num_iter=as.integer(10),
+	num_study_iter=as.integer(2),
+	timeout=as.integer(60),
+	classifiers=list("logistic_regression", "lda", "qda"),
 	workspace=workspace,
     nan_placeholder='NA'
 )

@@ -1,13 +1,13 @@
+# stdlib
+from typing import Optional
+
+# third party
 import numpy as np
-from sklearn.base import BaseEstimator
 from sklearn.utils import check_array, check_consistent_length
-from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import check_is_fitted
 
 # autoprognosis relative
-from .nonparametric import CensoringDistributionEstimator, SurvivalFunctionEstimator
+from .nonparametric import CensoringDistributionEstimator
 from .util import check_y_survival
-from typing import Optional
 
 __all__ = [
     "brier_score",
@@ -28,7 +28,9 @@ def _check_estimate_1d(estimate: np.ndarray, test_time: np.ndarray) -> np.ndarra
     return estimate
 
 
-def _check_inputs(event_indicator:np.ndarray, event_time:np.ndarray, estimate:np.ndarray) -> np.ndarray:
+def _check_inputs(
+    event_indicator: np.ndarray, event_time: np.ndarray, estimate: np.ndarray
+) -> np.ndarray:
     check_consistent_length(event_indicator, event_time, estimate)
     event_indicator = check_array(event_indicator, ensure_2d=False)
     event_time = check_array(event_time, ensure_2d=False)
@@ -64,7 +66,9 @@ def _check_times(test_time: np.ndarray, times: np.ndarray) -> np.ndarray:
     return times
 
 
-def _check_estimate_2d(estimate: np.ndarray, test_time: np.ndarray, time_points: np.ndarray) -> np.ndarray:
+def _check_estimate_2d(
+    estimate: np.ndarray, test_time: np.ndarray, time_points: np.ndarray
+) -> np.ndarray:
     estimate = check_array(estimate, ensure_2d=False, allow_nd=False)
     time_points = _check_times(test_time, time_points)
     check_consistent_length(test_time, estimate)
@@ -79,7 +83,9 @@ def _check_estimate_2d(estimate: np.ndarray, test_time: np.ndarray, time_points:
     return estimate, time_points
 
 
-def _get_comparable(event_indicator: np.ndarray, event_time: np.ndarray, order: np.ndarray) -> np.ndarray:
+def _get_comparable(
+    event_indicator: np.ndarray, event_time: np.ndarray, order: np.ndarray
+) -> np.ndarray:
     n_samples = len(event_time)
     tied_time = 0
     comparable = {}
@@ -108,7 +114,11 @@ def _get_comparable(event_indicator: np.ndarray, event_time: np.ndarray, order: 
 
 
 def _estimate_concordance_index(
-        event_indicator: np.ndarray, event_time: np.ndarray, estimate: np.ndarray, weights: np.ndarray, tied_tol: float=1e-8
+    event_indicator: np.ndarray,
+    event_time: np.ndarray,
+    estimate: np.ndarray,
+    weights: np.ndarray,
+    tied_tol: float = 1e-8,
 ) -> float:
     order = np.argsort(event_time)
 
@@ -126,7 +136,6 @@ def _estimate_concordance_index(
     denominator = 0.0
     for ind, mask in comparable.items():
         est_i = estimate[order[ind]]
-        event_i = event_indicator[order[ind]]
         w_i = weights[order[ind]]
 
         est = estimate[order[mask]]
@@ -147,7 +156,13 @@ def _estimate_concordance_index(
     cindex = numerator / denominator
     return cindex
 
-def concordance_index_censored(event_indicator: np.ndarray, event_time: np.ndarray, estimate: np.ndarray, tied_tol: float=1e-8) -> float:
+
+def concordance_index_censored(
+    event_indicator: np.ndarray,
+    event_time: np.ndarray,
+    estimate: np.ndarray,
+    tied_tol: float = 1e-8,
+) -> float:
     """Concordance index for right-censored data
 
     The concordance index is defined as the proportion of all comparable pairs
@@ -200,7 +215,11 @@ def concordance_index_censored(event_indicator: np.ndarray, event_time: np.ndarr
 
 
 def concordance_index_ipcw(
-        survival_train: np.ndarray, survival_test: np.ndarray, estimate: np.ndarray, tau: Optional[float]=None, tied_tol: float=1e-8
+    survival_train: np.ndarray,
+    survival_test: np.ndarray,
+    estimate: np.ndarray,
+    tau: Optional[float] = None,
+    tied_tol: float = 1e-8,
 ) -> float:
     """Concordance index for right-censored data based on inverse probability of censoring weights.
 
@@ -283,7 +302,13 @@ def concordance_index_ipcw(
 
     return _estimate_concordance_index(test_event, test_time, estimate, w, tied_tol)
 
-def brier_score(survival_train: np.ndarray, survival_test: np.ndarray, estimate: np.ndarray, times: np.ndarray) -> np.ndarray:
+
+def brier_score(
+    survival_train: np.ndarray,
+    survival_test: np.ndarray,
+    estimate: np.ndarray,
+    times: np.ndarray,
+) -> np.ndarray:
     """Estimate the time-dependent Brier score for right censored data.
 
     The time-dependent Brier score is the mean squared error at time point :math:`t`:
