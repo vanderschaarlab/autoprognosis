@@ -104,14 +104,11 @@ class WeightedEnsemble(BaseEnsemble):
             self.weights.append(weights[idx])
 
     def is_fitted(self) -> bool:
-        try:
-            _fitted = True
-            for model in self.models:
-                _fitted = _fitted or model.is_fitted()
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
 
-            return self._fitted
-        except BaseException:
-            return True  # backwards compatible
+        return _fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsemble":
         def fit_model(k: int) -> Any:
@@ -137,7 +134,6 @@ class WeightedEnsemble(BaseEnsemble):
             )
             self.explainers[exp] = exp_model
 
-        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -240,14 +236,11 @@ class WeightedEnsembleCV(BaseEnsemble):
         self.seed = 42
 
     def is_fitted(self) -> bool:
-        try:
-            _fitted = True
-            for model in self.models:
-                _fitted = _fitted or model.is_fitted()
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
 
-            return self._fitted
-        except BaseException:
-            return True  # backwards compatible
+        return _fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "WeightedEnsembleCV":
         skf = StratifiedKFold(
@@ -358,10 +351,6 @@ class StackingEnsemble(BaseEnsemble):
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
 
-        self._fitted = True
-        for model in models:
-            self._fitted = self._fitted or model.is_fitted()
-
         for model in self.models:
             model.change_output("numpy")
 
@@ -375,10 +364,11 @@ class StackingEnsemble(BaseEnsemble):
             )
 
     def is_fitted(self) -> bool:
-        try:
-            return self._fitted
-        except BaseException:
-            return True  # backwards compatible
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
+
+        return _fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "StackingEnsemble":
         self.clf.fit(X, Y)
@@ -394,7 +384,6 @@ class StackingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -476,20 +465,17 @@ class AggregatingEnsemble(BaseEnsemble):
         self.explainers: Optional[dict]
         self.explanations_nepoch = explanations_nepoch
 
-        self._fitted = True
-        for model in models:
-            self._fitted = self._fitted or model.is_fitted()
-
         if clf:
             self.clf = clf
         else:
             self.clf = SimpleClassifierAggregator(models, method=method)
 
     def is_fitted(self) -> bool:
-        try:
-            return self._fitted
-        except BaseException:
-            return True  # backwards compatible
+        _fitted = True
+        for model in self.models:
+            _fitted = _fitted and model.is_fitted()
+
+        return _fitted
 
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "AggregatingEnsemble":
         Y = pd.DataFrame(Y).values.ravel()
@@ -507,7 +493,6 @@ class AggregatingEnsemble(BaseEnsemble):
                 n_epoch=self.explanations_nepoch,
                 prefit=True,
             )
-        self._fitted = True
         return self
 
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
