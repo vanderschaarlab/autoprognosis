@@ -97,6 +97,7 @@ class BayesianOptimizer:
         n_trials: int = 50,
         timeout: int = 60,
         skip_recap: bool = False,
+        random_state: int = 0,
     ):
         self.study_name = study_name
         self.estimator = estimator
@@ -105,6 +106,7 @@ class BayesianOptimizer:
         self.n_trials = n_trials
         self.timeout = timeout
         self.skip_recap = skip_recap
+        self.random_state = random_state
 
     def create_study(
         self,
@@ -134,18 +136,21 @@ class BayesianOptimizer:
         if storage_type == "redis":
             storage_obj = backend.optuna()
 
+        sampler = optuna.samplers.TPESampler(seed=self.random_state)
         try:
             study = optuna.create_study(
                 direction=direction,
                 study_name=study_name,
                 storage=storage_obj,
                 load_if_exists=load_if_exists,
+                sampler=sampler,
             )
         except BaseException as e:
             log.debug(f"create_study failed {e}")
             study = optuna.create_study(
                 direction=direction,
                 study_name=study_name,
+                sampler=sampler,
             )
 
         return study, ParamRepeatPruner(study, patience=patience)
