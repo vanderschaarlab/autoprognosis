@@ -90,6 +90,7 @@ class RegressionEnsembleSeeker:
         self.study_name = study_name
         self.hooks = hooks
         self.optimizer_type = optimizer_type
+        self.random_state = random_state
 
         self.seeker = RegressionSeeker(
             study_name,
@@ -104,6 +105,7 @@ class RegressionEnsembleSeeker:
             hooks=hooks,
             imputers=imputers,
             optimizer_type=optimizer_type,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:
@@ -177,6 +179,7 @@ class RegressionEnsembleSeeker:
             optimizer_type=self.optimizer_type,
             n_trials=self.num_iter,
             timeout=self.timeout,
+            random_state=self.random_state,
         )
 
         best_score, selected_weights = study.evaluate()

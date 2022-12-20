@@ -86,6 +86,7 @@ class RiskEstimatorSeeker:
         self.optimizer_type = optimizer_type
         self.strict = strict
         self.CV = CV
+        self.random_state = random_state
 
         self.estimators = [
             PipelineSelector(
@@ -154,6 +155,7 @@ class RiskEstimatorSeeker:
             optimizer_type=self.optimizer_type,
             n_trials=self.num_iter,
             timeout=self.timeout,
+            random_state=self.random_state,
         )
         return study.evaluate()
 

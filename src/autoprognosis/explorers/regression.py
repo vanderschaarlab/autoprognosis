@@ -104,6 +104,7 @@ class RegressionSeeker:
         self.metric = metric
         self.optimizer_type = optimizer_type
         self.strict = strict
+        self.random_state = random_state
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -152,6 +153,7 @@ class RegressionSeeker:
             optimizer_type=self.optimizer_type,
             n_trials=self.num_iter,
             timeout=self.timeout,
+            random_state=self.random_state,
         )
         return study.evaluate()
 
