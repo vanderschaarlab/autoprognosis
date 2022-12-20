@@ -173,6 +173,7 @@ class ClassifierStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
+        self.random_state = random_state
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
@@ -185,6 +186,7 @@ class ClassifierStudy(Study):
             classifiers=classifiers,
             imputers=imputers,
             hooks=self.hooks,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:

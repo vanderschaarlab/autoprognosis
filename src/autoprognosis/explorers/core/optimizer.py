@@ -20,6 +20,7 @@ class Optimizer:
         timeout: int = 60,  # bayesian: timeout per search
         max_iter: int = 27,  # hyperband: maximum iterations per configuration
         eta: int = 3,  # hyperband: defines configuration downsampling rate (default = 3)
+        random_state: int = 0,
     ):
         if optimizer_type not in ["bayesian", "hyperband"]:
             raise RuntimeError(f"Invalid optimizer type {optimizer_type}")
@@ -31,6 +32,7 @@ class Optimizer:
                 evaluation_cbk=evaluation_cbk,
                 n_trials=n_trials,
                 timeout=timeout,
+                random_state=random_state,
             )
         elif optimizer_type == "hyperband":
             self.optimizer = HyperbandOptimizer(
@@ -39,6 +41,7 @@ class Optimizer:
                 evaluation_cbk=evaluation_cbk,
                 max_iter=max_iter,
                 eta=eta,
+                random_state=random_state,
             )
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -60,6 +63,7 @@ class EnsembleOptimizer:
         max_iter: int = 27,  # hyperband: maximum iterations per configuration
         eta: int = 3,  # hyperband: defines configuration downsampling rate (default = 3)
         skip_recap: bool = False,
+        random_state: int = 0,
     ):
         if optimizer_type not in ["bayesian", "hyperband"]:
             raise RuntimeError(f"Invalid optimizer type {optimizer_type}")
@@ -72,6 +76,7 @@ class EnsembleOptimizer:
                 n_trials=n_trials,
                 timeout=timeout,
                 skip_recap=skip_recap,
+                random_state=random_state,
             )
         elif optimizer_type == "hyperband":
             self.optimizer = HyperbandOptimizer(
@@ -80,6 +85,7 @@ class EnsembleOptimizer:
                 evaluation_cbk=evaluation_cbk,
                 max_iter=max_iter,
                 eta=eta,
+                random_state=random_state,
             )
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))

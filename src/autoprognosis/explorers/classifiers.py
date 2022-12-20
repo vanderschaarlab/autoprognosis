@@ -53,6 +53,8 @@ class ClassifierSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        random_state: int:
+            Random seed
     """
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -71,6 +73,7 @@ class ClassifierSeeker:
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
         strict: bool = False,
+        random_state: int = 0,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
@@ -102,6 +105,7 @@ class ClassifierSeeker:
         self.top_k = top_k
         self.metric = metric
         self.optimizer_type = optimizer_type
+        self.random_state = random_state
 
     def _should_continue(self) -> None:
         if self.hooks.cancel():
@@ -152,6 +156,7 @@ class ClassifierSeeker:
             optimizer_type=self.optimizer_type,
             n_trials=self.num_iter,
             timeout=self.timeout,
+            random_state=self.random_state,
         )
         return study.evaluate()
 

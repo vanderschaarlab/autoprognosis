@@ -60,6 +60,8 @@ class RegressionEnsembleSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        random_state: int:
+            Random seed
     """
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -78,6 +80,7 @@ class RegressionEnsembleSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        random_state: int = 0,
     ) -> None:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
@@ -87,6 +90,7 @@ class RegressionEnsembleSeeker:
         self.study_name = study_name
         self.hooks = hooks
         self.optimizer_type = optimizer_type
+        self.random_state = random_state
 
         self.seeker = RegressionSeeker(
             study_name,
@@ -101,6 +105,7 @@ class RegressionEnsembleSeeker:
             hooks=hooks,
             imputers=imputers,
             optimizer_type=optimizer_type,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:
@@ -174,6 +179,7 @@ class RegressionEnsembleSeeker:
             optimizer_type=self.optimizer_type,
             n_trials=self.num_iter,
             timeout=self.timeout,
+            random_state=self.random_state,
         )
 
         best_score, selected_weights = study.evaluate()

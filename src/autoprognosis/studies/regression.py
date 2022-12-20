@@ -176,6 +176,7 @@ class RegressionStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
+        self.random_state = random_state
 
         self.seeker = RegressionEnsembleSeeker(
             self.internal_name,
@@ -188,6 +189,7 @@ class RegressionStudy(Study):
             regressors=regressors,
             imputers=imputers,
             hooks=self.hooks,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:

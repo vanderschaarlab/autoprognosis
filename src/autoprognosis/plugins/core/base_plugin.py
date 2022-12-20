@@ -74,7 +74,9 @@ class Plugin(metaclass=ABCMeta):
         return results
 
     @classmethod
-    def sample_hyperparameters_np(cls, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+    def sample_hyperparameters_np(
+        cls, random_state: int = 0, *args: Any, **kwargs: Any
+    ) -> Dict[str, Any]:
         """Sample hyperparameters as a dict."""
         param_space = cls.hyperparameter_space(*args, **kwargs)
 

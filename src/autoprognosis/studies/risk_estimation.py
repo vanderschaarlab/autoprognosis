@@ -184,6 +184,7 @@ class RiskEstimationStudy(Study):
         self.num_iter = num_iter
         self.num_study_iter = num_study_iter
         self.hooks = hooks
+        self.random_state = random_state
 
         self.standard_seeker = standard_seeker(
             self.internal_name,
@@ -196,6 +197,7 @@ class RiskEstimationStudy(Study):
             feature_selection=feature_selection,
             imputers=imputers,
             hooks=hooks,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:
