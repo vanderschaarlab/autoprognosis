@@ -51,6 +51,8 @@ class RegressionSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        random_state: int:
+            Random seed
     """
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -69,6 +71,7 @@ class RegressionSeeker:
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
         strict: bool = False,
+        random_state: int = 0,
     ) -> None:
         for int_val in [num_iter, CV, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:

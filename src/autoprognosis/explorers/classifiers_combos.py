@@ -62,6 +62,8 @@ class EnsembleSeeker:
             Plugins to use in the pipeline for imputation.
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
+        random_state: int:
+            Random seed
     """
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
@@ -80,6 +82,7 @@ class EnsembleSeeker:
         imputers: List[str] = [],
         hooks: Hooks = DefaultHooks(),
         optimizer_type: str = "bayesian",
+        random_state: int = 0,
     ) -> None:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout

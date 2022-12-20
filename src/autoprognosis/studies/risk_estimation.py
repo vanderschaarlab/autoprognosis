@@ -196,6 +196,7 @@ class RiskEstimationStudy(Study):
             feature_selection=feature_selection,
             imputers=imputers,
             hooks=hooks,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:

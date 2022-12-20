@@ -188,6 +188,7 @@ class RegressionStudy(Study):
             regressors=regressors,
             imputers=imputers,
             hooks=self.hooks,
+            random_state=self.random_state,
         )
 
     def _should_continue(self) -> None:
