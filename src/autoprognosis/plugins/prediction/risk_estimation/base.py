@@ -52,16 +52,17 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         if len(args) < 2:
             raise ValueError("Invalid input for fit. Expecting X, T and Y.")
 
-        log.info("Training using {self.fqdn()}, input shape = {X.shape}")
         T = args[0]
         Y = args[1]
 
         X = self._preprocess_training_data(X)
+
+        log.debug(f"Training using {self.fqdn()}, input shape = {X.shape}")
         self._fit(X, *args, **kwargs)
         self._fitted = True
 
         if self.with_explanations and self.explainer is None:
-            log.info(
+            log.debug(
                 "Training explainer forusing {self.fqdn()}, input shape = {X.shape}"
             )
             if "eval_times" not in kwargs:
@@ -84,7 +85,7 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
                 task_type="risk_estimation",
             )
 
-        log.info("Done training using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Done training using {self.fqdn()}, input shape = {X.shape}")
         return self
 
     def explain(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:

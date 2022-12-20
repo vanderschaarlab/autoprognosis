@@ -77,7 +77,7 @@ class classifier_evaluator:
         else:
             raise ValueError(f"invalid metric {self.m_metric}")
 
-        log.debug(f"evaluate:{score_val:0.5f}")
+        log.debug(f"evaluate_classifier: :{score_val:0.5f}")
         return score_val
 
     def roc_auc_score(self, y_test: np.ndarray, y_pred_proba: np.ndarray) -> float:

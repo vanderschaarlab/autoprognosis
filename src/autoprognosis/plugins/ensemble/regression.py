@@ -97,7 +97,7 @@ class WeightedRegressionEnsemble(BaseRegressionEnsemble):
         def fit_model(k: int) -> Any:
             return self.models[k].fit(X, Y)
 
-        log.info("Fitting the WeightedRegressionEnsemble")
+        log.debug("Fitting the WeightedRegressionEnsemble")
         self.models = dispatcher(delayed(fit_model)(k) for k in range(len(self.models)))
 
         if self.explainers:
@@ -106,7 +106,7 @@ class WeightedRegressionEnsemble(BaseRegressionEnsemble):
         self.explainers = {}
 
         for exp in self.explainer_plugins:
-            log.info("Fitting the explainer for the WeightedRegressionEnsemble")
+            log.debug("Fitting the explainer for the WeightedRegressionEnsemble")
             exp_model = Explainers().get(
                 exp,
                 copy.deepcopy(self),

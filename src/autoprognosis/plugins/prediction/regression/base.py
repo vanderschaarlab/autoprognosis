@@ -39,14 +39,14 @@ class RegressionPlugin(prediction_base.PredictionPlugin):
         return []
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "RegressionPlugin":
-        log.info("Training using {self.fqdn()}, input shape = {X.shape}")
         if len(args) < 1:
             raise ValueError("Invalid input for fit. Expecting X and Y.")
 
+        log.debug(f"Training using {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
         self._fit(X, *args, **kwargs)
         self._fitted = True
-        log.info("Done using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Done using {self.fqdn()}, input shape = {X.shape}")
 
         return self
 

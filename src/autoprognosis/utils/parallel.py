@@ -22,5 +22,5 @@ def n_learner_jobs() -> int:
     except BaseException as e:
         n_jobs = multiprocessing.cpu_count()
         log.debug(f"failed to get N_LEARNER_JOBS {e}")
-    log.debug(f"Using {n_jobs} cores for ")
+    log.debug(f"Using {n_jobs} cores for learners")
     return n_jobs
