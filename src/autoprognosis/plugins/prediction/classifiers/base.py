@@ -34,7 +34,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         return "classifier"
 
     def fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> plugin.Plugin:
-        log.info(f"Training using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Training using {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
 
         if len(args) == 0:
@@ -44,7 +44,7 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         self._fit(X, Y, **kwargs)
 
         self._fitted = True
-        log.info(f"Done training using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Done training using {self.fqdn()}, input shape = {X.shape}")
 
         return self
 
