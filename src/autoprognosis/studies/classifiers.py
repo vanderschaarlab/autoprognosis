@@ -173,6 +173,7 @@ class ClassifierStudy(Study):
 
         self.metric = metric
         self.score_threshold = score_threshold
+        self.random_state = random_state
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
