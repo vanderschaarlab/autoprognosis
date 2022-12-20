@@ -42,12 +42,18 @@ class NormalTransformPlugin(base.PreprocessorPlugin):
         [150 rows x 4 columns]
     """
 
-    def __init__(self, random_state: int = 0, model: Any = None) -> None:
+    def __init__(
+        self, random_state: int = 0, n_quantiles: int = 100, model: Any = None
+    ) -> None:
         super().__init__()
         if model:
             self.model = model
             return
-        self.model = QuantileTransformer(output_distribution="normal", n_quantiles=30)
+        self.model = QuantileTransformer(
+            output_distribution="normal",
+            n_quantiles=n_quantiles,
+            random_state=random_state,
+        )
 
     @staticmethod
     def name() -> str:
