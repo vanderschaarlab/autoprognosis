@@ -114,7 +114,7 @@ class WeightedEnsemble(BaseEnsemble):
         def fit_model(k: int) -> Any:
             return self.models[k].fit(X, Y)
 
-        log.info("Fitting the WeightedEnsemble")
+        log.debug("Fitting the WeightedEnsemble")
         self.models = dispatcher(delayed(fit_model)(k) for k in range(len(self.models)))
 
         if self.explainers:
@@ -123,7 +123,7 @@ class WeightedEnsemble(BaseEnsemble):
         self.explainers = {}
 
         for exp in self.explainer_plugins:
-            log.info("Fitting the explainer for the WeightedEnsemble")
+            log.debug("Fitting the explainer for the WeightedEnsemble")
             exp_model = Explainers().get(
                 exp,
                 copy.deepcopy(self),
