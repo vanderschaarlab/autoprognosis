@@ -193,13 +193,13 @@ class Plugin(metaclass=ABCMeta):
         Args:
             X: pd.DataFrame
         """
-        log.debug(f"Training {self.fqdn()}, input shape = {X.shape}")
         X = self._preprocess_training_data(X)
 
+        log.debug(f"Training {self.fqdn()}, input shape = {X.shape}")
         self._fit(X, *args, **kwargs)
+        log.debug(f"Done Training {self.fqdn()}, input shape = {X.shape}")
 
         self._fitted = True
-        log.debug(f"Done Training {self.fqdn()}, input shape = {X.shape}")
 
         return self
 
@@ -214,11 +214,10 @@ class Plugin(metaclass=ABCMeta):
             X: pd.DataFrame
 
         """
-        log.debug(f"Transforming using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._preprocess_inference_data(X)
-        log.debug(f"Done transforming using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Transforming using {self.fqdn()}, input shape = {X.shape}")
         return self.output(self._transform(X))
 
     @abstractmethod
@@ -232,11 +231,10 @@ class Plugin(metaclass=ABCMeta):
             X: pd.DataFrame
 
         """
-        log.debug(f"Predicting using {self.fqdn()}, input shape = {X.shape}")
         if not self.is_fitted():
             raise RuntimeError("Fit the model first")
         X = self._preprocess_inference_data(X)
-        log.debug(f"Done predcting using {self.fqdn()}, input shape = {X.shape}")
+        log.debug(f"Predicting using {self.fqdn()}, input shape = {X.shape}")
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod

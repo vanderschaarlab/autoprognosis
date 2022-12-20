@@ -52,11 +52,12 @@ class RiskEstimationPlugin(prediction_base.PredictionPlugin):
         if len(args) < 2:
             raise ValueError("Invalid input for fit. Expecting X, T and Y.")
 
-        log.debug(f"Training using {self.fqdn()}, input shape = {X.shape}")
         T = args[0]
         Y = args[1]
 
         X = self._preprocess_training_data(X)
+
+        log.debug(f"Training using {self.fqdn()}, input shape = {X.shape}")
         self._fit(X, *args, **kwargs)
         self._fitted = True
 
