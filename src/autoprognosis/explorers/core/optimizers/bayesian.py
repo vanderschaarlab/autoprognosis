@@ -9,7 +9,7 @@ from pydantic import validate_arguments
 
 # autoprognosis absolute
 import autoprognosis.logger as log
-from autoprognosis.utils.redis import backend
+from autoprognosis.utils.redis import RedisBackend
 
 threshold = 40
 EPS = 1e-8
@@ -134,7 +134,11 @@ class BayesianOptimizer:
 
         storage_obj = None
         if storage_type == "redis":
-            storage_obj = backend.optuna()
+            try:
+                backend = RedisBackend()
+                storage_obj = backend.optuna()
+            except BaseException:
+                storage_obj = None
 
         sampler = optuna.samplers.TPESampler(seed=self.random_state)
         try:

@@ -2,7 +2,7 @@
 import os
 
 # third party
-import optuna
+from optuna.storages import JournalRedisStorage, JournalStorage
 import redis
 
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
@@ -18,14 +18,11 @@ class RedisBackend:
     ):
         self.url = f"redis://{host}:{port}/"
 
-        self._optuna_storage = optuna.storages.RedisStorage(url=self.url)
+        self._optuna_storage = JournalStorage(JournalRedisStorage(url=self.url))
         self._client = redis.Redis.from_url(self.url)
 
-    def optuna(self) -> optuna.storages.RedisStorage:
+    def optuna(self) -> JournalStorage:
         return self._optuna_storage
 
     def client(self) -> redis.Redis:
         return self._client
-
-
-backend = RedisBackend()
