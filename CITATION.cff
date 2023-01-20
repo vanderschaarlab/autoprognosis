@@ -1,0 +1,32 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  AutoPrognosis 2.0: Democratizing Diagnostic and Prognostic
+  Modeling in Healthcare with Automated Machine Learning
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Fergus
+    family-names: Imrie
+  - given-names: Bogdan-Constantin
+    family-names: Cebere
+  - given-names: Eoin F
+    family-names: McKinney
+  - given-names: Mihaela
+    family-names: van der Schaar
+identifiers:
+  - type: doi
+    value: 10.48550/ARXIV.2210.12090
+repository-code: 'https://github.com/vanderschaarlab/autoprognosis'
+url: 'https://www.autoprognosis.vanderschaar-lab.com/'
+repository: 'https://arxiv.org/abs/2210.12090'
+abstract: ' A system for automating the design of predictive modeling pipelines tailored for clinical prognosis.'
+keywords:
+  - Machine Learning (cs.LG)
+  - Artificial Intelligence (cs.AI)
+  - 'FOS: Computer and information sciences'
+license: Apache-2.0
