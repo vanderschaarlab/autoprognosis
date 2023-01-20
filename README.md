@@ -14,6 +14,7 @@
 [![Documentation Status](https://readthedocs.org/projects/autoprognosis/badge/?version=latest)](https://autoprognosis.readthedocs.io/en/latest/?badge=latest)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2210.12090-b31b1b.svg)](https://arxiv.org/abs/2210.12090)
+[![](https://pepy.tech/badge/autoprognosis)](https://pypi.org/project/autoprognosis/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/autoprognosis/blob/main/LICENSE)
 [![about](https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue)](https://www.vanderschaar-lab.com/)
 
