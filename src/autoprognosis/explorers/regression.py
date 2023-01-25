@@ -189,7 +189,7 @@ class RegressionSeeker:
             return metrics["raw"][self.metric][0]
 
         study = Optimizer(
-            study_name=f"{self.study_name}_regressors_exploration_{estimator.name()}",
+            study_name=f"{self.study_name}_regressors_exploration_{estimator.name()}_{self.metric}",
             estimator=estimator,
             evaluation_cbk=evaluate_args,
             optimizer_type=self.optimizer_type,

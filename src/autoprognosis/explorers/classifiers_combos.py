@@ -237,7 +237,7 @@ class EnsembleSeeker:
             return score
 
         study = EnsembleOptimizer(
-            study_name=f"{self.study_name}_classifier_exploration_ensemble_v2",
+            study_name=f"{self.study_name}_classifier_exploration_ensemble_{self.metric}",
             ensemble_len=len(ensemble),
             evaluation_cbk=evaluate,
             optimizer_type=self.optimizer_type,
