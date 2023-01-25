@@ -4,12 +4,7 @@ from autoprognosis.plugins.preprocessors import Preprocessors
 default_classifiers_names = [
     "random_forest",
     "xgboost",
-    "adaboost",
-    "bagging",
-    "qda",
-    "lda",
     "logistic_regression",
-    "lgbm",
     "catboost",
 ]
 default_regressors_names = [
