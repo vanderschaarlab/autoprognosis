@@ -46,8 +46,12 @@ clf_supported_metrics = [
     "f1_score_macro",
     "f1_score_weighted",
     "kappa",
-    "precision",
-    "recall",
+    "precision_micro",
+    "precision_macro",
+    "precision_weighted",
+    "recall_micro",
+    "recall_macro",
+    "recall_weighted",
     "mcc",
 ]
 survival_supported_metrics = [
@@ -102,10 +106,18 @@ class classifier_metrics:
                 results[metric] = f1_score(y_test, y_pred, average="weighted")
             elif metric == "kappa":
                 results[metric] = cohen_kappa_score(y_test, y_pred)
-            elif metric == "recall":
-                results[metric] = recall_score(y_test, y_pred)
-            elif metric == "precision":
-                results[metric] = precision_score(y_test, y_pred)
+            elif metric == "recall_micro":
+                results[metric] = recall_score(y_test, y_pred, average="micro")
+            elif metric == "recall_macro":
+                results[metric] = recall_score(y_test, y_pred, average="macro")
+            elif metric == "recall_weighted":
+                results[metric] = recall_score(y_test, y_pred, average="weighted")
+            elif metric == "precision_micro":
+                results[metric] = precision_score(y_test, y_pred, average="micro")
+            elif metric == "precision_macro":
+                results[metric] = precision_score(y_test, y_pred, average="macro")
+            elif metric == "precision_weighted":
+                results[metric] = precision_score(y_test, y_pred, average="weighted")
             elif metric == "mcc":
                 results[metric] = matthews_corrcoef(y_test, y_pred)
             else:
@@ -219,7 +231,6 @@ def evaluate_estimator_multiple_seeds(
     X: Union[pd.DataFrame, np.ndarray],
     Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
-    metric: str = "aucroc",
     seeds: List[int] = [0, 1, 2],
     pretrained: bool = False,
     group_ids: Optional[pd.Series] = None,
@@ -235,8 +246,6 @@ def evaluate_estimator_multiple_seeds(
             The labels
         n_folds: int
             cross-validation folds
-        metric: str
-            The metric to use: aucroc or aucprc
         seeds: List
             Random seeds
         pretrained: bool
@@ -251,29 +260,29 @@ def evaluate_estimator_multiple_seeds(
         "str": {},
     }
 
-    repeats = []
+    repeats = {}
+    for metric in clf_supported_metrics:
+        repeats[metric] = []
+
     for seed in seeds:
         score = evaluate_estimator(
             estimator,
             X=X,
             Y=Y,
             n_folds=n_folds,
-            metric=metric,
             seed=seed,
             pretrained=pretrained,
             group_ids=group_ids,
         )
 
         results["seeds"][seed] = score["str"]
-        repeats.append(score["clf"][metric][0])
+        for metric in score["clf"]:
+            repeats[metric].append(score["clf"][metric][0])
 
-    output_clf = generate_score(repeats)
-    results["agg"] = {
-        metric: output_clf,
-    }
-    results["str"] = {
-        metric: print_score(output_clf),
-    }
+    for metric in repeats:
+        output_clf = generate_score(repeats[metric])
+        results["agg"][metric] = output_clf
+        results["str"][metric] = print_score(output_clf)
 
     return results
 
