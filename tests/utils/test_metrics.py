@@ -1,4 +1,5 @@
 # third party
+from lifelines.datasets import load_rossi
 from sklearn.datasets import load_diabetes, load_iris
 
 # autoprognosis absolute
@@ -8,6 +9,8 @@ from autoprognosis.utils.tester import (
     evaluate_estimator_multiple_seeds,
     evaluate_regression,
     evaluate_regression_multiple_seeds,
+    evaluate_survival_estimator,
+    evaluate_survival_estimator_multiple_seeds,
 )
 
 clf_supported_metrics = [
@@ -29,6 +32,16 @@ clf_supported_metrics = [
 reg_supported_metrics = [
     "r2",
     "rmse",
+]
+surv_supported_metrics = [
+    "c_index",
+    "brier_score",
+    "aucroc",
+    "sensitivity",
+    "specificity",
+    "PPV",
+    "NPV",
+    "predicted_cases",
 ]
 
 
@@ -74,5 +87,48 @@ def test_reg_multiple_seeds() -> None:
 
     for seed in [0, 1]:
         for metric in reg_supported_metrics:
+            assert metric in metrics["seeds"][seed]
+            assert metric in metrics["str"]
+
+
+def test_surv() -> None:
+    model = Predictions(category="risk_estimation").get("cox_ph")
+    rossi = load_rossi()
+
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
+
+    eval_time_horizons = [
+        int(T[Y.iloc[:] == 1].quantile(0.50)),
+    ]
+
+    metrics = evaluate_survival_estimator(
+        model, X, T, Y, time_horizons=eval_time_horizons
+    )
+
+    for metric in surv_supported_metrics:
+        assert metric in metrics["raw"]
+        assert metric in metrics["str"]
+
+
+def test_surv_multiple_seeds() -> None:
+    model = Predictions(category="risk_estimation").get("cox_ph")
+    rossi = load_rossi()
+
+    X = rossi.drop(["week", "arrest"], axis=1)
+    Y = rossi["arrest"]
+    T = rossi["week"]
+
+    eval_time_horizons = [
+        int(T[Y.iloc[:] == 1].quantile(0.50)),
+    ]
+
+    metrics = evaluate_survival_estimator_multiple_seeds(
+        model, X, T, Y, time_horizons=eval_time_horizons, seeds=[0, 1]
+    )
+
+    for seed in [0, 1]:
+        for metric in surv_supported_metrics:
             assert metric in metrics["seeds"][seed]
             assert metric in metrics["str"]

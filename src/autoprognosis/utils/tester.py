@@ -610,14 +610,13 @@ def evaluate_survival_estimator_multiple_seeds(
     for metric in metrics:
         repeats[metric] = []
     for seed in seeds:
-        score = evaluate_regression(
+        score = evaluate_survival_estimator(
             estimator,
             X=X,
             T=T,
             Y=Y,
             time_horizons=time_horizons,
             n_folds=n_folds,
-            metrics=metrics,
             risk_threshold=risk_threshold,
             seed=seed,
             pretrained=pretrained,
