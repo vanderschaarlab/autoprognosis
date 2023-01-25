@@ -251,7 +251,7 @@ class RegressionStudy(Study):
                 self.search_Y,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             self.hooks.heartbeat(
                 topic="regression_study",
                 subtopic="candidate",
@@ -294,7 +294,7 @@ class RegressionStudy(Study):
                 self.search_Y,
                 group_ids=self.search_group_ids,
             )
-            score = metrics["clf"][self.metric][0]
+            score = metrics["raw"][self.metric][0]
 
             self.hooks.heartbeat(
                 topic="regression_study",
@@ -323,11 +323,11 @@ class RegressionStudy(Study):
                 continue
 
             patience = 0
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             best_model = current_model
 
             log.error(
-                f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
+                f"Best ensemble so far: {best_model.name()} with score {metrics['raw'][self.metric]}"
             )
 
             self._save_progress(best_model)

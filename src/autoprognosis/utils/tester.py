@@ -64,6 +64,7 @@ survival_supported_metrics = [
     "NPV",
     "predicted_cases",
 ]
+reg_supported_metrics = ["rmse", "r2"]
 
 
 class classifier_metrics:
@@ -220,7 +221,8 @@ def evaluate_estimator(
         output_clf_str[key] = print_score(key_out)
 
     return {
-        "clf": output_clf,
+        "clf": output_clf,  # legacy
+        "raw": output_clf,
         "str": output_clf_str,
     }
 
@@ -295,7 +297,6 @@ def evaluate_survival_estimator(
     Y: Union[pd.Series, np.ndarray, List],
     time_horizons: Union[List[float], np.ndarray],
     n_folds: int = 3,
-    metrics: List[str] = survival_supported_metrics,
     seed: int = 0,
     pretrained: bool = False,
     risk_threshold: float = 0.5,
@@ -314,8 +315,6 @@ def evaluate_survival_estimator(
             Horizons where to evaluate the performance.
         n_folds: int
             Number of folds for cross validation
-        metrics: list
-            Available metrics: "c_index", "brier_score", "aucroc"
         seed: int
             Random seed
         pretrained: bool
@@ -324,6 +323,7 @@ def evaluate_survival_estimator(
             Group labels for the samples used while splitting the dataset into train/test set.
     """
     enable_reproducible_results(seed)
+    metrics = survival_supported_metrics
 
     results = {}
     X = pd.DataFrame(X).reset_index(drop=True)
@@ -560,6 +560,8 @@ def evaluate_survival_estimator(
         output["clf"][metric] = generate_score(results[metric])
         output["str"][metric] = print_score(output["clf"][metric])
 
+    output["raw"] = output["clf"]
+
     return output
 
 
@@ -571,7 +573,6 @@ def evaluate_survival_estimator_multiple_seeds(
     Y: Union[pd.Series, np.ndarray, List],
     time_horizons: Union[List[float], np.ndarray],
     n_folds: int = 3,
-    metrics: List[str] = survival_supported_metrics,
     pretrained: bool = False,
     risk_threshold: float = 0.5,
     group_ids: Optional[pd.Series] = None,
@@ -590,8 +591,6 @@ def evaluate_survival_estimator_multiple_seeds(
             Horizons where to evaluate the performance.
         n_folds: int
             Number of folds for cross validation
-        metrics: list
-            Available metrics: "c_index", "brier_score", "aucroc"
         seeds: List
             Random seeds
         pretrained: bool
@@ -600,6 +599,7 @@ def evaluate_survival_estimator_multiple_seeds(
             Group labels for the samples used while splitting the dataset into train/test set.
     """
 
+    metrics = survival_supported_metrics
     results = {
         "seeds": {},
         "agg": {},
@@ -642,7 +642,6 @@ def evaluate_regression(
     X: Union[pd.DataFrame, np.ndarray],
     Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
-    metrics: str = ["rmse", "r2"],
     seed: int = 0,
     pretrained: bool = False,
     group_ids: Optional[pd.Series] = None,
@@ -660,8 +659,6 @@ def evaluate_regression(
             outcomes
         n_folds: int
             Number of cross-validation folds
-        metrics: str
-            rmse, r2
         seed: int
             Random seed
         group_ids: pd.Series
@@ -669,6 +666,7 @@ def evaluate_regression(
 
     """
     enable_reproducible_results(seed)
+    metrics = reg_supported_metrics
 
     X = pd.DataFrame(X).reset_index(drop=True)
     Y = pd.Series(Y).reset_index(drop=True)
@@ -714,6 +712,10 @@ def evaluate_regression(
         "clf": {
             "rmse": output_rmse,
             "r2": output_r2,
+        },  # legacy node
+        "raw": {
+            "rmse": output_rmse,
+            "r2": output_r2,
         },
         "str": {
             "rmse": print_score(output_rmse),
@@ -728,7 +730,6 @@ def evaluate_regression_multiple_seeds(
     X: Union[pd.DataFrame, np.ndarray],
     Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
-    metrics: str = ["rmse", "r2"],
     pretrained: bool = False,
     group_ids: Optional[pd.Series] = None,
     seeds: List[int] = [0, 1, 2],
@@ -744,14 +745,14 @@ def evaluate_regression_multiple_seeds(
             outcomes
         n_folds: int
             Number of cross-validation folds
-        metrics: str
-            rmse, r2
         seeds: list
             Random seeds
         group_ids: pd.Series
             Optional group_ids for stratified cross-validation
 
     """
+    metrics = reg_supported_metrics
+
     results = {
         "seeds": {},
         "agg": {},

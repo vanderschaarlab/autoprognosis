@@ -184,7 +184,7 @@ class RiskEstimatorSeeker:
                 cindex=metrics["str"]["c_index"],
                 brier_score=metrics["str"]["brier_score"],
             )
-            return metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            return metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
         study = Optimizer(
             study_name=f"{self.study_name}_risk_estimation_exploration_{estimator.name()}_{time_horizon}",

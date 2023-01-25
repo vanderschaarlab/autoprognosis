@@ -231,8 +231,8 @@ class EnsembleSeeker:
 
                 return 0
 
-            log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
-            score = metrics["clf"][self.metric][0]
+            log.debug(f"ensemble {folds[0].name()} : results {metrics['raw']}")
+            score = metrics["raw"][self.metric][0]
 
             return score
 
@@ -277,7 +277,7 @@ class EnsembleSeeker:
             stacking_ensemble = StackingEnsemble(best_models)
             stacking_ens_score = evaluate_estimator(
                 stacking_ensemble, X, Y, self.CV, group_ids=group_ids
-            )["clf"][self.metric][0]
+            )["raw"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
             )
@@ -293,7 +293,7 @@ class EnsembleSeeker:
             aggr_ensemble = AggregatingEnsemble(best_models)
             aggr_ens_score = evaluate_estimator(
                 aggr_ensemble, X, Y, self.CV, group_ids=group_ids
-            )["clf"][self.metric][0]
+            )["raw"][self.metric][0]
             log.info(
                 f"Aggregating ensemble: {aggr_ensemble.name()} --> {aggr_ens_score}"
             )

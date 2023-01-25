@@ -213,7 +213,7 @@ class ClassifierSeeker:
                 duration=time.time() - start,
                 aucroc=metrics["str"][self.metric],
             )
-            return metrics["clf"][self.metric][0]
+            return metrics["raw"][self.metric][0]
 
         study = Optimizer(
             study_name=f"{self.study_name}_classifiers_exploration_{estimator.name()}",

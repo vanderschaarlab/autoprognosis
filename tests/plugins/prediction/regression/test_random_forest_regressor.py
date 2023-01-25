@@ -70,7 +70,7 @@ def test_random_forest_plugin_fit_predict(test_plugin: PredictionPlugin) -> None
 
     score = evaluate_regression(test_plugin, X, y)
 
-    assert score["clf"]["rmse"][0] < 5000
+    assert score["raw"]["rmse"][0] < 5000
 
 
 def test_param_search() -> None:
@@ -85,7 +85,7 @@ def test_param_search() -> None:
         model = plugin(**kwargs)
         metrics = evaluate_regression(model, X, y)
 
-        return metrics["clf"]["rmse"][0]
+        return metrics["raw"]["rmse"][0]
 
     def objective(trial: optuna.Trial) -> float:
         args = plugin.sample_hyperparameters(trial)

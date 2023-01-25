@@ -269,7 +269,7 @@ class ClassifierStudy(Study):
                 metric=self.metric,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             self.hooks.heartbeat(
                 topic="classification_study",
                 subtopic="candidate",
@@ -313,7 +313,7 @@ class ClassifierStudy(Study):
                 metric=self.metric,
                 group_ids=self.search_group_ids,
             )
-            score = metrics["clf"][self.metric][0]
+            score = metrics["raw"][self.metric][0]
 
             self.hooks.heartbeat(
                 topic="classification_study",
@@ -342,11 +342,11 @@ class ClassifierStudy(Study):
                 continue
 
             patience = 0
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             best_model = current_model
 
             log.error(
-                f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
+                f"Best ensemble so far: {best_model.name()} with score {metrics['raw'][self.metric]}"
             )
 
             self._save_progress(best_model)

@@ -55,7 +55,7 @@ def test_regression_search(sample_for_search: bool) -> None:
     assert not model_v1.is_fitted()
 
     metrics = evaluate_regression(model_v1, X, Y)
-    score_v1 = metrics["clf"]["r2"][0]
+    score_v1 = metrics["raw"]["r2"][0]
 
     # resume the study - should get at least the same score
     study.run()
@@ -65,7 +65,7 @@ def test_regression_search(sample_for_search: bool) -> None:
     model_v2 = load_model_from_file(output)
 
     metrics = evaluate_regression(model_v2, X, Y)
-    score_v2 = metrics["clf"]["r2"][0]
+    score_v2 = metrics["raw"]["r2"][0]
 
     EPS = 0.05
     assert score_v2 + EPS >= score_v1

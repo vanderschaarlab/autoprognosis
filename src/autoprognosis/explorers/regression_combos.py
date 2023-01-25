@@ -207,8 +207,8 @@ class RegressionEnsembleSeeker:
 
                 return 0
 
-            log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
-            score = metrics["clf"][self.metric][0]
+            log.debug(f"ensemble {folds[0].name()} : results {metrics['raw']}")
+            score = metrics["raw"][self.metric][0]
 
             return score
 

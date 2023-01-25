@@ -256,7 +256,7 @@ class RiskEstimationStudy(Study):
                 self.time_horizons,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            best_score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
             self.hooks.heartbeat(
                 topic="risk_estimation_study",
                 subtopic="candidate",
@@ -313,7 +313,7 @@ class RiskEstimationStudy(Study):
                     self.time_horizons,
                     group_ids=self.search_group_ids,
                 )
-                score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+                score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
                 self.hooks.heartbeat(
                     topic="risk_estimation_study",
                     subtopic="candidate",

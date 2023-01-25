@@ -233,9 +233,9 @@ class RiskEnsembleSeeker:
             )
 
             log.debug(
-                f"Ensemble {cv_folds[0].name()} : results {metrics['clf']['c_index'][0]}"
+                f"Ensemble {cv_folds[0].name()} : results {metrics['raw']['c_index'][0]}"
             )
-            return metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            return metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
         study = EnsembleOptimizer(
             study_name=f"{self.study_name}_risk_estimation_exploration_ensemble_{time_horizon}",
