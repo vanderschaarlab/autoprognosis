@@ -39,11 +39,11 @@ class RegressionEnsembleSeeker:
         study_name: str.
             Study ID, used for caching keys.
         num_iter: int.
-            Number of optimization trials.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "regressors" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_ensemble_iter: int.
             Number of optimization trials for the ensemble weights.
         timeout: int.
-            Max wait time(in seconds) for the optimization output.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "regressors" list.
         CV: int.
             Number of folds to use for evaluation
         ensemble_size: int.

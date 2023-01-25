@@ -116,7 +116,11 @@ def evaluate_estimator(
         n_folds: int
             cross-validation folds
         metric: str
-            The metric to use: aucroc or aucprc
+            The metric to use.
+            Available metrics:
+                - aucroc
+                - aucprc
+                -
         seed: int
             Random seed
         pretrained: bool

@@ -44,11 +44,11 @@ class RiskEstimationStudy(Study):
         time_to_event: str.
             The time_to_event column in the dataset.
         num_iter: int.
-            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "risk_estimators" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_study_iter: int.
             The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
-            Max wait time for each estimator hyperparameter search.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "risk_estimators" list.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
