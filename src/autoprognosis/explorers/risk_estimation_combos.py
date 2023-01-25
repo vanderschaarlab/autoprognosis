@@ -47,13 +47,49 @@ class RiskEnsembleSeeker:
         CV: int.
             Number of folds to use for evaluation
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
-        estimators: list.
-            Plugins to use in the pipeline for risk prediction.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        estimators: list.
+            Plugin search pool to use in the pipeline for risk estimation. Defaults to ["survival_xgboost", "loglogistic_aft", "deephit", "cox_ph", "weibull_aft", "lognormal_aft", "coxnet"]
+            Available plugins:
+             - 'survival_xgboost'
+             - 'loglogistic_aft'
+             - 'deephit'
+             - 'cox_ph'
+             - 'weibull_aft'
+             - 'lognormal_aft'
+             - 'coxnet'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         random_state: int:
