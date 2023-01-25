@@ -47,9 +47,14 @@ class ClassifierStudy(Study):
             Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "classifiers" list.
         metric: str.
             The metric to use for optimization.
-            Valid metrics:
+            Available objective metrics:
                 - "aucroc"
                 - "aucprc"
+                - "accuracy"
+                - "f1_score_micro"
+                - "f1_score_macro"
+                - "f1_score_weighted"
+                - "mcc"
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.

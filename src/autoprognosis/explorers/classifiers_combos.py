@@ -51,10 +51,15 @@ class EnsembleSeeker:
         ensemble_size: int.
             Number of base models for the ensemble.
         metric: str.
-            The metric to use as objective for optimization.
-            Valid metrics:
+            The metric to use for optimization.
+            Available objective metrics:
                 - "aucroc"
                 - "aucprc"
+                - "accuracy"
+                - "f1_score_micro"
+                - "f1_score_macro"
+                - "f1_score_weighted"
+                - "mcc"
         feature_scaling: list.
             Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
             Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
