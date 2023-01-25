@@ -46,17 +46,57 @@ class RegressionStudy(Study):
         timeout: int.
             Max wait time for each estimator hyperparameter search.
         metric: str.
-            The metric to use for optimization. ["r2"]
+            The metric to use for optimization.
+            Available metric:
+                - "r2"
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for feature scaling. : scaler, minmax_scaler etc
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
-        regressors: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        regressors: list.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest_regressor","xgboost_regressor", "linear_regression", "catboost_regressor"]
+            Available plugins, retrieved using `Regression().list_available()`:
+                - 'kneighbors_regressor'
+                - 'bayesian_ridge'
+                - 'tabnet_regressor'
+                - 'catboost_regressor'
+                - 'random_forest_regressor'
+                - 'mlp_regressor'
+                - 'xgboost_regressor'
+                - 'neural_nets_regression'
+                - 'linear_regression'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         workspace: Path.
