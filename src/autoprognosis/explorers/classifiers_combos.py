@@ -51,15 +51,70 @@ class EnsembleSeeker:
         ensemble_size: int.
             Number of base models for the ensemble.
         metric: str.
-            The metric to use for optimization. ["aucroc", "aucprc"]
+            The metric to use as objective for optimization.
+            Valid metrics:
+                - "aucroc"
+                - "aucprc"
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing. "minmax_scaler", "scaler" etc.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection. ["nop", "variance_threshold", "pca", "fast_ica"]
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         classifiers: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest", "xgboost", "logistic_regression", "catboost"].
+            Available plugins, retrieved using `Classifiers().list_available()`:
+                - 'adaboost'
+                - 'bernoulli_naive_bayes'
+                - 'neural_nets'
+                - 'linear_svm'
+                - 'qda'
+                - 'decision_trees'
+                - 'logistic_regression'
+                - 'hist_gradient_boosting'
+                - 'extra_tree_classifier'
+                - 'bagging'
+                - 'gradient_boosting'
+                - 'ridge_classifier'
+                - 'gaussian_process'
+                - 'perceptron'
+                - 'lgbm'
+                - 'catboost'
+                - 'random_forest'
+                - 'tabnet'
+                - 'multinomial_naive_bayes'
+                - 'lda'
+                - 'gaussian_naive_bayes'
+                - 'knn'
+                - 'xgboost'
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         random_state: int:
