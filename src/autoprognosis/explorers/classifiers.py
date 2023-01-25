@@ -36,7 +36,15 @@ class ClassifierSeeker:
         num_iter: int.
             Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "classifiers" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         metric: str.
-            The metric to use for optimization. ["aucroc", "aucprc"]
+            The metric to use for optimization.
+            Available objective metrics:
+                - "aucroc"
+                - "aucprc"
+                - "accuracy"
+                - "f1_score_micro"
+                - "f1_score_macro"
+                - "f1_score_weighted"
+                - "mcc"
         CV: int.
             Number of folds to use for evaluation
         top_k: int
@@ -132,7 +140,15 @@ class ClassifierSeeker:
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
                 )
-        metrics = ["aucroc", "aucprc"]
+        metrics = [
+            "aucroc",
+            "aucprc",
+            "accuracy",
+            "f1_score_micro",
+            "f1_score_macro",
+            "f1_score_weighted",
+            "mcc",
+        ]
         if metric not in metrics:
             raise ValueError(f"invalid input metric. Should be from {metrics}")
 
@@ -179,9 +195,7 @@ class ClassifierSeeker:
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
             try:
-                metrics = evaluate_estimator(
-                    model, X, Y, self.CV, metric=self.metric, group_ids=group_ids
-                )
+                metrics = evaluate_estimator(model, X, Y, self.CV, group_ids=group_ids)
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
 

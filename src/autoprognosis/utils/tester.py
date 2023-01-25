@@ -7,6 +7,10 @@ import numpy as np
 import pandas as pd
 from pydantic import validate_arguments
 from sklearn.metrics import (
+    accuracy_score,
+    cohen_kappa_score,
+    f1_score,
+    matthews_corrcoef,
     mean_squared_error,
     precision_score,
     r2_score,
@@ -34,6 +38,18 @@ from autoprognosis.utils.metrics import (
 )
 from autoprognosis.utils.risk_estimation import generate_dataset_for_horizon
 
+clf_supported_metrics = [
+    "aucroc",
+    "aucprc",
+    "accuracy",
+    "f1_score_micro",
+    "f1_score_macro",
+    "f1_score_weighted",
+    "kappa",
+    "precision",
+    "recall",
+    "mcc",
+]
 survival_supported_metrics = [
     "c_index",
     "brier_score",
@@ -46,7 +62,7 @@ survival_supported_metrics = [
 ]
 
 
-class classifier_evaluator:
+class classifier_metrics:
     """Helper class for evaluating the performance of the classifier.
 
     Args:
@@ -54,34 +70,51 @@ class classifier_evaluator:
             The type of metric to use for evaluation. Potential values: ["aucprc", "aucroc"].
     """
 
-    def __init__(self, metric: str = "aucroc") -> None:
-        metric_allowed = ["aucprc", "aucroc"]
+    def __init__(self, metric: Union[str, list] = clf_supported_metrics) -> None:
+        if isinstance(metric, str):
+            self.metrics = [metric]
+        else:
+            self.metrics = metric
 
-        if metric not in metric_allowed:
-            raise ValueError(
-                f"invalid metric {metric}. supported values are {metric_allowed}"
-            )
-        self.m_metric = metric
+    def get_metric(self) -> Union[str, list]:
+        return self.metrics
 
-    def get_metric(self) -> str:
-        return self.m_metric
-
-    def score_proba(self, y_test: np.ndarray, y_pred_proba: np.ndarray) -> float:
+    def score_proba(
+        self, y_test: np.ndarray, y_pred_proba: np.ndarray
+    ) -> Dict[str, float]:
         if y_test is None or y_pred_proba is None:
             raise RuntimeError("Invalid input for score_proba")
 
-        if self.m_metric == "aucprc":
-            score_val = self.average_precision_score(y_test, y_pred_proba)
-        elif self.m_metric == "aucroc":
-            score_val = self.roc_auc_score(y_test, y_pred_proba)
-        else:
-            raise ValueError(f"invalid metric {self.m_metric}")
+        results = {}
+        y_pred = np.argmax(np.asarray(y_pred_proba), axis=1)
+        for metric in self.metrics:
+            if metric == "aucprc":
+                results[metric] = self.average_precision_score(y_test, y_pred_proba)
+            elif metric == "aucroc":
+                results[metric] = self.roc_auc_score(y_test, y_pred_proba)
+            elif metric == "accuracy":
+                results[metric] = accuracy_score(y_test, y_pred)
+            elif metric == "f1_score_micro":
+                results[metric] = f1_score(y_test, y_pred, average="micro")
+            elif metric == "f1_score_macro":
+                results[metric] = f1_score(y_test, y_pred, average="macro")
+            elif metric == "f1_score_weighted":
+                results[metric] = f1_score(y_test, y_pred, average="weighted")
+            elif metric == "kappa":
+                results[metric] = cohen_kappa_score(y_test, y_pred)
+            elif metric == "recall":
+                results[metric] = recall_score(y_test, y_pred)
+            elif metric == "precision":
+                results[metric] = precision_score(y_test, y_pred)
+            elif metric == "mcc":
+                results[metric] = matthews_corrcoef(y_test, y_pred)
+            else:
+                raise ValueError(f"invalid metric {metric}")
 
-        log.debug(f"evaluate_classifier: :{score_val:0.5f}")
-        return score_val
+        log.debug(f"evaluate_classifier: {results}")
+        return results
 
     def roc_auc_score(self, y_test: np.ndarray, y_pred_proba: np.ndarray) -> float:
-
         return evaluate_auc(y_test, y_pred_proba)[0]
 
     def average_precision_score(
@@ -97,7 +130,6 @@ def evaluate_estimator(
     X: Union[pd.DataFrame, np.ndarray],
     Y: Union[pd.Series, np.ndarray, List],
     n_folds: int = 3,
-    metric: str = "aucroc",
     seed: int = 0,
     pretrained: bool = False,
     group_ids: Optional[pd.Series] = None,
@@ -115,12 +147,6 @@ def evaluate_estimator(
             The labels
         n_folds: int
             cross-validation folds
-        metric: str
-            The metric to use.
-            Available metrics:
-                - aucroc
-                - aucprc
-                -
         seed: int
             Random seed
         pretrained: bool
@@ -139,15 +165,17 @@ def evaluate_estimator(
 
     log.debug(f"evaluate_estimator shape x:{X.shape} y:{Y.shape}")
 
-    metric_ = np.zeros(n_folds)
+    results = {}
+
+    evaluator = classifier_metrics()
+    for metric in clf_supported_metrics:
+        results[metric] = np.zeros(n_folds)
 
     indx = 0
     if group_ids is not None:
         skf = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     else:
         skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-    ev = classifier_evaluator(metric)
 
     # group_ids is always ignored for StratifiedKFold so safe to pass None
     for train_index, test_index in skf.split(X, Y, groups=group_ids):
@@ -165,19 +193,23 @@ def evaluate_estimator(
 
         preds = model.predict_proba(X_test)
 
-        metric_[indx] = ev.score_proba(Y_test, preds)
+        scores = evaluator.score_proba(Y_test, preds)
+        for metric in scores:
+            results[metric][indx] = scores[metric]
 
         indx += 1
 
-    output_clf = generate_score(metric_)
+    output_clf = {}
+    output_clf_str = {}
+
+    for key in results:
+        key_out = generate_score(results[key])
+        output_clf[key] = key_out
+        output_clf_str[key] = print_score(key_out)
 
     return {
-        "clf": {
-            metric: output_clf,
-        },
-        "str": {
-            metric: print_score(output_clf),
-        },
+        "clf": output_clf,
+        "str": output_clf_str,
     }
 
 
