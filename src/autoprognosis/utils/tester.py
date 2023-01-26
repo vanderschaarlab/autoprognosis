@@ -331,8 +331,8 @@ def evaluate_estimator_multiple_seeds(
         )
 
         results["seeds"][seed] = score["str"]
-        for metric in score["clf"]:
-            repeats[metric].append(score["clf"][metric][0])
+        for metric in score["raw"]:
+            repeats[metric].append(score["raw"][metric][0])
 
     for metric in repeats:
         output_clf = generate_score(repeats[metric])
@@ -654,7 +654,7 @@ def evaluate_survival_estimator_multiple_seeds(
 
         results["seeds"][seed] = score["str"]
         for metric in metrics:
-            repeats[metric].append(score["clf"][metric][0])
+            repeats[metric].append(score["raw"][metric][0])
 
     for metric in metrics:
         output_clf = generate_score(repeats[metric])
@@ -819,7 +819,7 @@ def evaluate_regression_multiple_seeds(
 
         results["seeds"][seed] = score["str"]
         for metric in metrics:
-            repeats[metric].append(score["clf"][metric][0])
+            repeats[metric].append(score["raw"][metric][0])
 
     for metric in metrics:
         output_clf = generate_score(repeats[metric])
