@@ -1,6 +1,6 @@
 # stdlib
 import copy
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 # third party
 import numpy as np
@@ -23,7 +23,6 @@ from sklearn.model_selection import (
     KFold,
     StratifiedGroupKFold,
     StratifiedKFold,
-    train_test_split,
 )
 from sklearn.preprocessing import LabelEncoder
 
@@ -32,8 +31,8 @@ import autoprognosis.logger as log
 from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.metrics import (
     evaluate_auc,
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
+    evaluate_brier_score,
+    evaluate_c_index,
     generate_score,
     print_score,
 )
@@ -202,6 +201,8 @@ def evaluate_estimator(
             - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
 
     """
+    if n_folds < 2:
+        raise ValueError("n_folds must be >= 2")
     enable_reproducible_results(seed)
 
     X = pd.DataFrame(X).reset_index(drop=True)
@@ -389,21 +390,21 @@ def evaluate_survival_estimator(
             - "NPV": The negative predictive value(NPV) is the probability that following a negative test result, that individual will truly not have that specific disease.
 
     """
+    if n_folds < 2:
+        raise ValueError("n_folds must be >= 2")
     enable_reproducible_results(seed)
-    metrics = survival_supported_metrics
 
-    results = {}
     X = pd.DataFrame(X).reset_index(drop=True)
     Y = pd.Series(Y).reset_index(drop=True)
     T = pd.Series(T).reset_index(drop=True)
     if group_ids is not None:
         group_ids = pd.Series(group_ids).reset_index(drop=True)
 
-    for metric in metrics:
-        if metric not in survival_supported_metrics:
-            raise ValueError(f"Metric {metric} not supported")
-
-        results[metric] = np.zeros(n_folds)
+    results = {}
+    for metric in survival_supported_metrics:
+        results[metric] = {}
+        for horizon in time_horizons:
+            results[metric][horizon] = np.zeros(n_folds)
 
     def _get_surv_metrics(
         cv_idx: int,
@@ -429,31 +430,28 @@ def evaluate_survival_estimator(
 
             model.fit(X_train, T_train, Y_train)
 
-        try:
-            pred = model.predict(X_test, time_horizons).to_numpy()
-        except BaseException as e:
-            raise e
+        pred = model.predict(X_test, time_horizons).to_numpy()
 
-        c_index = 0.0
-        brier_score = 0.0
+        c_index = []
+        brier_score = []
 
         for k in range(len(time_horizons)):
             eval_horizon = min(time_horizons[k], np.max(T_test) - 1)
+            c_index.append(
+                evaluate_c_index(
+                    T_train, Y_train, pred[:, k], T_test, Y_test, eval_horizon
+                )
+            )
+            brier_score.append(
+                evaluate_brier_score(
+                    T_train, Y_train, pred[:, k], T_test, Y_test, eval_horizon
+                )
+            )
 
-            def get_score(fn: Callable) -> float:
-                return fn(
-                    T_train,
-                    Y_train,
-                    pred[:, k],
-                    T_test,
-                    Y_test,
-                    eval_horizon,
-                ) / (len(time_horizons))
-
-            c_index += get_score(evaluate_skurv_c_index)
-            brier_score += get_score(evaluate_skurv_brier_score)
-
-        return c_index, brier_score
+        return {
+            "c_index": c_index,
+            "brier_score": brier_score,
+        }
 
     def _get_clf_metrics(
         cv_idx: int,
@@ -463,10 +461,8 @@ def evaluate_survival_estimator(
         T_test: pd.DataFrame,
         Y_train: pd.DataFrame,
         Y_test: pd.DataFrame,
-        time_horizons: list,
+        hidx: int,
     ) -> Dict[str, float]:
-        cv_idx = 0
-
         train_max = T_train.max()
         T_test[T_test > train_max] = train_max
 
@@ -481,33 +477,39 @@ def evaluate_survival_estimator(
 
             model.fit(X_train, T_train, Y_train)
 
-        try:
-            pred = model.predict(X_test, time_horizons).to_numpy()
-        except BaseException as e:
-            raise e
+        pred = model.predict(X_test, time_horizons).to_numpy()
 
-        local_scores = pd.DataFrame(pred[:, k]).squeeze()
+        local_scores = pd.DataFrame(pred[:, hidx]).squeeze()
         local_preds = (local_scores > risk_threshold).astype(int)
 
-        return {
-            "aucroc": roc_auc_score(Y_test, local_scores) / (len(time_horizons)),
-            "specificity": recall_score(Y_test, local_preds, pos_label=0)
-            / (len(time_horizons)),
-            "sensitivity": recall_score(Y_test, local_preds, pos_label=1)
-            / (len(time_horizons)),
-            "PPV": precision_score(Y_test, local_preds, pos_label=1)
-            / (len(time_horizons)),
-            "NPV": precision_score(Y_test, local_preds, pos_label=0)
-            / (len(time_horizons)),
+        output = {
+            "aucroc": roc_auc_score(Y_test, local_scores),
+            "specificity": recall_score(Y_test, local_preds, pos_label=0),
+            "sensitivity": recall_score(Y_test, local_preds, pos_label=1),
+            "PPV": precision_score(Y_test, local_preds, pos_label=1),
+            "NPV": precision_score(Y_test, local_preds, pos_label=0),
             "predicted_cases": local_preds.sum(),
         }
+        return output
 
-    if n_folds == 1:
-        cv_idx = 0
-        X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(X, T, Y)
+    if group_ids is not None:
+        skf = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    else:
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+
+    cv_idx = 0
+    for train_index, test_index in skf.split(X, Y, groups=group_ids):
+
+        X_train = X.loc[X.index[train_index]]
+        Y_train = Y.loc[Y.index[train_index]]
+        T_train = T.loc[T.index[train_index]]
+        X_test = X.loc[X.index[test_index]]
+        Y_test = Y.loc[Y.index[test_index]]
+        T_test = T.loc[T.index[test_index]]
+
         local_time_horizons = [t for t in time_horizons if t > np.min(T_test)]
 
-        c_index, brier_score = _get_surv_metrics(
+        local_surv_metrics = _get_surv_metrics(
             cv_idx,
             X_train,
             X_test,
@@ -517,21 +519,28 @@ def evaluate_survival_estimator(
             Y_test,
             local_time_horizons,
         )
-        for metric in metrics:
-            if metric == "c_index":
-                results[metric][cv_idx] = c_index
-            elif metric == "brier_score":
-                results[metric][cv_idx] = brier_score
+        for metric in local_surv_metrics:
+            for hidx, horizon in enumerate(local_time_horizons):
+                results[metric][horizon][cv_idx] = local_surv_metrics[metric][hidx]
 
-        for k in range(len(time_horizons)):
-            cv_idx = 0
+        cv_idx += 1
 
-            X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
-                X, T, Y, time_horizons[k]
-            )
-            X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
-                X_horizon, T_horizon, Y_horizon
-            )
+    for k in range(len(time_horizons)):
+        cv_idx = 0
+
+        X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
+            X, T, Y, time_horizons[k]
+        )
+        for train_index, test_index in skf.split(
+            X_horizon, Y_horizon, groups=group_ids
+        ):
+
+            X_train = X_horizon.loc[X_horizon.index[train_index]]
+            Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
+            T_train = T_horizon.loc[T_horizon.index[train_index]]
+            X_test = X_horizon.loc[X_horizon.index[test_index]]
+            Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
+            T_test = T_horizon.loc[T_horizon.index[test_index]]
 
             clf_metrics = _get_clf_metrics(
                 cv_idx,
@@ -541,93 +550,37 @@ def evaluate_survival_estimator(
                 T_test,
                 Y_train,
                 Y_test,
-                local_time_horizons,
+                k,
             )
             for metric in clf_metrics:
-                if metric in metrics:
-                    results[metric][cv_idx] += clf_metrics[metric]
-
-    else:
-        if group_ids is not None:
-            skf = StratifiedGroupKFold(
-                n_splits=n_folds, shuffle=True, random_state=seed
-            )
-        else:
-            skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-        cv_idx = 0
-        for train_index, test_index in skf.split(X, Y, groups=group_ids):
-
-            X_train = X.loc[X.index[train_index]]
-            Y_train = Y.loc[Y.index[train_index]]
-            T_train = T.loc[T.index[train_index]]
-            X_test = X.loc[X.index[test_index]]
-            Y_test = Y.loc[Y.index[test_index]]
-            T_test = T.loc[T.index[test_index]]
-
-            local_time_horizons = [t for t in time_horizons if t > np.min(T_test)]
-
-            c_index, brier_score = _get_surv_metrics(
-                cv_idx,
-                X_train,
-                X_test,
-                T_train,
-                T_test,
-                Y_train,
-                Y_test,
-                local_time_horizons,
-            )
-            for metric in metrics:
-                if metric == "c_index":
-                    results[metric][cv_idx] = c_index
-                elif metric == "brier_score":
-                    results[metric][cv_idx] = brier_score
+                results[metric][time_horizons[k]][cv_idx] = clf_metrics[metric]
 
             cv_idx += 1
 
-        for k in range(len(time_horizons)):
-            cv_idx = 0
-
-            X_horizon, T_horizon, Y_horizon = generate_dataset_for_horizon(
-                X, T, Y, time_horizons[k]
-            )
-            for train_index, test_index in skf.split(
-                X_horizon, Y_horizon, groups=group_ids
-            ):
-
-                X_train = X_horizon.loc[X_horizon.index[train_index]]
-                Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
-                T_train = T_horizon.loc[T_horizon.index[train_index]]
-                X_test = X_horizon.loc[X_horizon.index[test_index]]
-                Y_test = Y_horizon.loc[Y_horizon.index[test_index]]
-                T_test = T_horizon.loc[T_horizon.index[test_index]]
-
-                clf_metrics = _get_clf_metrics(
-                    cv_idx,
-                    X_train,
-                    X_test,
-                    T_train,
-                    T_test,
-                    Y_train,
-                    Y_test,
-                    local_time_horizons,
-                )
-                for metric in clf_metrics:
-                    if metric in metrics:
-                        results[metric][cv_idx] += clf_metrics[metric]
-
-                cv_idx += 1
-
     output: dict = {
-        "clf": {},
+        "horizons": {
+            "raw": {},
+            "str": {},
+        },
         "str": {},
+        "raw": {},
+        "clf": {},
     }
+    for metric in results:
+        local_values = []
+        for horizon in time_horizons:
+            local_score = generate_score(results[metric][horizon])
+            local_values.append(local_score[0])
+            if horizon not in output["horizons"]["raw"]:
+                output["horizons"]["raw"][horizon] = {}
+                output["horizons"]["str"][horizon] = {}
+            output["horizons"]["raw"][horizon][metric] = local_score
+            output["horizons"]["str"][horizon][metric] = print_score(local_score)
 
-    for metric in metrics:
-        output["clf"][metric] = generate_score(results[metric])
-        output["str"][metric] = print_score(output["clf"][metric])
+        output["raw"][metric] = generate_score(local_values)
+        output["str"][metric] = print_score(output["raw"][metric])
 
-    output["raw"] = output["clf"]
+    output["clf"] = output["raw"]
 
     return output
 
@@ -750,6 +703,9 @@ def evaluate_regression(
             - "mse": Mean squared error regression loss.
             - "mae": Mean absolute error regression loss.
     """
+    if n_folds < 2:
+        raise ValueError("n_folds must be >= 2")
+
     enable_reproducible_results(seed)
     metrics = reg_supported_metrics
 

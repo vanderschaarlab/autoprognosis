@@ -1,5 +1,6 @@
 # third party
 from lifelines.datasets import load_rossi
+import pytest
 from sklearn.datasets import load_diabetes, load_iris
 
 # autoprognosis absolute
@@ -46,11 +47,12 @@ surv_supported_metrics = [
 ]
 
 
-def test_classifier() -> None:
+@pytest.mark.parametrize("n_folds", [2, 5])
+def test_classifier(n_folds: int) -> None:
     model = Predictions().get("logistic_regression")
     X, y = load_iris(return_X_y=True)
 
-    metrics = evaluate_estimator(model, X, y)
+    metrics = evaluate_estimator(model, X, y, n_folds=n_folds)
 
     for metric in clf_supported_metrics:
         assert metric in metrics["raw"]
@@ -69,11 +71,12 @@ def test_classifier_multiple_seeds() -> None:
             assert metric in metrics["str"]
 
 
-def test_reg() -> None:
+@pytest.mark.parametrize("n_folds", [2, 5])
+def test_reg(n_folds: int) -> None:
     model = Predictions(category="regression").get("linear_regression")
     X, y = load_diabetes(return_X_y=True)
 
-    metrics = evaluate_regression(model, X, y)
+    metrics = evaluate_regression(model, X, y, n_folds=n_folds)
 
     for metric in reg_supported_metrics:
         assert metric in metrics["raw"]
@@ -92,7 +95,8 @@ def test_reg_multiple_seeds() -> None:
             assert metric in metrics["str"]
 
 
-def test_surv() -> None:
+@pytest.mark.parametrize("n_folds", [2, 5])
+def test_surv(n_folds: int) -> None:
     model = Predictions(category="risk_estimation").get("cox_ph")
     rossi = load_rossi()
 
@@ -101,11 +105,13 @@ def test_surv() -> None:
     T = rossi["week"]
 
     eval_time_horizons = [
+        int(T[Y.iloc[:] == 1].quantile(0.25)),
         int(T[Y.iloc[:] == 1].quantile(0.50)),
+        int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
 
     metrics = evaluate_survival_estimator(
-        model, X, T, Y, time_horizons=eval_time_horizons
+        model, X, T, Y, time_horizons=eval_time_horizons, n_folds=n_folds
     )
 
     for metric in surv_supported_metrics:

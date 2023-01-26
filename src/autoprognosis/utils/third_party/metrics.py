@@ -357,13 +357,6 @@ def brier_score(
     brier_scores : array , shape = (n_times,)
         Values of the brier score.
 
-    Examples
-    --------
-    >>> from sksurv.datasets import load_gbsg2
-    >>> from sksurv.linear_model import CoxPHSurvivalAnalysis
-    >>> from sksurv.metrics import brier_score
-    >>> from sksurv.preprocessing import OneHotEncoder
-
     Load and prepare data.
 
     >>> X, y = load_gbsg2()

@@ -16,8 +16,8 @@ from autoprognosis.plugins.ensemble.classifiers import (
 from autoprognosis.plugins.pipeline import Pipeline
 from autoprognosis.utils.metrics import (
     evaluate_auc,
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
+    evaluate_brier_score,
+    evaluate_c_index,
 )
 
 
@@ -259,7 +259,7 @@ def helper_eval_survival(
 
         y_pred = estimator.predict(hX_test, [eval_time]).to_numpy()
 
-        c_index = evaluate_skurv_c_index(
+        c_index = evaluate_c_index(
             hT_train,
             hY_train,
             y_pred,
@@ -269,7 +269,7 @@ def helper_eval_survival(
         )
         assert c_index > 0.5
 
-        brier = evaluate_skurv_brier_score(
+        brier = evaluate_brier_score(
             hT_train,
             hY_train,
             y_pred,

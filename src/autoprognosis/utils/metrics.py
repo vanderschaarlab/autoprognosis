@@ -88,7 +88,7 @@ def evaluate_auc(
     return aucroc, aucprc
 
 
-def evaluate_skurv_c_index(
+def evaluate_c_index(
     T_train: np.ndarray,
     Y_train: np.ndarray,
     Prediction: np.ndarray,
@@ -121,7 +121,7 @@ def evaluate_skurv_c_index(
     )
 
 
-def evaluate_skurv_brier_score(
+def evaluate_brier_score(
     T_train: np.ndarray,
     Y_train: np.ndarray,
     Prediction: np.ndarray,

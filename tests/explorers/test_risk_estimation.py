@@ -14,10 +14,7 @@ from sklearn.model_selection import train_test_split
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.risk_estimation import RiskEstimatorSeeker
 from autoprognosis.plugins.prediction import Predictions
-from autoprognosis.utils.metrics import (
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
-)
+from autoprognosis.utils.metrics import evaluate_brier_score, evaluate_c_index
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
@@ -87,12 +84,10 @@ def test_search(group_id: Optional[bool]) -> None:
 
             y_pred = model.predict(te_X, [eval_time]).to_numpy()
 
-            c_index = evaluate_skurv_c_index(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
+            c_index = evaluate_c_index(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
             assert c_index > 0
 
-            brier = evaluate_skurv_brier_score(
-                tr_T, tr_Y, y_pred, te_T, te_Y, eval_time
-            )
+            brier = evaluate_brier_score(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
             assert brier < 1
 
 
@@ -110,7 +105,8 @@ def test_eval_surv_estimator() -> None:
         int(T[Y.iloc[:] == 1].quantile(0.50)),
         int(T[Y.iloc[:] == 1].quantile(0.75)),
     ]
-    evaluate_survival_estimator(estimator, X, T, Y, eval_time_horizons, 5)
+    metrics = evaluate_survival_estimator(estimator, X, T, Y, eval_time_horizons, 5)
+    print(metrics)
 
 
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])

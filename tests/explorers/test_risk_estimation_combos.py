@@ -14,10 +14,7 @@ from sklearn.model_selection import train_test_split
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.risk_estimation_combos import RiskEnsembleSeeker
 from autoprognosis.plugins.prediction import Predictions
-from autoprognosis.utils.metrics import (
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
-)
+from autoprognosis.utils.metrics import evaluate_brier_score, evaluate_c_index
 
 
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])
@@ -81,10 +78,10 @@ def test_search(group_id: Optional[bool]) -> None:
 
         y_pred = ensemble.predict(te_X, [eval_time]).to_numpy()
 
-        c_index = evaluate_skurv_c_index(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
+        c_index = evaluate_c_index(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
         assert c_index > 0
 
-        brier = evaluate_skurv_brier_score(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
+        brier = evaluate_brier_score(tr_T, tr_Y, y_pred, te_T, te_Y, eval_time)
         assert brier < 1
 
     for e_idx, eval_time in enumerate(eval_time_horizons):
@@ -94,19 +91,11 @@ def test_search(group_id: Optional[bool]) -> None:
         ind_pred = ind_est.predict(te_X, [eval_time]).to_numpy()
         ens_pred = ensemble.predict(te_X, [eval_time]).to_numpy()
 
-        ind_c_index = evaluate_skurv_c_index(
-            tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time
-        )
-        ens_c_index = evaluate_skurv_c_index(
-            tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time
-        )
+        ind_c_index = evaluate_c_index(tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time)
+        ens_c_index = evaluate_c_index(tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time)
 
-        ind_brier = evaluate_skurv_brier_score(
-            tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time
-        )
-        ens_brier = evaluate_skurv_brier_score(
-            tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time
-        )
+        ind_brier = evaluate_brier_score(tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time)
+        ens_brier = evaluate_brier_score(tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time)
 
         print(
             f"Comparing individual c_index {ind_c_index} with ensemble c_index {ens_c_index}"

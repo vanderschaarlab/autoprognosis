@@ -7,10 +7,7 @@ from sklearn.model_selection import train_test_split
 # autoprognosis absolute
 from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsemble, RiskEnsembleCV
 from autoprognosis.plugins.prediction import Predictions
-from autoprognosis.utils.metrics import (
-    evaluate_skurv_brier_score,
-    evaluate_skurv_c_index,
-)
+from autoprognosis.utils.metrics import evaluate_brier_score, evaluate_c_index
 
 rossi = load_rossi()
 
@@ -56,19 +53,11 @@ def test_risk_estimation_ensemble_predict() -> None:
         ind_pred = ind_est.predict(te_X, [eval_time]).to_numpy()
         ens_pred = ens_est.predict(te_X, [eval_time]).to_numpy()
 
-        ind_c_index = evaluate_skurv_c_index(
-            tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time
-        )
-        ens_c_index = evaluate_skurv_c_index(
-            tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time
-        )
+        ind_c_index = evaluate_c_index(tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time)
+        ens_c_index = evaluate_c_index(tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time)
 
-        ind_brier = evaluate_skurv_brier_score(
-            tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time
-        )
-        ens_brier = evaluate_skurv_brier_score(
-            tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time
-        )
+        ind_brier = evaluate_brier_score(tr_T, tr_Y, ind_pred, te_T, te_Y, eval_time)
+        ens_brier = evaluate_brier_score(tr_T, tr_Y, ens_pred, te_T, te_Y, eval_time)
 
         print(
             f"[{e_idx}] Comparing individual c_index {ind_c_index} with ensemble c_index {ens_c_index}"
