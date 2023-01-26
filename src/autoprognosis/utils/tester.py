@@ -64,7 +64,7 @@ survival_supported_metrics = [
     "NPV",
     "predicted_cases",
 ]
-reg_supported_metrics = ["rmse", "r2"]
+reg_supported_metrics = ["mse", "r2"]
 
 
 class classifier_metrics:
@@ -288,6 +288,25 @@ def evaluate_estimator_multiple_seeds(
         group_ids: pd.Series
             The group_ids to use for stratified cross-validation
 
+    Returns:
+        Dict containing "seeds", "agg" and "str" nodes. The "str" node contains the aggregated prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric. The "seeds" node contains the results for each random seed.
+        Both "agg" and "str" nodes contain the following metrics:
+            - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+            - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+            - "accuracy" : Accuracy classification score.
+            - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+            - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+            - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+            - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
+            - "precision_micro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(micro) calculates metrics globally by counting the total true positives.
+            - "precision_macro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+            - "precision_weighted": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+            - "recall_micro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(micro) calculates metrics globally by counting the total true positives.
+            - "recall_macro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+            - "recall_weighted": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+            - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
+
+
     """
     results = {
         "seeds": {},
@@ -338,13 +357,15 @@ def evaluate_survival_estimator(
     """Helper for evaluating survival analysis tasks.
 
     Args:
-        X: DataFrame
+        estimator:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X: DataFrame or np.ndarray
             The covariates
-        T: Series
-            time to event
-        Y: Series
+        T: Series or np.ndarray or list
+            time to event/censoring values
+        Y: Series or np.ndarray or list
             event or censored
-        time_horizons: list
+        time_horizons: list or np.ndarray
             Horizons where to evaluate the performance.
         n_folds: int
             Number of folds for cross validation
@@ -354,6 +375,18 @@ def evaluate_survival_estimator(
             If the estimator was trained or not
         group_ids:
             Group labels for the samples used while splitting the dataset into train/test set.
+
+    Returns:
+        Dict containing "raw" and "str" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric.
+        Both "raw" and "str" nodes contain the following metrics:
+            - "c_index" : The concordance index or c-index is a metric to evaluate the predictions made by a survival algorithm. It is defined as the proportion of concordant pairs divided by the total number of possible evaluation pairs.
+            - "brier_score": The Brier Score is a strictly proper score function or strictly proper scoring rule that measures the accuracy of probabilistic predictions.
+            - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+            - "sensitivity": Sensitivity (true positive rate) is the probability of a positive test result, conditioned on the individual truly being positive.
+            - "specificity": Specificity (true negative rate) is the probability of a negative test result, conditioned on the individual truly being negative.
+            - "PPV": The positive predictive value(PPV) is the probability that following a positive test result, that individual will truly have that specific disease.
+            - "NPV": The negative predictive value(NPV) is the probability that following a negative test result, that individual will truly not have that specific disease.
+
     """
     enable_reproducible_results(seed)
     metrics = survival_supported_metrics
@@ -614,13 +647,15 @@ def evaluate_survival_estimator_multiple_seeds(
     """Helper for evaluating survival analysis tasks with multiple random seeds.
 
     Args:
-        X: DataFrame
+        estimator:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X: DataFrame or np.ndarray
             The covariates
-        T: Series
+        T: Series or np.ndarray or list
             time to event
-        Y: Series
+        Y: Series or np.ndarray or list
             event or censored
-        time_horizons: list
+        time_horizons: list or np.ndarray
             Horizons where to evaluate the performance.
         n_folds: int
             Number of folds for cross validation
@@ -630,6 +665,17 @@ def evaluate_survival_estimator_multiple_seeds(
             If the estimator was trained or not
         group_ids:
             Group labels for the samples used while splitting the dataset into train/test set.
+
+    Returns:
+        Dict containing "seeds", "agg" and "str" nodes. The "str" node contains the aggregated prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric. The "seeds" node contains the results for each random seed.
+        Both "agg" and "str" nodes contain the following metrics:
+            - "c_index" : The concordance index or c-index is a metric to evaluate the predictions made by a survival algorithm. It is defined as the proportion of concordant pairs divided by the total number of possible evaluation pairs.
+            - "brier_score": The Brier Score is a strictly proper score function or strictly proper scoring rule that measures the accuracy of probabilistic predictions.
+            - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+            - "sensitivity": Sensitivity (true positive rate) is the probability of a positive test result, conditioned on the individual truly being positive.
+            - "specificity": Specificity (true negative rate) is the probability of a negative test result, conditioned on the individual truly being negative.
+            - "PPV": The positive predictive value(PPV) is the probability that following a positive test result, that individual will truly have that specific disease.
+            - "NPV": The negative predictive value(NPV) is the probability that following a negative test result, that individual will truly not have that specific disease.
     """
 
     metrics = survival_supported_metrics
@@ -684,10 +730,10 @@ def evaluate_regression(
 
     Args:
         estimator:
-            The regressor to evaluate
-        X:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X: pd.DataFrame or np.ndarray
             covariates
-        Y:
+        Y: pd.Series or np.ndarray or list
             outcomes
         n_folds: int
             Number of cross-validation folds
@@ -696,6 +742,11 @@ def evaluate_regression(
         group_ids: pd.Series
             Optional group_ids for stratified cross-validation
 
+    Returns:
+        Dict containing "raw" and "str" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric.
+        Both "raw" and "str" nodes contain the following metrics:
+            - "r2": R^2(coefficient of determination) regression score function.
+            - "mse":
     """
     enable_reproducible_results(seed)
     metrics = reg_supported_metrics
@@ -732,25 +783,25 @@ def evaluate_regression(
 
         preds = model.predict(X_test)
 
-        metrics_["rmse"][indx] = mean_squared_error(Y_test, preds)
+        metrics_["mse"][indx] = mean_squared_error(Y_test, preds)
         metrics_["r2"][indx] = r2_score(Y_test, preds)
 
         indx += 1
 
-    output_rmse = generate_score(metrics_["rmse"])
+    output_mse = generate_score(metrics_["mse"])
     output_r2 = generate_score(metrics_["r2"])
 
     return {
         "clf": {
-            "rmse": output_rmse,
+            "mse": output_mse,
             "r2": output_r2,
         },  # legacy node
         "raw": {
-            "rmse": output_rmse,
+            "mse": output_mse,
             "r2": output_r2,
         },
         "str": {
-            "rmse": print_score(output_rmse),
+            "mse": print_score(output_mse),
             "r2": print_score(output_r2),
         },
     }
