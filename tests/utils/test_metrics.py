@@ -32,6 +32,7 @@ clf_supported_metrics = [
 reg_supported_metrics = [
     "r2",
     "mse",
+    "mae",
 ]
 surv_supported_metrics = [
     "c_index",
@@ -106,7 +107,6 @@ def test_surv() -> None:
     metrics = evaluate_survival_estimator(
         model, X, T, Y, time_horizons=eval_time_horizons
     )
-    print(metrics)
 
     for metric in surv_supported_metrics:
         assert metric in metrics["raw"]

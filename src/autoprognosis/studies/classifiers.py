@@ -48,13 +48,13 @@ class ClassifierStudy(Study):
         metric: str.
             The metric to use for optimization.
             Available objective metrics:
-                - "aucroc"
-                - "aucprc"
-                - "accuracy"
-                - "f1_score_micro"
-                - "f1_score_macro"
-                - "f1_score_weighted"
-                - "mcc"
+                - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+                - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+                - "accuracy" : Accuracy classification score.
+                - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+                - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+                - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+                - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.

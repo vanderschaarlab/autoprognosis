@@ -11,6 +11,7 @@ from sklearn.metrics import (
     cohen_kappa_score,
     f1_score,
     matthews_corrcoef,
+    mean_absolute_error,
     mean_squared_error,
     precision_score,
     r2_score,
@@ -64,7 +65,7 @@ survival_supported_metrics = [
     "NPV",
     "predicted_cases",
 ]
-reg_supported_metrics = ["mse", "r2"]
+reg_supported_metrics = ["mse", "mae", "r2"]
 
 
 class classifier_metrics:
@@ -746,7 +747,8 @@ def evaluate_regression(
         Dict containing "raw" and "str" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric.
         Both "raw" and "str" nodes contain the following metrics:
             - "r2": R^2(coefficient of determination) regression score function.
-            - "mse":
+            - "mse": Mean squared error regression loss.
+            - "mae": Mean absolute error regression loss.
     """
     enable_reproducible_results(seed)
     metrics = reg_supported_metrics
@@ -784,24 +786,29 @@ def evaluate_regression(
         preds = model.predict(X_test)
 
         metrics_["mse"][indx] = mean_squared_error(Y_test, preds)
+        metrics_["mae"][indx] = mean_absolute_error(Y_test, preds)
         metrics_["r2"][indx] = r2_score(Y_test, preds)
 
         indx += 1
 
     output_mse = generate_score(metrics_["mse"])
+    output_mae = generate_score(metrics_["mae"])
     output_r2 = generate_score(metrics_["r2"])
 
     return {
         "clf": {
             "mse": output_mse,
+            "mae": output_mae,
             "r2": output_r2,
         },  # legacy node
         "raw": {
             "mse": output_mse,
+            "mae": output_mae,
             "r2": output_r2,
         },
         "str": {
             "mse": print_score(output_mse),
+            "mae": print_score(output_mae),
             "r2": print_score(output_r2),
         },
     }
@@ -821,10 +828,10 @@ def evaluate_regression_multiple_seeds(
 
     Args:
         estimator:
-            The regressor to evaluate
-        X:
+            Baseline model to evaluate. if pretrained == False, it must not be fitted.
+        X: pd.DataFrame or np.ndarray
             covariates
-        Y:
+        Y: pd.Series or np.ndarray or list
             outcomes
         n_folds: int
             Number of cross-validation folds
@@ -833,6 +840,12 @@ def evaluate_regression_multiple_seeds(
         group_ids: pd.Series
             Optional group_ids for stratified cross-validation
 
+    Returns:
+        Dict containing "seeds", "agg" and "str" nodes. The "str" node contains the aggregated prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric. The "seeds" node contains the results for each random seed.
+        Both "agg" and "str" nodes contain the following metrics:
+            - "r2": R^2(coefficient of determination) regression score function.
+            - "mse": Mean squared error regression loss.
+            - "mae": Mean absolute error regression loss.
     """
     metrics = reg_supported_metrics
 
