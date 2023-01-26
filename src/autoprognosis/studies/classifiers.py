@@ -40,23 +40,83 @@ class ClassifierStudy(Study):
         target: str.
             The target column in the dataset.
         num_iter: int.
-            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "classifiers" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_study_iter: int.
             The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
-            Max wait time for each estimator hyperparameter search.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "classifiers" list.
         metric: str.
-            The metric to use for optimization. ["aucroc", "aucprc"]
+            The metric to use for optimization.
+            Available objective metrics:
+                - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+                - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+                - "accuracy" : Accuracy classification score.
+                - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+                - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+                - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+                - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for scaling.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         classifiers: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest", "xgboost", "logistic_regression", "catboost"].
+            Available plugins, retrieved using `Classifiers().list_available()`:
+                - 'adaboost'
+                - 'bernoulli_naive_bayes'
+                - 'neural_nets'
+                - 'linear_svm'
+                - 'qda'
+                - 'decision_trees'
+                - 'logistic_regression'
+                - 'hist_gradient_boosting'
+                - 'extra_tree_classifier'
+                - 'bagging'
+                - 'gradient_boosting'
+                - 'ridge_classifier'
+                - 'gaussian_process'
+                - 'perceptron'
+                - 'lgbm'
+                - 'catboost'
+                - 'random_forest'
+                - 'tabnet'
+                - 'multinomial_naive_bayes'
+                - 'lda'
+                - 'gaussian_naive_bayes'
+                - 'knn'
+                - 'xgboost'
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         workspace: Path.
@@ -209,7 +269,7 @@ class ClassifierStudy(Study):
                 metric=self.metric,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             self.hooks.heartbeat(
                 topic="classification_study",
                 subtopic="candidate",
@@ -236,6 +296,7 @@ class ClassifierStudy(Study):
         self._should_continue()
 
         best_score, best_model = self._load_progress()
+        score = best_score
 
         patience = 0
         for it in range(self.num_study_iter):
@@ -253,7 +314,7 @@ class ClassifierStudy(Study):
                 metric=self.metric,
                 group_ids=self.search_group_ids,
             )
-            score = metrics["clf"][self.metric][0]
+            score = metrics["raw"][self.metric][0]
 
             self.hooks.heartbeat(
                 topic="classification_study",
@@ -265,7 +326,9 @@ class ClassifierStudy(Study):
             )
 
             if score < self.score_threshold:
-                log.info(f"The ensemble is not good enough, keep searching {metrics}")
+                log.critical(
+                    f"The ensemble is not good enough, keep searching {metrics['str']}"
+                )
                 continue
 
             if best_score >= score:
@@ -282,14 +345,20 @@ class ClassifierStudy(Study):
                 continue
 
             patience = 0
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             best_model = current_model
 
             log.error(
-                f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
+                f"Best ensemble so far: {best_model.name()} with score {metrics['raw'][self.metric]}"
             )
 
             self._save_progress(best_model)
+
+        if best_score < self.score_threshold:
+            log.critical(
+                f"Unable to find a model above threshold {self.score_threshold}. Returning None"
+            )
+            return None
 
         return best_model
 

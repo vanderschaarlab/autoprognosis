@@ -9,7 +9,7 @@ import autoprognosis.logger as log
 import autoprognosis.plugins.core.base_plugin as plugin
 import autoprognosis.plugins.prediction.base as prediction_base
 import autoprognosis.plugins.utils.cast as cast
-from autoprognosis.utils.tester import classifier_evaluator
+from autoprognosis.utils.tester import classifier_metrics
 
 
 class ClassifierPlugin(prediction_base.PredictionPlugin):
@@ -49,10 +49,10 @@ class ClassifierPlugin(prediction_base.PredictionPlugin):
         return self
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
-        ev = classifier_evaluator(metric)
+        ev = classifier_metrics()
 
         preds = self.predict_proba(X)
-        return ev.score_proba(y, preds)
+        return ev.score_proba(y, preds)[metric]
 
     def get_args(self) -> dict:
         return self.args

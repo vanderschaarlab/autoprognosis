@@ -40,23 +40,63 @@ class RegressionStudy(Study):
         target: str.
             The target column in the dataset.
         num_iter: int.
-            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "regressors" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_study_iter: int.
             The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
-            Max wait time for each estimator hyperparameter search.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "regressors" list.
         metric: str.
-            The metric to use for optimization. ["r2"]
+            The metric to use for optimization.
+            Available metric:
+                - "r2"
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for feature scaling. : scaler, minmax_scaler etc
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
-        regressors: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        regressors: list.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest_regressor","xgboost_regressor", "linear_regression", "catboost_regressor"]
+            Available plugins, retrieved using `Regression().list_available()`:
+                - 'kneighbors_regressor'
+                - 'bayesian_ridge'
+                - 'tabnet_regressor'
+                - 'catboost_regressor'
+                - 'random_forest_regressor'
+                - 'mlp_regressor'
+                - 'xgboost_regressor'
+                - 'neural_nets_regression'
+                - 'linear_regression'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         workspace: Path.
@@ -211,7 +251,7 @@ class RegressionStudy(Study):
                 self.search_Y,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             self.hooks.heartbeat(
                 topic="regression_study",
                 subtopic="candidate",
@@ -254,7 +294,7 @@ class RegressionStudy(Study):
                 self.search_Y,
                 group_ids=self.search_group_ids,
             )
-            score = metrics["clf"][self.metric][0]
+            score = metrics["raw"][self.metric][0]
 
             self.hooks.heartbeat(
                 topic="regression_study",
@@ -266,7 +306,9 @@ class RegressionStudy(Study):
             )
 
             if score < self.score_threshold:
-                log.info(f"The ensemble is not good enough, keep searching {metrics}")
+                log.critical(
+                    f"The ensemble is not good enough, keep searching {metrics['str']}"
+                )
                 continue
 
             if best_score >= score:
@@ -283,14 +325,20 @@ class RegressionStudy(Study):
                 continue
 
             patience = 0
-            best_score = metrics["clf"][self.metric][0]
+            best_score = metrics["raw"][self.metric][0]
             best_model = current_model
 
             log.error(
-                f"Best ensemble so far: {best_model.name()} with score {metrics['clf'][self.metric]}"
+                f"Best ensemble so far: {best_model.name()} with score {metrics['raw'][self.metric]}"
             )
 
             self._save_progress(best_model)
+
+        if best_score < self.score_threshold:
+            log.critical(
+                f"Unable to find a model above threshold {self.score_threshold}. Returning None"
+            )
+            return None
 
         return best_model
 

@@ -39,21 +39,57 @@ class RiskEnsembleSeeker:
         time_horizons: list.
             list of time horizons.
         num_iter: int.
-            Number of optimization trials.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "risk_estimators" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_ensemble_iter: int.
             Number of optimization trials for the ensemble weights.
         timeout: int.
-            Max wait time(in seconds) for the optimization output.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "risk_estimators" list.
         CV: int.
             Number of folds to use for evaluation
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
-        estimators: list.
-            Plugins to use in the pipeline for risk prediction.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        estimators: list.
+            Plugin search pool to use in the pipeline for risk estimation. Defaults to ["survival_xgboost", "loglogistic_aft", "deephit", "cox_ph", "weibull_aft", "lognormal_aft", "coxnet"]
+            Available plugins:
+             - 'survival_xgboost'
+             - 'loglogistic_aft'
+             - 'deephit'
+             - 'cox_ph'
+             - 'weibull_aft'
+             - 'lognormal_aft'
+             - 'coxnet'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         random_state: int:
@@ -197,9 +233,9 @@ class RiskEnsembleSeeker:
             )
 
             log.debug(
-                f"Ensemble {cv_folds[0].name()} : results {metrics['clf']['c_index'][0]}"
+                f"Ensemble {cv_folds[0].name()} : results {metrics['raw']['c_index'][0]}"
             )
-            return metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            return metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
         study = EnsembleOptimizer(
             study_name=f"{self.study_name}_risk_estimation_exploration_ensemble_{time_horizon}",

@@ -44,23 +44,57 @@ class RiskEstimationStudy(Study):
         time_to_event: str.
             The time_to_event column in the dataset.
         num_iter: int.
-            Number of optimization iterations. This is the limit of trials for each base model, e.g. xgboost.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "risk_estimators" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_study_iter: int.
             The number of study iterations. This is the limit for the outer optimization loop. After each outer loop, an intermediary model is cached and can be used by another process, while the outer loop continues to improve the result.
         timeout: int.
-            Max wait time for each estimator hyperparameter search.
-        metric: str.
-            The metric to use for optimization. ["aucroc", "aucprc"]
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "risk_estimators" list.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
-            Plugins to use in the pipeline for feature scaling.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection.
-        risk_estimators: list.
-            Plugins to use in the pipeline for risk estimation.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        risk_estimators: list.
+            Plugin search pool to use in the pipeline for risk estimation. Defaults to ["survival_xgboost", "loglogistic_aft", "deephit", "cox_ph", "weibull_aft", "lognormal_aft", "coxnet"]
+            Available plugins:
+             - 'survival_xgboost'
+             - 'loglogistic_aft'
+             - 'deephit'
+             - 'cox_ph'
+             - 'weibull_aft'
+             - 'lognormal_aft'
+             - 'coxnet'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         workspace: Path.
@@ -222,7 +256,7 @@ class RiskEstimationStudy(Study):
                 self.time_horizons,
                 group_ids=self.search_group_ids,
             )
-            best_score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+            best_score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
             self.hooks.heartbeat(
                 topic="risk_estimation_study",
                 subtopic="candidate",
@@ -279,7 +313,7 @@ class RiskEstimationStudy(Study):
                     self.time_horizons,
                     group_ids=self.search_group_ids,
                 )
-                score = metrics["clf"]["c_index"][0] - metrics["clf"]["brier_score"][0]
+                score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
                 self.hooks.heartbeat(
                     topic="risk_estimation_study",
                     subtopic="candidate",
@@ -319,6 +353,12 @@ class RiskEstimationStudy(Study):
             if not_improved > PATIENCE:
                 log.info(f"Study not improved for {PATIENCE} iterations. Stopping...")
                 break
+
+        if best_score < self.score_threshold:
+            log.critical(
+                f"Unable to find a model above threshold {self.score_threshold}. Returning None"
+            )
+            return None
 
         return best_model
 

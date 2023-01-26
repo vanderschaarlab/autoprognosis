@@ -41,25 +41,85 @@ class EnsembleSeeker:
         study_name: str.
             Study ID, used for caching keys.
         num_iter: int.
-            Number of optimization trials.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "classifiers" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_ensemble_iter: int.
             Number of optimization trials for the ensemble weights.
         timeout: int.
-            Max wait time(in seconds) for the optimization output.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "classifiers" list.
         CV: int.
             Number of folds to use for evaluation
         ensemble_size: int.
             Number of base models for the ensemble.
         metric: str.
-            The metric to use for optimization. ["aucroc", "aucprc"]
+            The metric to use for optimization.
+            Available objective metrics:
+                - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+                - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+                - "accuracy" : Accuracy classification score.
+                - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+                - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+                - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+                - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing. "minmax_scaler", "scaler" etc.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
         feature_selection: list.
-            Plugins to use in the pipeline for feature selection. ["nop", "variance_threshold", "pca", "fast_ica"]
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         classifiers: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest", "xgboost", "logistic_regression", "catboost"].
+            Available plugins, retrieved using `Classifiers().list_available()`:
+                - 'adaboost'
+                - 'bernoulli_naive_bayes'
+                - 'neural_nets'
+                - 'linear_svm'
+                - 'qda'
+                - 'decision_trees'
+                - 'logistic_regression'
+                - 'hist_gradient_boosting'
+                - 'extra_tree_classifier'
+                - 'bagging'
+                - 'gradient_boosting'
+                - 'ridge_classifier'
+                - 'gaussian_process'
+                - 'perceptron'
+                - 'lgbm'
+                - 'catboost'
+                - 'random_forest'
+                - 'tabnet'
+                - 'multinomial_naive_bayes'
+                - 'lda'
+                - 'gaussian_naive_bayes'
+                - 'knn'
+                - 'xgboost'
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         random_state: int:
@@ -171,13 +231,13 @@ class EnsembleSeeker:
 
                 return 0
 
-            log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
-            score = metrics["clf"][self.metric][0]
+            log.debug(f"ensemble {folds[0].name()} : results {metrics['raw']}")
+            score = metrics["raw"][self.metric][0]
 
             return score
 
         study = EnsembleOptimizer(
-            study_name=f"{self.study_name}_classifier_exploration_ensemble_v2",
+            study_name=f"{self.study_name}_classifier_exploration_ensemble_{self.metric}",
             ensemble_len=len(ensemble),
             evaluation_cbk=evaluate,
             optimizer_type=self.optimizer_type,
@@ -217,7 +277,7 @@ class EnsembleSeeker:
             stacking_ensemble = StackingEnsemble(best_models)
             stacking_ens_score = evaluate_estimator(
                 stacking_ensemble, X, Y, self.CV, group_ids=group_ids
-            )["clf"][self.metric][0]
+            )["raw"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
             )
@@ -233,7 +293,7 @@ class EnsembleSeeker:
             aggr_ensemble = AggregatingEnsemble(best_models)
             aggr_ens_score = evaluate_estimator(
                 aggr_ensemble, X, Y, self.CV, group_ids=group_ids
-            )["clf"][self.metric][0]
+            )["raw"][self.metric][0]
             log.info(
                 f"Aggregating ensemble: {aggr_ensemble.name()} --> {aggr_ens_score}"
             )

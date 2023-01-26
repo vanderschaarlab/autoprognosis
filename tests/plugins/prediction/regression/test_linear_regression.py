@@ -68,7 +68,7 @@ def test_linear_regression_plugin_fit_predict(test_plugin: PredictionPlugin) -> 
 
     score = evaluate_regression(test_plugin, X, y)
 
-    assert score["clf"]["rmse"][0] < 5000
+    assert score["raw"]["mse"][0] < 5000
 
 
 def test_param_search() -> None:
@@ -83,7 +83,7 @@ def test_param_search() -> None:
         model = plugin(**kwargs)
         metrics = evaluate_regression(model, X, y)
 
-        return metrics["clf"]["rmse"][0]
+        return metrics["raw"]["mse"][0]
 
     def objective(trial: optuna.Trial) -> float:
         args = plugin.sample_hyperparameters(trial)

@@ -39,25 +39,65 @@ class RegressionEnsembleSeeker:
         study_name: str.
             Study ID, used for caching keys.
         num_iter: int.
-            Number of optimization trials.
+            Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "regressors" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         num_ensemble_iter: int.
             Number of optimization trials for the ensemble weights.
         timeout: int.
-            Max wait time(in seconds) for the optimization output.
+            Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "regressors" list.
         CV: int.
             Number of folds to use for evaluation
         ensemble_size: int.
             Number of base models for the ensemble.
         metric: str.
-            The metric to use for optimization. ["r2"]
+            The metric to use for optimization.
+            Available metrics:
+             - "r2"
         feature_scaling: list.
-            Plugins to use in the pipeline for preprocessing.
-        feature_selection: list
-            Plugins to use in the pipeline for feature selection.
-        regressors: list.
-            Plugins to use in the pipeline for prediction.
+            Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
+            Available plugins, retrieved using `Preprocessors(category="feature_scaling").list_available()`:
+                - 'maxabs_scaler'
+                - 'scaler'
+                - 'feature_normalizer'
+                - 'normal_transform'
+                - 'uniform_transform'
+                - 'nop' # empty operation
+                - 'minmax_scaler'
+        feature_selection: list.
+            Plugin search pool to use in the pipeline for feature selection. Defaults ["nop", "variance_threshold", "pca", "fast_ica"]
+            Available plugins, retrieved using `Preprocessors(category="dimensionality_reduction").list_available()`:
+                - 'feature_agglomeration'
+                - 'fast_ica'
+                - 'variance_threshold'
+                - 'gauss_projection'
+                - 'pca'
+                - 'nop' # no operation
         imputers: list.
-            Plugins to use in the pipeline for imputation.
+            Plugin search pool to use in the pipeline for imputation. Defaults to ["mean", "ice", "missforest", "hyperimpute"].
+            Available plugins, retrieved using `Imputers().list_available()`:
+                - 'sinkhorn'
+                - 'EM'
+                - 'mice'
+                - 'ice'
+                - 'hyperimpute'
+                - 'most_frequent'
+                - 'median'
+                - 'missforest'
+                - 'softimpute'
+                - 'nop'
+                - 'mean'
+                - 'gain'
+        regressors: list.
+            Plugin search pool to use in the pipeline for prediction. Defaults to ["random_forest_regressor","xgboost_regressor", "linear_regression", "catboost_regressor"]
+            Available plugins, retrieved using `Regression().list_available()`:
+                - 'kneighbors_regressor'
+                - 'bayesian_ridge'
+                - 'tabnet_regressor'
+                - 'catboost_regressor'
+                - 'random_forest_regressor'
+                - 'mlp_regressor'
+                - 'xgboost_regressor'
+                - 'neural_nets_regression'
+                - 'linear_regression'
         hooks: Hooks.
             Custom callbacks to be notified about the search progress.
         random_state: int:
@@ -167,13 +207,13 @@ class RegressionEnsembleSeeker:
 
                 return 0
 
-            log.debug(f"ensemble {folds[0].name()} : results {metrics['clf']}")
-            score = metrics["clf"][self.metric][0]
+            log.debug(f"ensemble {folds[0].name()} : results {metrics['raw']}")
+            score = metrics["raw"][self.metric][0]
 
             return score
 
         study = EnsembleOptimizer(
-            study_name=f"{self.study_name}_regressor_exploration_ensemble_v2",
+            study_name=f"{self.study_name}_regressor_exploration_ensemble_{self.metric}",
             ensemble_len=len(ensemble),
             evaluation_cbk=evaluate,
             optimizer_type=self.optimizer_type,

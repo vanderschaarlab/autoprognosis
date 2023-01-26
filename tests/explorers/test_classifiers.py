@@ -60,7 +60,8 @@ def test_fails() -> None:
     "optimizer_type,group_id",
     [("bayesian", False), ("bayesian", True), ("hyperband", False)],
 )
-def test_search(optimizer_type: str, group_id: Optional[bool]) -> None:
+@pytest.mark.parametrize("metric", ["f1_score_micro", "aucroc"])
+def test_search_clf(optimizer_type: str, group_id: Optional[bool], metric: str) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
     group_ids = None
     if group_id:
@@ -78,6 +79,7 @@ def test_search(optimizer_type: str, group_id: Optional[bool]) -> None:
             "perceptron",
         ],
         optimizer_type=optimizer_type,
+        metric=metric,
         strict=True,
     )
     best_models = seeker.search(X, Y, group_ids=group_ids)

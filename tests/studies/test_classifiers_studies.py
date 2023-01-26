@@ -53,7 +53,7 @@ def test_search(sample_for_search: bool) -> None:
     assert not model_v1.is_fitted()
 
     metrics = evaluate_estimator(model_v1, X, Y)
-    score_v1 = metrics["clf"]["aucroc"][0]
+    score_v1 = metrics["raw"]["aucroc"][0]
 
     # resume the study - should get at least the same score
     study.run()
@@ -63,7 +63,7 @@ def test_search(sample_for_search: bool) -> None:
     model_v2 = load_model_from_file(output)
 
     metrics = evaluate_estimator(model_v2, X, Y)
-    score_v2 = metrics["clf"]["aucroc"][0]
+    score_v2 = metrics["raw"]["aucroc"][0]
 
     EPS = 1e-2
     assert score_v2 + EPS >= score_v1

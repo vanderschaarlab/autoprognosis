@@ -18,7 +18,7 @@ from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.plugins.prediction.classifiers import Classifiers
 from autoprognosis.utils.parallel import n_opt_jobs
 import autoprognosis.utils.serialization as serialization
-from autoprognosis.utils.tester import classifier_evaluator
+from autoprognosis.utils.tester import classifier_metrics
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
@@ -49,9 +49,9 @@ class BaseEnsemble(metaclass=ABCMeta):
         self.explanations_nepoch = explanations_nepoch
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame, metric: str = "aucroc") -> float:
-        ev = classifier_evaluator(metric)
+        ev = classifier_metrics()
         preds = self.predict_proba(X)
-        return ev.score_proba(y, preds)
+        return ev.score_proba(y, preds)[metric]
 
     @abstractmethod
     def name(self) -> str:

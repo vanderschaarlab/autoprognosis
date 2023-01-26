@@ -142,7 +142,7 @@ model = load_model_from_file(output)
 # This way, we can further benchmark the selected model on the training set.
 metrics = evaluate_estimator(model, X, Y)
 
-print(f"model {model.name()} -> {metrics['clf']}")
+print(f"model {model.name()} -> {metrics['str']}")
 
 # Train the model
 model.fit(X, Y)
@@ -348,7 +348,7 @@ model = load_model_from_file(output)
 
 metrics = evaluate_survival_estimator(model, X, T, Y, eval_time_horizons)
 
-print(f"Model {model.name()} score: {metrics['clf']}")
+print(f"Model {model.name()} score: {metrics['str']}")
 
 # Train the model
 model.fit(X, T, Y)

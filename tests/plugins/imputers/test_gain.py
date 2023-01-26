@@ -84,9 +84,9 @@ def test_compare_methods_perf(
     x_miss = pd.DataFrame(x_simulated["X_incomp"])
 
     x_gain = test_plugin.fit_transform(x_miss)
-    rmse_gain = RMSE(x_gain.to_numpy(), x, mask)
+    mse_gain = RMSE(x_gain.to_numpy(), x, mask)
 
     x_other = other_plugin.fit_transform(x_miss)
-    rmse_other = RMSE(x_other.to_numpy(), x, mask)
+    mse_other = RMSE(x_other.to_numpy(), x, mask)
 
-    assert rmse_gain < rmse_other
+    assert mse_gain < mse_other

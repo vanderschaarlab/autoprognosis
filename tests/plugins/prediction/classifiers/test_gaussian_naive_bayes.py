@@ -94,7 +94,7 @@ def test_param_search() -> None:
         model = plugin(**kwargs)
         metrics = evaluate_estimator(model, X, y)
 
-        return metrics["clf"]["aucroc"][0]
+        return metrics["raw"]["aucroc"][0]
 
     def objective(trial: optuna.Trial) -> float:
         args = plugin.sample_hyperparameters(trial)

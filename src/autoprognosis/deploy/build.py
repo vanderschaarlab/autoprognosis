@@ -25,7 +25,7 @@ from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsembleCV
 from autoprognosis.plugins.prediction import Predictions
 from autoprognosis.studies._preprocessing import dataframe_encode_and_impute
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
-from autoprognosis.utils.tester import constant_columns
+from autoprognosis.utils.tester import _constant_columns
 
 STATUS_KEY = "build_status"
 CHECKPOINT_KEY = "checkpoint"
@@ -143,7 +143,7 @@ class Builder:
 
         data = pd.read_csv(self.task.dataset_path)
         sections = self._parse_sections(data)
-        data = data.drop(columns=constant_columns(data))
+        data = data.drop(columns=_constant_columns(data))
         imputation_method: Optional[str] = None
         # we treat binary columns as checkboxes
         checkboxes: list = []
