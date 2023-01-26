@@ -256,7 +256,6 @@ def evaluate_estimator(
         output_clf_str[key] = print_score(key_out)
 
     return {
-        "clf": output_clf,  # legacy
         "raw": output_clf,
         "str": output_clf_str,
     }
@@ -564,7 +563,6 @@ def evaluate_survival_estimator(
         },
         "str": {},
         "raw": {},
-        "clf": {},
     }
     for metric in results:
         local_values = []
@@ -579,8 +577,6 @@ def evaluate_survival_estimator(
 
         output["raw"][metric] = generate_score(local_values)
         output["str"][metric] = print_score(output["raw"][metric])
-
-    output["clf"] = output["raw"]
 
     return output
 
@@ -752,11 +748,6 @@ def evaluate_regression(
     output_r2 = generate_score(metrics_["r2"])
 
     return {
-        "clf": {
-            "mse": output_mse,
-            "mae": output_mae,
-            "r2": output_r2,
-        },  # legacy node
         "raw": {
             "mse": output_mse,
             "mae": output_mae,
