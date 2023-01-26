@@ -71,8 +71,23 @@ class classifier_metrics:
     """Helper class for evaluating the performance of the classifier.
 
     Args:
-        metric: str, default="aucroc"
-            The type of metric to use for evaluation. Potential values: ["aucprc", "aucroc"].
+        metric: list, default=["aucroc", "aucprc", "accuracy", "f1_score_micro", "f1_score_macro", "f1_score_weighted",  "kappa", "precision_micro", "precision_macro", "precision_weighted", "recall_micro", "recall_macro", "recall_weighted",  "mcc",]
+            The type of metric to use for evaluation.
+            Potential values:
+                - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+                - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+                - "accuracy" : Accuracy classification score.
+                - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+                - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+                - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+                - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
+                - "precision_micro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(micro) calculates metrics globally by counting the total true positives.
+                - "precision_macro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+                - "precision_weighted": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+                - "recall_micro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(micro) calculates metrics globally by counting the total true positives.
+                - "recall_macro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+                - "recall_weighted": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+                - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
     """
 
     def __init__(self, metric: Union[str, list] = clf_supported_metrics) -> None:
@@ -154,9 +169,9 @@ def evaluate_estimator(
     Args:
         estimator:
             Baseline model to evaluate. if pretrained == False, it must not be fitted.
-        X:
+        X: pd.DataFrame or np.ndarray:
             The covariates
-        Y:
+        Y: pd.Series or np.ndarray or list:
             The labels
         n_folds: int
             cross-validation folds
@@ -166,6 +181,24 @@ def evaluate_estimator(
             If the estimator was already trained or not.
         group_ids: pd.Series
             The group_ids to use for stratified cross-validation
+
+    Returns:
+        Dict containing "raw" and "str" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric.
+        Both "raw" and "str" nodes contain the following metrics:
+            - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+            - "aucprc" : The average precision summarizes a precision-recall curve as the weighted mean of precisions achieved at each threshold, with the increase in recall from the previous threshold used as the weight.
+            - "accuracy" : Accuracy classification score.
+            - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
+            - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+            - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
+            - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
+            - "precision_micro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(micro) calculates metrics globally by counting the total true positives.
+            - "precision_macro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+            - "precision_weighted": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+            - "recall_micro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(micro) calculates metrics globally by counting the total true positives.
+            - "recall_macro": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
+            - "recall_weighted": Recall is defined as the number of true positives over the number of true positives plus the number of false negatives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
+            - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
 
     """
     enable_reproducible_results(seed)
@@ -242,9 +275,9 @@ def evaluate_estimator_multiple_seeds(
     Args:
         estimator:
             Baseline model to evaluate. if pretrained == False, it must not be fitted.
-        X:
+        X: pd.DataFrame or np.ndarray:
             The covariates
-        Y:
+        Y: pd.Series or np.ndarray or list:
             The labels
         n_folds: int
             cross-validation folds
@@ -356,7 +389,7 @@ def evaluate_survival_estimator(
         else:
             model = copy.deepcopy(estimator)
 
-            constant_cols = constant_columns(X_train)
+            constant_cols = _constant_columns(X_train)
             X_train = X_train.drop(columns=constant_cols)
             X_test = X_test.drop(columns=constant_cols)
 
@@ -408,7 +441,7 @@ def evaluate_survival_estimator(
         else:
             model = copy.deepcopy(estimator)
 
-            constant_cols = constant_columns(X_train)
+            constant_cols = _constant_columns(X_train)
             X_train = X_train.drop(columns=constant_cols)
             X_test = X_test.drop(columns=constant_cols)
 
@@ -798,7 +831,7 @@ def score_classification_model(
     return model.score(X_test, y_test)
 
 
-def constant_columns(dataframe: pd.DataFrame) -> list:
+def _constant_columns(dataframe: pd.DataFrame) -> list:
     """
     Drops constant value columns of pandas dataframe.
     """
