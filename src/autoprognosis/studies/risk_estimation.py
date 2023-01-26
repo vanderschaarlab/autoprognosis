@@ -354,6 +354,12 @@ class RiskEstimationStudy(Study):
                 log.info(f"Study not improved for {PATIENCE} iterations. Stopping...")
                 break
 
+        if best_score < self.score_threshold:
+            log.critical(
+                f"Unable to find a model above threshold {self.score_threshold}. Returning None"
+            )
+            return None
+
         return best_model
 
     def fit(self) -> Any:

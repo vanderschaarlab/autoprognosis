@@ -296,6 +296,7 @@ class ClassifierStudy(Study):
         self._should_continue()
 
         best_score, best_model = self._load_progress()
+        score = best_score
 
         patience = 0
         for it in range(self.num_study_iter):
@@ -325,7 +326,9 @@ class ClassifierStudy(Study):
             )
 
             if score < self.score_threshold:
-                log.info(f"The ensemble is not good enough, keep searching {metrics}")
+                log.critical(
+                    f"The ensemble is not good enough, keep searching {metrics['str']}"
+                )
                 continue
 
             if best_score >= score:
@@ -350,6 +353,12 @@ class ClassifierStudy(Study):
             )
 
             self._save_progress(best_model)
+
+        if best_score < self.score_threshold:
+            log.critical(
+                f"Unable to find a model above threshold {self.score_threshold}. Returning None"
+            )
+            return None
 
         return best_model
 
