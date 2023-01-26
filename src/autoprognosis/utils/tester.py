@@ -379,8 +379,8 @@ def evaluate_survival_estimator(
             Group labels for the samples used while splitting the dataset into train/test set.
 
     Returns:
-        Dict containing "raw" and "str" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric.
-        Both "raw" and "str" nodes contain the following metrics:
+        Dict containing "raw", "str" and "horizons" nodes. The "str" node contains prettified metrics, while the raw metrics includes tuples of form (`mean`, `std`) for each metric. The "horizons" node splits the metrics by horizon.
+        Each nodes contain the following metrics:
             - "c_index" : The concordance index or c-index is a metric to evaluate the predictions made by a survival algorithm. It is defined as the proportion of concordant pairs divided by the total number of possible evaluation pairs.
             - "brier_score": The Brier Score is a strictly proper score function or strictly proper scoring rule that measures the accuracy of probabilistic predictions.
             - "aucroc" : the Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
