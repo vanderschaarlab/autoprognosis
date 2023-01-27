@@ -16,8 +16,7 @@ from autoprognosis.explorers.core.defaults import (
     default_feature_selection_names,
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
-from autoprognosis.explorers.hooks import DefaultHooks
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.classifiers import (
     AggregatingEnsemble,

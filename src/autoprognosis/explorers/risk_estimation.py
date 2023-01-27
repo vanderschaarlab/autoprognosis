@@ -18,8 +18,7 @@ from autoprognosis.explorers.core.defaults import (
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
-from autoprognosis.explorers.hooks import DefaultHooks
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.utils.parallel import n_opt_jobs
 from autoprognosis.utils.tester import evaluate_survival_estimator

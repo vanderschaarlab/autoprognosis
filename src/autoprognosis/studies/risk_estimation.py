@@ -20,9 +20,12 @@ from autoprognosis.explorers.risk_estimation_combos import (
 from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import Study
-from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
+from autoprognosis.utils.serialization import (
+    dataframe_hash,
+    load_model_from_file,
+    save_model_to_file,
+)
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
 PATIENCE = 10
@@ -164,29 +167,27 @@ class RiskEstimationStudy(Study):
         enable_reproducible_results(random_state)
 
         # If only one imputation method is provided, we don't feed it into the optimizer
-        imputation_method: Optional[str] = None
         if nan_placeholder is not None:
             dataset = dataset.replace(nan_placeholder, np.nan)
 
         if dataset.isnull().values.any():
             if len(imputers) == 0:
                 raise RuntimeError("Please provide at least one imputation method")
-
-            if len(imputers) == 1:
-                imputation_method = imputers[0]
         else:
             imputers = []
 
         self.time_horizons = time_horizons
         self.score_threshold = score_threshold
 
-        self.X, self.T, self.Y, _, _, self.group_ids = dataframe_preprocess(
-            dataset,
-            target,
-            time_to_event=time_to_event,
-            imputation_method=imputation_method,
-            group_id=group_id,
-        )
+        drop_cols = [target, time_to_event]
+        self.group_ids = None
+        if group_id is not None:
+            drop_cols.append(group_id)
+            self.group_ids = dataset[group_id]
+
+        self.Y = dataset[target]
+        self.T = dataset[time_to_event]
+        self.X = dataset.drop(columns=drop_cols)
 
         if sample_for_search:
             sample_size = min(len(self.Y), max_search_sample_size)
@@ -267,8 +268,6 @@ class RiskEstimationStudy(Study):
                 subtopic="candidate",
                 event_type="candidate",
                 name=best_model.name(),
-                models=[mod.name() for mod in best_model.models],
-                weights=best_model.weights,
                 duration=time.time() - start,
                 score=best_score,
                 **eval_metrics,
@@ -328,8 +327,6 @@ class RiskEstimationStudy(Study):
                     subtopic="candidate",
                     event_type="candidate",
                     name=current_model.name(),
-                    models=[mod.name() for mod in current_model.models],
-                    weights=current_model.weights,
                     duration=time.time() - start,
                     score=best_score,
                     **eval_metrics,

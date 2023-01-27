@@ -26,6 +26,7 @@ class WandbHooks(Hooks):
             name=f"autoprognosis_study_{project}",
             resume=True,
             reinit=True,
+            group="DDP",
         )
 
     def cancel(self) -> bool:
@@ -34,7 +35,8 @@ class WandbHooks(Hooks):
     def heartbeat(
         self, topic: str, subtopic: str, event_type: str, **kwargs: Any
     ) -> None:
-        self.cbk.log(kwargs)
+        print(topic, subtopic, event_type, kwargs)
+        # self.cbk.log(kwargs)
 
     def finish(self) -> None:
         self.cbk.finish()

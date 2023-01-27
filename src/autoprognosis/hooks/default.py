@@ -17,5 +17,5 @@ class DefaultHooks(Hooks):
     ) -> None:
         log.debug(f"[{topic}][{subtopic}] {event_type}")
 
-    def finish() -> None:
+    def finish(self) -> None:
         pass

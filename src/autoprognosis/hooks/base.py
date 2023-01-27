@@ -23,5 +23,5 @@ class Hooks(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def finish() -> None:
+    def finish(self) -> None:
         ...

@@ -4,6 +4,7 @@ from typing import Any, Union
 
 # third party
 import cloudpickle
+import pandas as pd
 
 
 def save(model: Any) -> bytes:
@@ -38,3 +39,9 @@ def save_model_to_file(path: Union[str, Path], model: Any) -> Any:
 
 def load_model_from_file(path: Union[str, Path]) -> Any:
     return load_from_file(path)
+
+
+def dataframe_hash(df: pd.DataFrame) -> str:
+    """Dataframe hashing, used for caching/backups"""
+    cols = sorted(list(df.columns))
+    return str(abs(pd.util.hash_pandas_object(df[cols].fillna(0)).sum()))

@@ -18,9 +18,12 @@ from autoprognosis.explorers.core.defaults import (
 from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.studies._base import Study
-from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
+from autoprognosis.utils.serialization import (
+    dataframe_hash,
+    load_model_from_file,
+    save_model_to_file,
+)
 from autoprognosis.utils.tester import evaluate_estimator
 
 PATIENCE = 10
@@ -186,23 +189,20 @@ class ClassifierStudy(Study):
         if nan_placeholder is not None:
             dataset = dataset.replace(nan_placeholder, np.nan)
 
-        imputation_method: Optional[str] = None
-
         if dataset.isnull().values.any():
             if len(imputers) == 0:
                 raise RuntimeError("Please provide at least one imputation method")
-
-            if len(imputers) == 1:
-                imputation_method = imputers[0]
         else:
             imputers = []
 
-        self.X, _, self.Y, _, _, self.group_ids = dataframe_preprocess(
-            dataset,
-            target,
-            imputation_method=imputation_method,
-            group_id=group_id,
-        )
+        drop_cols = [target]
+        self.group_ids = None
+        if group_id is not None:
+            drop_cols.append(group_id)
+            self.group_ids = dataset[group_id]
+
+        self.Y = dataset[target]
+        self.X = dataset.drop(columns=drop_cols)
 
         if sample_for_search:
             sample_size = min(len(self.Y), max_search_sample_size)
@@ -217,8 +217,8 @@ class ClassifierStudy(Study):
             if self.group_ids:
                 self.search_group_ids = self.group_ids.loc[self.search_Y.index].copy()
         else:
-            self.search_X = self.X
-            self.search_Y = self.Y
+            self.search_X = self.X.copy()
+            self.search_Y = self.Y.copy()
             self.search_group_ids = self.group_ids
 
         self.internal_name = dataframe_hash(dataset)
@@ -237,7 +237,7 @@ class ClassifierStudy(Study):
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
-            num_iter=10,
+            num_iter=num_iter,
             num_ensemble_iter=15,
             timeout=timeout,
             metric=metric,
@@ -280,8 +280,6 @@ class ClassifierStudy(Study):
                 subtopic="candidate",
                 event_type="candidate",
                 name=best_model.name(),
-                models=[mod.name() for mod in best_model.models],
-                weights=best_model.weights,
                 duration=time.time() - start,
                 score=best_score,
                 **eval_metrics,
@@ -330,9 +328,7 @@ class ClassifierStudy(Study):
                 topic="classification_study",
                 subtopic="candidate",
                 event_type="candidate",
-                name=best_model.name(),
-                models=[mod.name() for mod in best_model.models],
-                weights=best_model.weights,
+                name=current_model.name(),
                 duration=time.time() - start,
                 score=score,
                 **eval_metrics,
