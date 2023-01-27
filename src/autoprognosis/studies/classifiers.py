@@ -186,6 +186,7 @@ class ClassifierStudy(Study):
 
         self.hooks = hooks
         dataset = pd.DataFrame(dataset)
+
         if nan_placeholder is not None:
             dataset = dataset.replace(nan_placeholder, np.nan)
 

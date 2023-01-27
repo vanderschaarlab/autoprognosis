@@ -43,5 +43,6 @@ def load_model_from_file(path: Union[str, Path]) -> Any:
 
 def dataframe_hash(df: pd.DataFrame) -> str:
     """Dataframe hashing, used for caching/backups"""
-    cols = sorted(list(df.columns))
+    cols = df.columns.astype(str)
+    cols = sorted(list(cols))
     return str(abs(pd.util.hash_pandas_object(df[cols].fillna(0)).sum()))
