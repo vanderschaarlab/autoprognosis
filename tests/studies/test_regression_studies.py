@@ -100,7 +100,7 @@ def test_hooks() -> None:
         num_iter=10,
         num_study_iter=3,
         timeout=10,
-        regressors=["linear_regression"],
+        regressors=["linear_regression", "random_forest_regressor"],
         workspace=storage_folder,
         hooks=hooks,
     )

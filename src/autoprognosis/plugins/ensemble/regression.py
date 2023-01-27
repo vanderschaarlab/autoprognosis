@@ -131,12 +131,11 @@ class WeightedRegressionEnsemble(BaseRegressionEnsemble):
         for k in range(len(self.models)):
             preds_.append(self.models[k].predict(X, *args) * self.weights[k])
         pred_ens = np.sum(np.array(preds_), axis=0)
+        pred_ens = np.asarray(pred_ens)
+        if len(pred_ens.shape) < 2:
+            pred_ens = pred_ens.reshape(-1, 1)
 
-        try:
-            return pd.DataFrame(pred_ens)
-        except BaseException as e:
-            log.error(f"pandas cast failed for input {pred_ens}: {e}")
-            return pd.DataFrame([0] * len(X))
+        return pd.DataFrame(pred_ens)
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         if self.explainers is None:

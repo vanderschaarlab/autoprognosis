@@ -40,7 +40,7 @@ class BaseEnsemble(metaclass=ABCMeta):
         preds = self.predict_proba(X, *args)
         res = np.argmax(preds.values, axis=1)
 
-        return pd.DataFrame(res)
+        return pd.Series(res)
 
     @abstractmethod
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
@@ -151,11 +151,7 @@ class WeightedEnsemble(BaseEnsemble):
             preds_.append(self.models[k].predict_proba(X, *args) * self.weights[k])
         pred_ens = np.sum(np.array(preds_), axis=0)
 
-        try:
-            return pd.DataFrame(pred_ens)
-        except BaseException as e:
-            log.error(f"pandas cast failed for input {pred_ens}: {e}")
-            return pd.DataFrame([0] * len(X))
+        return pd.DataFrame(pred_ens)
 
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         if self.explainers is None:
