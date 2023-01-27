@@ -96,7 +96,7 @@ def test_hooks() -> None:
         study_name=study_name,
         dataset=df,
         target="target",
-        num_iter=2,
+        num_iter=4,
         timeout=10,
         classifiers=["logistic_regression", "lda", "qda"],
         workspace=storage_folder,
