@@ -96,12 +96,12 @@ def test_hooks(optimizer_type: str) -> None:
 
     seeker = RegressionEnsembleSeeker(
         study_name="test_regressors_combos",
-        num_iter=2,
+        num_iter=20,
         num_ensemble_iter=3,
         feature_scaling=["scaler", "minmax_scaler"],
         regressors=[
             "linear_regression",
-            "xgboost_regressor",
+            "random_forest_regressor",
         ],
         hooks=hook,
         optimizer_type=optimizer_type,

@@ -95,12 +95,12 @@ def test_hooks(optimizer_type: str) -> None:
 
     seeker = RegressionSeeker(
         study_name="test_regressors",
-        num_iter=2,
+        num_iter=10,
         top_k=3,
         hooks=hook,
         regressors=[
             "linear_regression",
-            "xgboost_regressor",
+            "random_forest_regressor",
         ],
         optimizer_type=optimizer_type,
     )
