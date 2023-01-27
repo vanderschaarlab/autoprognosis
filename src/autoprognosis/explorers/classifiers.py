@@ -204,6 +204,11 @@ class ClassifierSeeker:
 
                 return 0
 
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
+
             self.hooks.heartbeat(
                 topic="classification",
                 subtopic="model_search",
@@ -211,7 +216,8 @@ class ClassifierSeeker:
                 name=model.name(),
                 model_args=kwargs,
                 duration=time.time() - start,
-                aucroc=metrics["str"][self.metric],
+                score=metrics["str"][self.metric],
+                **eval_metrics,
             )
             return metrics["raw"][self.metric][0]
 

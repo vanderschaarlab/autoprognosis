@@ -172,6 +172,13 @@ class RiskEstimatorSeeker:
 
                 return 0
 
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
+
+            score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
+
             self.hooks.heartbeat(
                 topic="risk_estimation",
                 subtopic="model_search",
@@ -180,11 +187,10 @@ class RiskEstimatorSeeker:
                 model_args=kwargs,
                 duration=time.time() - start,
                 horizon=time_horizon,
-                aucroc=metrics["str"]["aucroc"],
-                cindex=metrics["str"]["c_index"],
-                brier_score=metrics["str"]["brier_score"],
+                score=score,
+                **eval_metrics,
             )
-            return metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
+            return score
 
         study = Optimizer(
             study_name=f"{self.study_name}_risk_estimation_exploration_{estimator.name()}_{time_horizon}",

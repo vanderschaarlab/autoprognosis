@@ -15,9 +15,9 @@ from autoprognosis.explorers.core.defaults import (
     default_regressors_names,
 )
 from autoprognosis.explorers.regression_combos import RegressionEnsembleSeeker
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
-from autoprognosis.studies._base import DefaultHooks, Study
+from autoprognosis.studies._base import Study
 from autoprognosis.studies._preprocessing import dataframe_hash, dataframe_preprocess
 from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
@@ -252,15 +252,19 @@ class RegressionStudy(Study):
                 group_ids=self.search_group_ids,
             )
             best_score = metrics["raw"][self.metric][0]
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
+
             self.hooks.heartbeat(
                 topic="regression_study",
                 subtopic="candidate",
                 event_type="candidate",
                 name=best_model.name(),
-                models=[mod.name() for mod in best_model.models],
-                weights=best_model.weights,
                 duration=time.time() - start,
-                aucroc=metrics["str"]["r2"],
+                score=best_score,
+                **eval_metrics,
             )
 
             return best_score, best_model
@@ -295,6 +299,10 @@ class RegressionStudy(Study):
                 group_ids=self.search_group_ids,
             )
             score = metrics["raw"][self.metric][0]
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
 
             self.hooks.heartbeat(
                 topic="regression_study",
@@ -302,7 +310,8 @@ class RegressionStudy(Study):
                 event_type="candidate",
                 name=current_model.name(),
                 duration=time.time() - start,
-                aucroc=metrics["str"][self.metric],
+                score=score,
+                **eval_metrics,
             )
 
             if score < self.score_threshold:
@@ -333,6 +342,8 @@ class RegressionStudy(Study):
             )
 
             self._save_progress(best_model)
+
+        self.hooks.finish()
 
         if best_score < self.score_threshold:
             log.critical(
