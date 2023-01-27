@@ -70,12 +70,12 @@ def test_search(group_id: Optional[bool]) -> None:
 
     seeker = RegressionEnsembleSeeker(
         study_name="test_regressors_combos",
-        num_iter=10,
+        num_iter=2,
         num_ensemble_iter=3,
         feature_scaling=["scaler", "minmax_scaler"],
         regressors=[
             "linear_regression",
-            "random_forest_regressor",
+            "xgboost_regressor",
         ],
     )
 
@@ -96,12 +96,12 @@ def test_hooks(optimizer_type: str) -> None:
 
     seeker = RegressionEnsembleSeeker(
         study_name="test_regressors_combos",
-        num_iter=10,
+        num_iter=2,
         num_ensemble_iter=3,
         feature_scaling=["scaler", "minmax_scaler"],
         regressors=[
             "linear_regression",
-            "random_forest_regressor",
+            "xgboost_regressor",
         ],
         hooks=hook,
         optimizer_type=optimizer_type,

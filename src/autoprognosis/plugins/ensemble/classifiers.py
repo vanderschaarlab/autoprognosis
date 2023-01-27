@@ -36,6 +36,12 @@ class BaseEnsemble(metaclass=ABCMeta):
     def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         ...
 
+    def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
+        preds = self.predict_proba(X, *args)
+        res = np.argmax(preds.values, axis=1)
+
+        return pd.DataFrame(res)
+
     @abstractmethod
     def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         ...

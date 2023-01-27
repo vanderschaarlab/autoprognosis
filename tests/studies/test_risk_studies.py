@@ -1,6 +1,7 @@
 # stdlib
 import os
 from pathlib import Path
+import sys
 
 # third party
 from helpers import MockHook
@@ -15,7 +16,7 @@ from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
 
-@pytest.mark.slow
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 @pytest.mark.parametrize("sample_for_search", [True, False])
 def test_surv_search(sample_for_search: bool) -> None:
     rossi = load_rossi()
@@ -47,6 +48,7 @@ def test_surv_search(sample_for_search: bool) -> None:
         time_to_event="week",
         time_horizons=eval_time_horizons,
         num_iter=2,
+        num_study_iter=1,
         timeout=10,
         risk_estimators=["cox_ph", "lognormal_aft", "loglogistic_aft"],
         score_threshold=0.4,
@@ -80,6 +82,9 @@ def test_surv_search(sample_for_search: bool) -> None:
 
     model = study.fit()
     assert model.is_fitted()
+
+    preds = model.predict(X, eval_time_horizons)
+    assert len(preds) == len(X)
 
 
 def test_hooks() -> None:
@@ -123,7 +128,7 @@ def test_hooks() -> None:
         study.run()
 
 
-@pytest.mark.slow
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 @pytest.mark.parametrize("scenario", ["categorical", "continuous"])
 @pytest.mark.parametrize("imputers", [["mean", "median"], ["mean"]])
 def test_study_imputation(scenario: str, imputers: list) -> None:

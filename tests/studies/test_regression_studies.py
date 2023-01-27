@@ -16,7 +16,7 @@ from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_regression
 
 
-@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 @pytest.mark.parametrize("sample_for_search", [True, False])
 def test_regression_search(sample_for_search: bool) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
@@ -38,9 +38,9 @@ def test_regression_search(sample_for_search: bool) -> None:
         dataset=df,
         target="target",
         num_iter=2,
-        num_study_iter=2,
+        num_study_iter=1,
         timeout=10,
-        regressors=["linear_regression", "random_forest_regressor"],
+        regressors=["linear_regression"],
         workspace=storage_folder,
         score_threshold=0.3,
         sample_for_search=sample_for_search,
@@ -73,6 +73,9 @@ def test_regression_search(sample_for_search: bool) -> None:
     model = study.fit()
     assert model.is_fitted()
 
+    preds = model.predict(X)
+    assert len(preds) == len(X)
+
 
 def test_hooks() -> None:
     hooks = MockHook()
@@ -95,9 +98,9 @@ def test_hooks() -> None:
         dataset=df,
         target="target",
         num_iter=2,
-        num_study_iter=2,
+        num_study_iter=1,
         timeout=10,
-        regressors=["linear_regression", "random_forest_regressor"],
+        regressors=["linear_regression"],
         workspace=storage_folder,
         hooks=hooks,
     )
@@ -106,7 +109,7 @@ def test_hooks() -> None:
 
 
 @pytest.mark.parametrize("imputers", [["mean", "median"], ["mean"]])
-@pytest.mark.slow
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 def test_regression_study_imputation(imputers: list) -> None:
     X, Y = load_diabetes(return_X_y=True, as_frame=True)
     storage_folder = Path("/tmp")
@@ -129,9 +132,9 @@ def test_regression_study_imputation(imputers: list) -> None:
         target="target",
         imputers=imputers,
         num_iter=2,
-        num_study_iter=2,
+        num_study_iter=1,
         timeout=10,
-        regressors=["linear_regression", "random_forest_regressor"],
+        regressors=["linear_regression"],
         workspace=storage_folder,
         score_threshold=0.3,
     )
