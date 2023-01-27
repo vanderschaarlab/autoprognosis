@@ -1,11 +1,10 @@
 # stdlib
 from typing import Any
 
-# first party
-import wandb
-
 # autoprognosis relative
 from .base import Hooks
+
+import wandb  # isort:skip
 
 
 class WandbHooks(Hooks):
