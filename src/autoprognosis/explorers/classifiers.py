@@ -17,8 +17,7 @@ from autoprognosis.explorers.core.defaults import (
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
-from autoprognosis.explorers.hooks import DefaultHooks
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.utils.parallel import n_opt_jobs
 from autoprognosis.utils.tester import evaluate_estimator
@@ -204,6 +203,11 @@ class ClassifierSeeker:
 
                 return 0
 
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
+
             self.hooks.heartbeat(
                 topic="classification",
                 subtopic="model_search",
@@ -211,7 +215,8 @@ class ClassifierSeeker:
                 name=model.name(),
                 model_args=kwargs,
                 duration=time.time() - start,
-                aucroc=metrics["str"][self.metric],
+                score=metrics["str"][self.metric],
+                **eval_metrics,
             )
             return metrics["raw"][self.metric][0]
 

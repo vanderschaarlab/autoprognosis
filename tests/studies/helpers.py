@@ -20,3 +20,6 @@ class MockHook(Hooks):
         self, topic: str, subtopic: str, event_type: str, **kwargs: Any
     ) -> None:
         pass
+
+    def finish(self) -> None:
+        pass

@@ -18,7 +18,6 @@ class Optimizer:
         optimizer_type: str = "bayesian",
         n_trials: int = 50,  # bayesian: number of trials
         timeout: int = 60,  # bayesian: timeout per search
-        max_iter: int = 27,  # hyperband: maximum iterations per configuration
         eta: int = 3,  # hyperband: defines configuration downsampling rate (default = 3)
         random_state: int = 0,
     ):
@@ -39,7 +38,7 @@ class Optimizer:
                 study_name=study_name,
                 estimator=estimator,
                 evaluation_cbk=evaluation_cbk,
-                max_iter=max_iter,
+                max_iter=n_trials,
                 eta=eta,
                 random_state=random_state,
             )

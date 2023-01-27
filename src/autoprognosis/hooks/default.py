@@ -2,13 +2,13 @@
 from typing import Any
 
 # autoprognosis absolute
-from autoprognosis.hooks import Hooks
 import autoprognosis.logger as log
+
+# autoprognosis relative
+from .base import Hooks
 
 
 class DefaultHooks(Hooks):
-    """Default hook used by the explorers"""
-
     def cancel(self) -> bool:
         return False
 
@@ -16,3 +16,6 @@ class DefaultHooks(Hooks):
         self, topic: str, subtopic: str, event_type: str, **kwargs: Any
     ) -> None:
         log.debug(f"[{topic}][{subtopic}] {event_type}")
+
+    def finish(self) -> None:
+        pass

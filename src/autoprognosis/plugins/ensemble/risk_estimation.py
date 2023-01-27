@@ -9,8 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
-from autoprognosis.explorers.hooks import DefaultHooks
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
 

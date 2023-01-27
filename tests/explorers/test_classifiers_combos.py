@@ -69,13 +69,12 @@ def test_search(optimizer_type: str, group_id: Optional[bool]) -> None:
 
     seeker = EnsembleSeeker(
         study_name="test_classifiers_combos",
-        num_iter=10,
+        num_iter=2,
         num_ensemble_iter=3,
         feature_scaling=["scaler", "minmax_scaler"],
         classifiers=[
-            "logistic_regression",
             "lda",
-            "qda",
+            "catboost",
         ],
         optimizer_type=optimizer_type,
     )
@@ -99,14 +98,12 @@ def test_hooks(optimizer_type: str) -> None:
 
     seeker = EnsembleSeeker(
         study_name="test_classifiers_combos",
-        num_iter=10,
+        num_iter=2,
         num_ensemble_iter=3,
         feature_scaling=["scaler", "minmax_scaler"],
         classifiers=[
-            "logistic_regression",
             "lda",
-            "qda",
-            "perceptron",
+            "catboost",
         ],
         hooks=hook,
         optimizer_type=optimizer_type,

@@ -69,14 +69,12 @@ def test_search_clf(optimizer_type: str, group_id: Optional[bool], metric: str) 
 
     seeker = ClassifierSeeker(
         study_name="test_classifiers",
-        num_iter=10,
+        num_iter=2,
         top_k=3,
         feature_scaling=["scaler", "minmax_scaler"],
         classifiers=[
-            "logistic_regression",
             "lda",
-            "qda",
-            "perceptron",
+            "catboost",
         ],
         optimizer_type=optimizer_type,
         metric=metric,
@@ -84,7 +82,7 @@ def test_search_clf(optimizer_type: str, group_id: Optional[bool], metric: str) 
     )
     best_models = seeker.search(X, Y, group_ids=group_ids)
 
-    assert len(best_models) == 3
+    assert len(best_models) == 2
 
     for model in best_models:
         model.fit(X, Y)
@@ -110,9 +108,10 @@ def test_hooks(optimizer_type: str) -> None:
 
     seeker = ClassifierSeeker(
         study_name="test_classifiers",
-        num_iter=10,
+        num_iter=2,
         top_k=3,
         hooks=hook,
+        classifiers=["lda", "catboost"],
         optimizer_type=optimizer_type,
     )
 

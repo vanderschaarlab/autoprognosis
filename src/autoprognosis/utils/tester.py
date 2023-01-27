@@ -115,25 +115,43 @@ class classifier_metrics:
             elif metric == "accuracy":
                 results[metric] = accuracy_score(y_test, y_pred)
             elif metric == "f1_score_micro":
-                results[metric] = f1_score(y_test, y_pred, average="micro")
+                results[metric] = f1_score(
+                    y_test, y_pred, average="micro", zero_division=0
+                )
             elif metric == "f1_score_macro":
-                results[metric] = f1_score(y_test, y_pred, average="macro")
+                results[metric] = f1_score(
+                    y_test, y_pred, average="macro", zero_division=0
+                )
             elif metric == "f1_score_weighted":
-                results[metric] = f1_score(y_test, y_pred, average="weighted")
+                results[metric] = f1_score(
+                    y_test, y_pred, average="weighted", zero_division=0
+                )
             elif metric == "kappa":
                 results[metric] = cohen_kappa_score(y_test, y_pred)
             elif metric == "recall_micro":
-                results[metric] = recall_score(y_test, y_pred, average="micro")
+                results[metric] = recall_score(
+                    y_test, y_pred, average="micro", zero_division=0
+                )
             elif metric == "recall_macro":
-                results[metric] = recall_score(y_test, y_pred, average="macro")
+                results[metric] = recall_score(
+                    y_test, y_pred, average="macro", zero_division=0
+                )
             elif metric == "recall_weighted":
-                results[metric] = recall_score(y_test, y_pred, average="weighted")
+                results[metric] = recall_score(
+                    y_test, y_pred, average="weighted", zero_division=0
+                )
             elif metric == "precision_micro":
-                results[metric] = precision_score(y_test, y_pred, average="micro")
+                results[metric] = precision_score(
+                    y_test, y_pred, average="micro", zero_division=0
+                )
             elif metric == "precision_macro":
-                results[metric] = precision_score(y_test, y_pred, average="macro")
+                results[metric] = precision_score(
+                    y_test, y_pred, average="macro", zero_division=0
+                )
             elif metric == "precision_weighted":
-                results[metric] = precision_score(y_test, y_pred, average="weighted")
+                results[metric] = precision_score(
+                    y_test, y_pred, average="weighted", zero_division=0
+                )
             elif metric == "mcc":
                 results[metric] = matthews_corrcoef(y_test, y_pred)
             else:
@@ -483,10 +501,14 @@ def evaluate_survival_estimator(
 
         output = {
             "aucroc": roc_auc_score(Y_test, local_scores),
-            "specificity": recall_score(Y_test, local_preds, pos_label=0),
-            "sensitivity": recall_score(Y_test, local_preds, pos_label=1),
-            "PPV": precision_score(Y_test, local_preds, pos_label=1),
-            "NPV": precision_score(Y_test, local_preds, pos_label=0),
+            "specificity": recall_score(
+                Y_test, local_preds, pos_label=0, zero_division=0
+            ),
+            "sensitivity": recall_score(
+                Y_test, local_preds, pos_label=1, zero_division=0
+            ),
+            "PPV": precision_score(Y_test, local_preds, pos_label=1, zero_division=0),
+            "NPV": precision_score(Y_test, local_preds, pos_label=0, zero_division=0),
             "predicted_cases": local_preds.sum(),
         }
         return output

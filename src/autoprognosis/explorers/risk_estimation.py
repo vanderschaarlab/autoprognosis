@@ -18,8 +18,7 @@ from autoprognosis.explorers.core.defaults import (
 )
 from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
-from autoprognosis.explorers.hooks import DefaultHooks
-from autoprognosis.hooks import Hooks
+from autoprognosis.hooks import DefaultHooks, Hooks
 import autoprognosis.logger as log
 from autoprognosis.utils.parallel import n_opt_jobs
 from autoprognosis.utils.tester import evaluate_survival_estimator
@@ -172,6 +171,13 @@ class RiskEstimatorSeeker:
 
                 return 0
 
+            eval_metrics = {}
+            for metric in metrics["raw"]:
+                eval_metrics[metric] = metrics["raw"][metric][0]
+                eval_metrics[f"{metric}_str"] = metrics["str"][metric]
+
+            score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
+
             self.hooks.heartbeat(
                 topic="risk_estimation",
                 subtopic="model_search",
@@ -180,11 +186,10 @@ class RiskEstimatorSeeker:
                 model_args=kwargs,
                 duration=time.time() - start,
                 horizon=time_horizon,
-                aucroc=metrics["str"]["aucroc"],
-                cindex=metrics["str"]["c_index"],
-                brier_score=metrics["str"]["brier_score"],
+                score=score,
+                **eval_metrics,
             )
-            return metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
+            return score
 
         study = Optimizer(
             study_name=f"{self.study_name}_risk_estimation_exploration_{estimator.name()}_{time_horizon}",

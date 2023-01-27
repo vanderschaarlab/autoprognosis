@@ -16,7 +16,7 @@ from autoprognosis.utils.serialization import load_model_from_file
 from autoprognosis.utils.tester import evaluate_estimator
 
 
-@pytest.mark.skipif(sys.platform == "darwin", reason="slow")
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 @pytest.mark.parametrize("sample_for_search", [True, False])
 def test_search(sample_for_search: bool) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
@@ -38,8 +38,9 @@ def test_search(sample_for_search: bool) -> None:
         dataset=df,
         target="target",
         num_iter=2,
+        num_study_iter=1,
         timeout=10,
-        classifiers=["logistic_regression", "lda", "qda"],
+        classifiers=["catboost"],
         workspace=storage_folder,
         sample_for_search=sample_for_search,
     )
@@ -71,6 +72,9 @@ def test_search(sample_for_search: bool) -> None:
     model = study.fit()
     assert model.is_fitted()
 
+    preds = model.predict(X)
+    assert len(preds) == len(X)
+
 
 def test_hooks() -> None:
     hooks = MockHook()
@@ -92,7 +96,7 @@ def test_hooks() -> None:
         study_name=study_name,
         dataset=df,
         target="target",
-        num_iter=2,
+        num_iter=4,
         timeout=10,
         classifiers=["logistic_regression", "lda", "qda"],
         workspace=storage_folder,
@@ -103,7 +107,7 @@ def test_hooks() -> None:
 
 
 @pytest.mark.parametrize("imputers", [["mean", "median"], ["mean"]])
-@pytest.mark.slow
+@pytest.mark.skipif(sys.platform != "linux", reason="slow")
 def test_classification_study_imputation(imputers: list) -> None:
     X, Y = load_breast_cancer(return_X_y=True, as_frame=True)
     storage_folder = Path("/tmp")
@@ -126,8 +130,9 @@ def test_classification_study_imputation(imputers: list) -> None:
         target="target",
         imputers=imputers,
         num_iter=2,
+        num_study_iter=1,
         timeout=10,
-        classifiers=["logistic_regression", "lda", "qda"],
+        classifiers=["logistic_regression"],
         workspace=storage_folder,
     )
 

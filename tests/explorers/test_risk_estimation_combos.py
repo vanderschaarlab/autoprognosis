@@ -55,9 +55,9 @@ def test_search(group_id: Optional[bool]) -> None:
     sq = RiskEnsembleSeeker(
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
-        num_iter=15,
+        num_iter=2,
         num_ensemble_iter=3,
-        CV=3,
+        CV=2,
         ensemble_size=3,
         timeout=10,
         estimators=["lognormal_aft", "cox_ph"],

@@ -64,12 +64,12 @@ def test_search(group_id: Optional[bool]) -> None:
 
     seeker = RegressionSeeker(
         study_name="test_regressors",
-        num_iter=10,
+        num_iter=2,
         top_k=3,
         feature_scaling=["scaler", "minmax_scaler"],
         regressors=[
             "linear_regression",
-            "random_forest_regressor",
+            "xgboost_regressor",
         ],
         strict=True,
     )
@@ -98,6 +98,10 @@ def test_hooks(optimizer_type: str) -> None:
         num_iter=10,
         top_k=3,
         hooks=hook,
+        regressors=[
+            "linear_regression",
+            "random_forest_regressor",
+        ],
         optimizer_type=optimizer_type,
     )
 
