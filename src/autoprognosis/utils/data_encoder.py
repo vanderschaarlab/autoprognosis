@@ -1,11 +1,12 @@
 # stdlib
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 # third party
 import numpy as np
 import pandas as pd
 from pydantic import validate_arguments
 from sklearn.mixture import BayesianGaussianMixture
+from sklearn.preprocessing import LabelEncoder
 
 
 class DatetimeEncoder:
@@ -109,3 +110,133 @@ class ContinuousDataEncoder:
         if self.weights is None:
             raise RuntimeError("Train the model first")
         return len(self.weights)
+
+
+class EncodersCallbacks:
+    def __init__(self, encoders: dict) -> None:
+        self.encoders = encoders
+
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+        output = df.copy()
+        for col in self.encoders:
+            if col not in df.columns:
+                continue
+            enc = self.encoders[col]
+
+            target = df[col]
+            if hasattr(enc, "get_feature_names"):
+                # onehot encoder
+                encoded = pd.DataFrame(
+                    enc.transform(target.values.reshape(-1, 1)),
+                    columns=enc.get_feature_names([col]),
+                    index=output.index.copy(),
+                )
+            else:
+                # label encoder
+                encoded = pd.DataFrame(
+                    enc.transform(target),
+                    columns=[col],
+                    index=output.index.copy(),
+                )
+
+            orig_cols = list(output)
+            old_col_idx = orig_cols.index(col)
+
+            output.drop(columns=[col], inplace=True)
+            l_cols, r_cols = output.columns[:old_col_idx], output.columns[old_col_idx:]
+
+            out_cols = list(l_cols) + list(encoded.columns) + list(r_cols)
+            output = pd.concat([output, encoded], axis=1)
+            output = output[out_cols]
+
+        return output
+
+    def decode(self, df: pd.DataFrame) -> pd.DataFrame:
+        output = df.copy()
+        for col in self.encoders:
+            if col not in df.columns:
+                continue
+            enc = self.encoders[col]
+            if hasattr(enc, "get_feature_names"):
+                columns = enc.get_feature_names([col])
+            else:
+                columns = [col]
+
+            decoded = pd.DataFrame(
+                enc.inverse_transform(output[columns].astype(int).values.squeeze()),
+                columns=[col],
+                index=output.index.copy(),
+            )
+
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
+            output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
+            output = pd.concat([output, decoded], axis=1)
+            out_cols = list(l_cols) + list(decoded.columns) + list(r_cols)
+            output = output[out_cols]
+
+        if output.isnull().values.any():
+            raise RuntimeError("Imputation returned null")
+
+        return output
+
+    def numeric_decode(self, df: pd.DataFrame, strategy: str = "max") -> pd.DataFrame:
+        output = df.copy()
+        for col in self.encoders:
+            if col not in df.columns:
+                continue
+            enc = self.encoders[col]
+            if hasattr(enc, "get_feature_names"):
+                columns = enc.get_feature_names([col])
+            else:
+                columns = [col]
+            if strategy == "max":
+                vals = output[columns].max(axis=1)
+            else:
+                raise ValueError(f"unknown strategy {strategy}")
+
+            orig_cols = list(output.columns)
+            col_inx = orig_cols.index(columns[0])
+
+            output.drop(columns=columns, inplace=True)
+            l_cols, r_cols = output.columns[:col_inx], output.columns[col_inx:]
+
+            output[col] = vals
+
+            out_cols = list(l_cols) + [col] + list(r_cols)
+            output = output[out_cols]
+
+        return output
+
+    def __getitem__(self, key: str) -> Any:
+        return self.encoders[key]
+
+
+def dataframe_encode(data: pd.DataFrame) -> Tuple[pd.DataFrame, EncodersCallbacks]:
+    encoders = {}
+    encoded = data.copy()
+
+    for col in encoded.columns:
+        if (
+            encoded[col].infer_objects().dtype.kind == "i"
+            and encoded[col].min() == 0
+            and encoded[col].max() == len(encoded[col].unique()) - 1
+        ):
+            continue
+
+        if (
+            encoded[col].infer_objects().dtype.kind in ["O", "b"]
+            or len(encoded[col].unique()) < 15
+        ):
+            encoder = LabelEncoder().fit(encoded[col])
+            encoded[col] = encoder.transform(encoded[col])
+            encoders[col] = encoder
+        elif encoded[col].infer_objects().dtype.kind in ["M"]:
+            encoder = DatetimeEncoder().fit(encoded[col])
+            encoded[col] = encoder.transform(encoded[col]).values
+            encoders[col] = encoder
+
+    return encoded, EncodersCallbacks(encoders)

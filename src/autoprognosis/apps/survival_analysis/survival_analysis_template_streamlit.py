@@ -14,7 +14,7 @@ from autoprognosis.apps.common.login import (
 )
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
-from autoprognosis.studies._preprocessing import EncodersCallbacks
+from autoprognosis.utils.data_encoder import EncodersCallbacks
 from autoprognosis.utils.pip import install
 
 for retry in range(2):
