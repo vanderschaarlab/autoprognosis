@@ -74,7 +74,7 @@ def generate_menu(X: pd.DataFrame, checkboxes: List, sections: list) -> list:
 
             median = X[col].median()
             dtype = SliderInt(
-                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval, mediam=median
+                f"{col} ({int(minval)} - {int(maxval)})", minval, maxval, median=median
             )
             column_types.append((col, dtype))
 
