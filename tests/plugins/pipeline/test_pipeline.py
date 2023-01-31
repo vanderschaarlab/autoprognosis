@@ -156,10 +156,11 @@ def test_pipeline_end2end(serialize: bool) -> None:
 
 def test_pipeline_save_load_template() -> None:
     X_train, X_test, y_train, y_test = dataset()
+    X_train[0, 0] = np.nan
 
     template = Pipeline(
         [
-            Imputers().get_type("softimpute").fqdn(),
+            Imputers().get_type("hyperimpute").fqdn(),
             Preprocessors().get_type("minmax_scaler").fqdn(),
             Classifiers().get_type("neural_nets").fqdn(),
         ]
@@ -179,10 +180,11 @@ def test_pipeline_save_load_template() -> None:
 
 def test_pipeline_save_load() -> None:
     X_train, X_test, y_train, y_test = dataset()
+    X_train[0, 0] = np.nan
 
     template = Pipeline(
         [
-            Imputers().get_type("softimpute").fqdn(),
+            Imputers().get_type("hyperimpute").fqdn(),
             Preprocessors().get_type("minmax_scaler").fqdn(),
             Classifiers().get_type("neural_nets").fqdn(),
         ]
@@ -202,10 +204,11 @@ def test_pipeline_save_load() -> None:
 
 def test_pipeline_pickle() -> None:
     X_train, X_test, y_train, y_test = dataset()
+    X_train[0, 0] = np.nan
 
     template = Pipeline(
         [
-            Imputers().get_type("softimpute").fqdn(),
+            Imputers().get_type("hyperimpute").fqdn(),
             Preprocessors().get_type("minmax_scaler").fqdn(),
             Classifiers().get_type("neural_nets").fqdn(),
         ]
@@ -219,3 +222,13 @@ def test_pipeline_pickle() -> None:
 
     assert pipeline.name() == new_pipeline.name()
     assert pipeline.get_args() == new_pipeline.get_args()
+
+    pipeline.fit(pd.DataFrame(X_train), pd.Series(y_train))
+
+    buff = save_model(pipeline)
+    new_pipeline = load_model(buff)
+
+    assert pipeline.name() == new_pipeline.name()
+    assert pipeline.get_args() == new_pipeline.get_args()
+
+    pipeline.predict(pd.DataFrame(X_test))
