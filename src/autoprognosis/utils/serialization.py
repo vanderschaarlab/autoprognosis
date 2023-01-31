@@ -6,35 +6,61 @@ from typing import Any, Union
 import cloudpickle
 import pandas as pd
 
+# autoprognosis absolute
+from autoprognosis.version import MAJOR_VERSION
 
-def save(model: Any) -> bytes:
-    return cloudpickle.dumps(model)
+
+def _add_version(obj: Any) -> Any:
+    obj._serde_version = MAJOR_VERSION
+    return obj
+
+
+def _check_version(obj: Any) -> Any:
+    local_version = obj._serde_version
+
+    if not hasattr(obj, "_serde_version"):
+        raise RuntimeError("Missing serialization version")
+
+    if local_version != MAJOR_VERSION:
+        raise ValueError(
+            f"Serialized object mismatch. Current major version is {MAJOR_VERSION}, but the serialized object has version {local_version}."
+        )
+
+
+def save(obj: Any) -> bytes:
+    obj = _add_version(obj)
+    return cloudpickle.dumps(obj)
 
 
 def load(buff: bytes) -> Any:
-    return cloudpickle.loads(buff)
+    obj = cloudpickle.loads(buff)
+    _check_version(obj)
+    return obj
 
 
-def save_model(model: Any) -> bytes:
-    return cloudpickle.dumps(model)
+def save_model(obj: Any) -> bytes:
+    return save(obj)
 
 
 def load_model(buff: bytes) -> Any:
-    return cloudpickle.loads(buff)
+    return load(buff)
 
 
-def save_to_file(path: Union[str, Path], model: Any) -> Any:
+def save_to_file(path: Union[str, Path], obj: Any) -> Any:
+    obj = _add_version(obj)
     with open(path, "wb") as f:
-        return cloudpickle.dump(model, f)
+        return cloudpickle.dump(obj, f)
 
 
 def load_from_file(path: Union[str, Path]) -> Any:
     with open(path, "rb") as f:
-        return cloudpickle.load(f)
+        obj = cloudpickle.load(f)
+        _check_version(obj)
+        return obj
 
 
-def save_model_to_file(path: Union[str, Path], model: Any) -> Any:
-    return save_to_file(path, model)
+def save_model_to_file(path: Union[str, Path], obj: Any) -> Any:
+    return save_to_file(path, obj)
 
 
 def load_model_from_file(path: Union[str, Path]) -> Any:
