@@ -23,7 +23,7 @@ from autoprognosis.exceptions import BuildCancelled
 import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsembleCV
 from autoprognosis.plugins.prediction import Predictions
-from autoprognosis.studies._preprocessing import dataframe_encode_and_impute
+from autoprognosis.utils.data_encoder import dataframe_encode
 from autoprognosis.utils.serialization import load_model_from_file, save_model_to_file
 from autoprognosis.utils.tester import _constant_columns
 
@@ -144,7 +144,7 @@ class Builder:
         data = pd.read_csv(self.task.dataset_path)
         sections = self._parse_sections(data)
         data = data.drop(columns=_constant_columns(data))
-        imputation_method: Optional[str] = None
+
         # we treat binary columns as checkboxes
         checkboxes: list = []
         other_cols: list = []
@@ -167,14 +167,10 @@ class Builder:
             self.checkpoint = CHECKPOINT_DATASET_IMPUTATION
             self.checkpoint = CHECKPOINT_DATASET_ENCODING
 
-            if len(self.task.imputers) == 1:
-                imputation_method = self.task.imputers[0]
-
             rawX = X.copy()
 
-            X, encoders = dataframe_encode_and_impute(
-                X, imputation_method=imputation_method
-            )
+            X = X.dropna()
+            X, encoders = dataframe_encode(X)
             log.info(f"Loaded dataset after encoding {X.shape} {T.shape} {Y.shape}")
 
             for col in rawX.columns:
@@ -211,14 +207,10 @@ class Builder:
             self.checkpoint = CHECKPOINT_DATASET_IMPUTATION
             self.checkpoint = CHECKPOINT_DATASET_ENCODING
 
-            if len(self.task.imputers) == 1:
-                imputation_method = self.task.imputers[0]
-
             rawX = X.copy()
 
-            X, encoders = dataframe_encode_and_impute(
-                X, imputation_method=imputation_method
-            )
+            X = X.dropna()
+            X, encoders = dataframe_encode(X)
             log.info(f"Loaded dataset after encoding {X.shape} {Y.shape}")
 
             for col in rawX.columns:
