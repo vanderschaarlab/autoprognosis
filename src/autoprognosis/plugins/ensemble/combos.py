@@ -8,12 +8,14 @@ for more information.
 # stdlib
 from abc import ABC, abstractmethod
 from collections import defaultdict
+import copy
 from inspect import signature
 import warnings
 
 # third party
 from numpy import percentile
 import numpy as np
+import pandas as pd
 from pyod.utils.utility import check_parameter
 from scipy.special import erf
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401,E402
@@ -277,7 +279,6 @@ class BaseAggregator(ABC):
             adjust_factor = self.weights.shape[1] / np.sum(weights)
             self.weights = self.weights * adjust_factor
 
-            print(self.weights)
         return self
 
     def __len__(self):
@@ -474,7 +475,7 @@ class Stacking(BaseAggregator):
         self.n_folds = n_folds
 
         if meta_clf is not None:
-            self.meta_clf = meta_clf
+            self.meta_clf = copy.deepcopy(meta_clf)
         else:
             self.meta_clf = Pipeline(
                 ("imputer", IterativeImputer()), ("output", LogisticRegression())
@@ -543,7 +544,7 @@ class Stacking(BaseAggregator):
         )
 
         # iterate over all base classifiers
-        for i, clf in enumerate(self.base_estimators):
+        for i, raw_clf in enumerate(self.base_estimators):
             # iterate over all folds
             for j in range(self.n_folds):
                 # build train and test index
@@ -554,13 +555,18 @@ class Stacking(BaseAggregator):
                 X_test, _ = X_new[test_idx, :], y_new[test_idx]
 
                 # train the classifier
+                clf = copy.deepcopy(raw_clf)
                 clf.fit(X_train, y_train)
 
                 # generate the new features on the pseudo test set
                 if self.use_proba:
-                    new_features[test_idx, i] = clf.predict_proba(X_test)[:, 1]
+                    new_features[test_idx, i] = clf.predict_proba(pd.DataFrame(X_test))[
+                        :, 1
+                    ]
                 else:
-                    new_features[test_idx, i] = clf.predict(X_test)
+                    new_features[test_idx, i] = clf.predict(
+                        pd.DataFrame(X_test)
+                    ).squeeze()
 
         # build the new dataset for training
         if self.keep_original:
@@ -769,7 +775,6 @@ class SimpleClassifierAggregator(BaseAggregator):
         self._set_n_classes(y)
 
         if self.pre_fitted:
-            print("Training skipped")
             return
         else:
             for clf in self.base_estimators:

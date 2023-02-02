@@ -1,6 +1,6 @@
 # stdlib
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -44,6 +44,7 @@ class ClassifierSeeker:
                 - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
                 - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
                 - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
+                - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
         CV: int.
             Number of folds to use for evaluation
         top_k: int
@@ -143,6 +144,7 @@ class ClassifierSeeker:
             "aucroc",
             "aucprc",
             "accuracy",
+            "kappa",
             "f1_score_micro",
             "f1_score_macro",
             "f1_score_weighted",
@@ -184,7 +186,7 @@ class ClassifierSeeker:
         X: pd.DataFrame,
         Y: pd.Series,
         group_ids: Optional[pd.Series] = None,
-    ) -> Tuple[float, float, Dict]:
+    ) -> Tuple[List[float], List[float]]:
         self._should_continue()
 
         def evaluate_args(**kwargs: Any) -> float:
@@ -258,13 +260,14 @@ class ClassifierSeeker:
 
         all_scores = []
         all_args = []
+        all_estimators = []
 
-        for idx, (best_score, best_args) in enumerate(search_results):
-            all_scores.append([best_score])
-            all_args.append([best_args])
-
+        for idx, (best_scores, best_args) in enumerate(search_results):
+            all_scores.extend(best_scores)
+            all_args.extend(best_args)
+            all_estimators.extend([self.estimators[idx]] * len(best_scores))
             log.info(
-                f"Evaluation for {self.estimators[idx].name()} scores: {best_score}. Args {best_args}"
+                f"Evaluation for {self.estimators[idx].name()} scores: {max(best_scores)}."
             )
 
         all_scores_np = np.array(all_scores)
@@ -275,12 +278,11 @@ class ClassifierSeeker:
         for score in reversed(best_scores):
             pos = np.argwhere(all_scores_np == score)[0]
             pos_est = pos[0]
-            est_args = pos[1]
             log.info(
-                f"Selected score {score}: {self.estimators[pos_est].name()} : {all_args[pos_est][est_args]}"
+                f"Selected score {score}: {all_estimators[pos_est].name()} : {all_args[pos_est]}"
             )
-            model = self.estimators[pos_est].get_pipeline_from_named_args(
-                **all_args[pos_est][est_args]
+            model = all_estimators[pos_est].get_pipeline_from_named_args(
+                **all_args[pos_est]
             )
             result.append(model)
 

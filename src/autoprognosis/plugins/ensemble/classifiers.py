@@ -346,7 +346,10 @@ class StackingEnsemble(BaseEnsemble):
                     Imputers().get_type("ice").fqdn(),
                     Classifiers().get_type("logistic_regression").fqdn(),
                 ]
-            )(output="numpy")
+            )()
+        meta_model = copy.deepcopy(meta_model)
+        meta_model.change_output("numpy")
+
         self.meta_model = meta_model
 
         self.explainer_plugins = explainer_plugins
@@ -362,7 +365,7 @@ class StackingEnsemble(BaseEnsemble):
             self.clf = Stacking(
                 models,
                 meta_clf=meta_model,
-                use_proba=True,
+                use_proba=False,
             )
 
     def is_fitted(self) -> bool:

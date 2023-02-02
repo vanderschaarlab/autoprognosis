@@ -117,6 +117,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
             params.Float("subsample", 0.1, 1.0),
             params.Integer("num_leaves", 31, 256),
             params.Integer("min_child_samples", 1, 500),
+            params.Integer("n_estimators", 10, 3000),
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "LightGBMPlugin":

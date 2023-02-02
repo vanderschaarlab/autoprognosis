@@ -142,7 +142,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
             params.Float("subsample", 0.1, 0.9),
             params.Categorical("lr", [1e-4, 1e-3, 1e-2]),
             params.Integer("max_depth", 2, 5),
-            params.Integer("n_estimators", 10, 300),
+            params.Integer("n_estimators", 10, 3000),
             params.Integer("min_child_weight", 0, 300),
             params.Integer("max_bin", 256, 512),
             params.Integer("grow_policy", 0, len(XGBoostPlugin.grow_policy) - 1),

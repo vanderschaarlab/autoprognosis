@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, List, Tuple
 
 # third party
 from pydantic import validate_arguments
@@ -46,7 +46,7 @@ class Optimizer:
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def evaluate(
         self,
-    ) -> Tuple[float, dict]:
+    ) -> Tuple[List[float], List[dict]]:
         return self.optimizer.evaluate()
 
 

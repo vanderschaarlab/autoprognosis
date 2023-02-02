@@ -77,7 +77,7 @@ class PipelineMeta(type):
     def hyperparameter_space_for_layer(name: str, *args: Any, **kwargs: Any) -> Dict:
         raise NotImplementedError("not implemented")
 
-    def sample_param(trial: Trial, *args: Any, **kwargs: Any) -> Dict:
+    def sample_params(trial: Trial, *args: Any, **kwargs: Any) -> Dict:
         raise NotImplementedError("not implemented")
 
     def get_args(*args: Any, **kwargs: Any) -> Dict:
