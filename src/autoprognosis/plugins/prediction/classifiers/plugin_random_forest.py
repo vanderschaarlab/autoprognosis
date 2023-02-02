@@ -90,7 +90,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("criterion", 0, len(RandomForestPlugin.criterions) - 1),
-            params.Integer("n_estimators", 100, 3000),
+            params.Integer("n_estimators", 100, 10000),
             params.Categorical("min_samples_split", [2, 5, 10]),
             params.Categorical("bootstrap", [True, False]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),

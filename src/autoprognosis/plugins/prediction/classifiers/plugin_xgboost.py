@@ -93,6 +93,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
         grow_policy: int = 0,
         random_state: int = 0,
         calibration: int = 0,
+        gamma: float = 0,
         model: Any = None,
         nthread: int = n_learner_jobs(),
         hyperparam_search_iterations: Optional[int] = None,
@@ -123,6 +124,8 @@ class XGBoostPlugin(base.ClassifierPlugin):
             grow_policy=XGBoostPlugin.grow_policy[grow_policy],
             random_state=random_state,
             nthread=nthread,
+            gamma=gamma,
+            objective="multi:softmax",
             **kwargs,
         )
         self.model = calibrated_model(model, calibration)
@@ -134,6 +137,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
+            params.Float("gamma", 0, 10),
             params.Float("reg_lambda", 1e-3, 10.0),
             params.Float("reg_alpha", 1e-3, 10.0),
             params.Float("colsample_bytree", 0.1, 0.9),
@@ -142,7 +146,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
             params.Float("subsample", 0.1, 0.9),
             params.Categorical("lr", [1e-4, 1e-3, 1e-2]),
             params.Integer("max_depth", 2, 5),
-            params.Integer("n_estimators", 10, 3000),
+            params.Integer("n_estimators", 10, 10000),
             params.Integer("min_child_weight", 0, 300),
             params.Integer("max_bin", 256, 512),
             params.Integer("grow_policy", 0, len(XGBoostPlugin.grow_policy) - 1),
