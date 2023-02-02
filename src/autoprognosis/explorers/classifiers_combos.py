@@ -274,7 +274,7 @@ class EnsembleSeeker:
         ensembles: list = []
 
         try:
-            stacking_ensemble = StackingEnsemble(best_models)
+            stacking_ensemble = StackingEnsemble(best_models, meta_model=best_models[0])
             stacking_ens_score = evaluate_estimator(
                 stacking_ensemble, X, Y, self.CV, group_ids=group_ids
             )["raw"][self.metric][0]

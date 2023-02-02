@@ -624,7 +624,7 @@ class Stacking(BaseAggregator):
             if self.use_proba:
                 new_features[:, i] = clf.predict_proba(X)[:, 1]
             else:
-                new_features[:, i] = clf.predict(X)
+                new_features[:, i] = clf.predict(X).squeeze()
 
         # build the new dataset for unknown samples
         if self.keep_original:

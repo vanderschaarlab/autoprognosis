@@ -1,6 +1,6 @@
 # stdlib
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -157,7 +157,7 @@ class RegressionSeeker:
         X: pd.DataFrame,
         Y: pd.Series,
         group_ids: Optional[pd.Series] = None,
-    ) -> Tuple[float, float, Dict]:
+    ) -> Tuple[List[float], List[float]]:
         self._should_continue()
 
         def evaluate_args(**kwargs: Any) -> float:
@@ -219,13 +219,15 @@ class RegressionSeeker:
 
         all_scores = []
         all_args = []
+        all_estimators = []
 
-        for idx, (best_score, best_args) in enumerate(search_results):
-            all_scores.append([best_score])
-            all_args.append([best_args])
+        for idx, (best_scores, best_args) in enumerate(search_results):
+            all_scores.extend(best_scores)
+            all_args.extend(best_args)
+            all_estimators.extend([self.estimators[idx]] * len(best_scores))
 
             log.info(
-                f"Evaluation for {self.estimators[idx].name()} scores: {best_score}. Args {best_args}"
+                f"Evaluation for {self.estimators[idx].name()} scores: {max(best_scores)}"
             )
 
         all_scores_np = np.array(all_scores)
@@ -236,12 +238,11 @@ class RegressionSeeker:
         for score in reversed(best_scores):
             pos = np.argwhere(all_scores_np == score)[0]
             pos_est = pos[0]
-            est_args = pos[1]
             log.info(
-                f"Selected score {score}: {self.estimators[pos_est].name()} : {all_args[pos_est][est_args]}"
+                f"Selected score {score}: {all_estimators[pos_est].name()} : {all_args[pos_est]}"
             )
-            model = self.estimators[pos_est].get_pipeline_from_named_args(
-                **all_args[pos_est][est_args]
+            model = all_estimators[pos_est].get_pipeline_from_named_args(
+                **all_args[pos_est]
             )
             result.append(model)
 

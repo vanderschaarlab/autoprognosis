@@ -99,7 +99,7 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("depth", 1, 5),
-            params.Integer("n_estimators", 10, 100),
+            params.Integer("n_estimators", 10, 3000),
             params.Integer(
                 "grow_policy", 0, len(CatBoostRegressorPlugin.grow_policies) - 1
             ),
