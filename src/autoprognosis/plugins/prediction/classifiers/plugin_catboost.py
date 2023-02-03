@@ -100,7 +100,7 @@ class CatBoostPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Integer("depth", 1, 5),
+            params.Integer("depth", 1, 7),
             params.Integer("n_estimators", 10, 10000),
             params.Float("learning_rate", 1e-2, 4e-2),
             params.Integer("grow_policy", 0, len(CatBoostPlugin.grow_policies) - 1),

@@ -82,6 +82,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
+        num_iterations: int = 10000,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -101,6 +102,9 @@ class LightGBMPlugin(base.ClassifierPlugin):
             num_leaves=num_leaves,
             min_child_samples=min_child_samples,
             random_state=random_state,
+            objective="multiclass",
+            metric="multi_logloss",
+            num_iterations=num_iterations,
         )
         self.model = calibrated_model(model, calibration)
 
@@ -112,6 +116,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Float("reg_lambda", 1e-3, 1e3),
+            params.Integer("max_depth", 1, 7),
             params.Float("reg_alpha", 1e-3, 1e3),
             params.Float("colsample_bytree", 0.1, 1.0),
             params.Float("subsample", 0.1, 1.0),

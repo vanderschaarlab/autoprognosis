@@ -131,7 +131,7 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
             params.Float("colsample_bynode", 0.1, 0.9),
             params.Float("colsample_bylevel", 0.1, 0.9),
             params.Float("subsample", 0.1, 0.9),
-            params.Integer("max_depth", 2, 5),
+            params.Integer("max_depth", 1, 8),
             params.Integer("n_estimators", 10, 10000),
             params.Integer("min_child_weight", 0, 300),
             params.Integer("max_bin", 256, 512),

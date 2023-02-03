@@ -127,7 +127,7 @@ class classifier_metrics:
                     y_test, y_pred, average="weighted", zero_division=0
                 )
             elif metric == "kappa":
-                results[metric] = cohen_kappa_score(y_test, y_pred)
+                results[metric] = cohen_kappa_score(y_test, y_pred, weights="quadratic")
             elif metric == "recall_micro":
                 results[metric] = recall_score(
                     y_test, y_pred, average="micro", zero_division=0
