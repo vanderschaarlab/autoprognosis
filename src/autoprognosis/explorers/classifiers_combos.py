@@ -45,7 +45,7 @@ class EnsembleSeeker:
             Number of optimization trials for the ensemble weights.
         timeout: int.
             Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "classifiers" list.
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         ensemble_size: int.
             Number of base models for the ensemble.
@@ -133,7 +133,7 @@ class EnsembleSeeker:
         num_iter: int = 100,
         num_ensemble_iter: int = 100,
         timeout: int = 360,
-        CV: int = 5,
+        n_folds_cv: int = 5,
         ensemble_size: int = 3,
         metric: str = "aucroc",
         feature_scaling: List[str] = default_feature_scaling_names,
@@ -147,7 +147,7 @@ class EnsembleSeeker:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
         self.ensemble_size = ensemble_size
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.metric = metric
         self.study_name = study_name
         self.hooks = hooks
@@ -158,7 +158,7 @@ class EnsembleSeeker:
             study_name,
             num_iter=num_iter,
             metric=metric,
-            CV=CV,
+            n_folds_cv=n_folds_cv,
             top_k=ensemble_size,
             timeout=timeout,
             feature_scaling=feature_scaling,
@@ -186,10 +186,12 @@ class EnsembleSeeker:
 
         if group_ids is not None:
             skf = StratifiedGroupKFold(
-                n_splits=self.CV, shuffle=True, random_state=seed
+                n_splits=self.n_folds_cv, shuffle=True, random_state=seed
             )
         else:
-            skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+            skf = StratifiedKFold(
+                n_splits=self.n_folds_cv, shuffle=True, random_state=seed
+            )
 
         folds = []
         for train_index, _ in skf.split(X, Y, groups=group_ids):
@@ -224,7 +226,7 @@ class EnsembleSeeker:
 
             try:
                 metrics = evaluate_estimator(
-                    folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
+                    folds, X, Y, self.n_folds_cv, pretrained=True, group_ids=group_ids
                 )
             except BaseException as e:
                 log.error(f"evaluate_ensemble failed: {e}")
@@ -276,7 +278,7 @@ class EnsembleSeeker:
         try:
             stacking_ensemble = StackingEnsemble(best_models, meta_model=best_models[0])
             stacking_ens_score = evaluate_estimator(
-                stacking_ensemble, X, Y, self.CV, group_ids=group_ids
+                stacking_ensemble, X, Y, self.n_folds_cv, group_ids=group_ids
             )["raw"][self.metric][0]
             log.info(
                 f"Stacking ensemble: {stacking_ensemble.name()} --> {stacking_ens_score}"
@@ -292,7 +294,7 @@ class EnsembleSeeker:
         try:
             aggr_ensemble = AggregatingEnsemble(best_models)
             aggr_ens_score = evaluate_estimator(
-                aggr_ensemble, X, Y, self.CV, group_ids=group_ids
+                aggr_ensemble, X, Y, self.n_folds_cv, group_ids=group_ids
             )["raw"][self.metric][0]
             log.info(
                 f"Aggregating ensemble: {aggr_ensemble.name()} --> {aggr_ens_score}"

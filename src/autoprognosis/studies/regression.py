@@ -170,7 +170,7 @@ class RegressionStudy(Study):
         sample_for_search: bool = True,
         max_search_sample_size: int = 10000,
         ensemble_size: int = 3,
-        CV: int = 5,
+        n_folds_cv: int = 5,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -194,6 +194,7 @@ class RegressionStudy(Study):
 
         self.Y = dataset[target]
         self.X = dataset.drop(columns=drop_cols)
+        self.n_folds_cv = n_folds_cv
 
         if sample_for_search:
             sample_size = min(len(self.Y), max_search_sample_size)
@@ -234,7 +235,7 @@ class RegressionStudy(Study):
             imputers=imputers,
             hooks=self.hooks,
             random_state=self.random_state,
-            CV=CV,
+            n_folds_cv=n_folds_cv,
             ensemble_size=ensemble_size,
         )
 
@@ -256,6 +257,7 @@ class RegressionStudy(Study):
                 self.search_X,
                 self.search_Y,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             best_score = metrics["raw"][self.metric][0]
             eval_metrics = {}
@@ -303,6 +305,7 @@ class RegressionStudy(Study):
                 self.search_X,
                 self.search_Y,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             score = metrics["raw"][self.metric][0]
             eval_metrics = {}

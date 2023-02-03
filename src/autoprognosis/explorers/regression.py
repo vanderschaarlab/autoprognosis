@@ -38,7 +38,7 @@ class RegressionSeeker:
             The metric to use for optimization.
             Available metrics:
                 - "r2"
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         top_k: int
             Number of candidates to return
@@ -102,7 +102,7 @@ class RegressionSeeker:
         study_name: str,
         num_iter: int = 100,
         metric: str = "r2",
-        CV: int = 5,
+        n_folds_cv: int = 5,
         top_k: int = 3,
         timeout: int = 360,
         feature_scaling: List[str] = default_feature_scaling_names,
@@ -114,7 +114,7 @@ class RegressionSeeker:
         strict: bool = False,
         random_state: int = 0,
     ) -> None:
-        for int_val in [num_iter, CV, top_k, timeout]:
+        for int_val in [num_iter, n_folds_cv, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
@@ -138,7 +138,7 @@ class RegressionSeeker:
             for plugin in regressors
         ]
 
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.num_iter = num_iter
         self.timeout = timeout
         self.top_k = top_k
@@ -167,7 +167,9 @@ class RegressionSeeker:
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
             try:
-                metrics = evaluate_regression(model, X, Y, self.CV, group_ids=group_ids)
+                metrics = evaluate_regression(
+                    model, X, Y, self.n_folds_cv, group_ids=group_ids
+                )
             except BaseException as e:
                 log.error(f"evaluate_regression failed: {e}")
 

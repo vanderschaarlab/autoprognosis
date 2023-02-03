@@ -148,6 +148,7 @@ class RiskEstimationStudy(Study):
         time_horizons: List[int],
         num_iter: int = 20,
         num_study_iter: int = 5,
+        num_ensemble_iter: int = 15,
         timeout: int = 360,
         study_name: Optional[str] = None,
         workspace: Path = Path("tmp"),
@@ -162,6 +163,8 @@ class RiskEstimationStudy(Study):
         random_state: int = 0,
         sample_for_search: bool = True,
         max_search_sample_size: int = 10000,
+        ensemble_size: int = 3,
+        n_folds_cv: int = 5,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -220,12 +223,13 @@ class RiskEstimationStudy(Study):
         self.num_study_iter = num_study_iter
         self.hooks = hooks
         self.random_state = random_state
+        self.n_folds_cv = n_folds_cv
 
         self.standard_seeker = standard_seeker(
             self.internal_name,
             time_horizons,
             num_iter=num_iter,
-            num_ensemble_iter=num_iter,
+            num_ensemble_iter=num_ensemble_iter,
             timeout=timeout,
             estimators=risk_estimators,
             feature_scaling=feature_scaling,
@@ -233,6 +237,7 @@ class RiskEstimationStudy(Study):
             imputers=imputers,
             hooks=hooks,
             random_state=self.random_state,
+            n_folds_cv=n_folds_cv,
         )
 
     def _should_continue(self) -> None:
@@ -256,6 +261,7 @@ class RiskEstimationStudy(Study):
                 self.search_Y,
                 self.time_horizons,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             best_score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
             eval_metrics = {}
@@ -315,6 +321,7 @@ class RiskEstimationStudy(Study):
                     self.search_Y,
                     self.time_horizons,
                     group_ids=self.search_group_ids,
+                    n_folds=self.n_folds_cv,
                 )
                 score = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
                 eval_metrics = {}

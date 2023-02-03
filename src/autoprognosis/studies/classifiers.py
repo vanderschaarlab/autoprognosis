@@ -182,7 +182,7 @@ class ClassifierStudy(Study):
         sample_for_search: bool = True,
         max_search_sample_size: int = 10000,
         ensemble_size: int = 3,
-        CV: int = 5,
+        n_folds_cv: int = 5,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -238,6 +238,7 @@ class ClassifierStudy(Study):
         self.metric = metric
         self.score_threshold = score_threshold
         self.random_state = random_state
+        self.n_folds_cv = n_folds_cv
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
@@ -252,7 +253,7 @@ class ClassifierStudy(Study):
             hooks=self.hooks,
             random_state=self.random_state,
             ensemble_size=ensemble_size,
-            CV=CV,
+            n_folds_cv=n_folds_cv,
         )
 
     def _should_continue(self) -> None:
@@ -274,6 +275,7 @@ class ClassifierStudy(Study):
                 self.search_Y,
                 metric=self.metric,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             best_score = metrics["raw"][self.metric][0]
             eval_metrics = {}
@@ -323,6 +325,7 @@ class ClassifierStudy(Study):
                 self.search_Y,
                 metric=self.metric,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             score = metrics["raw"][self.metric][0]
             eval_metrics = {}

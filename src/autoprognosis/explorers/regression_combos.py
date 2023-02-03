@@ -43,7 +43,7 @@ class RegressionEnsembleSeeker:
             Number of optimization trials for the ensemble weights.
         timeout: int.
             Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "regressors" list.
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         ensemble_size: int.
             Number of base models for the ensemble.
@@ -110,7 +110,7 @@ class RegressionEnsembleSeeker:
         num_iter: int = 100,
         num_ensemble_iter: int = 100,
         timeout: int = 360,
-        CV: int = 5,
+        n_folds_cv: int = 5,
         ensemble_size: int = 3,
         metric: str = "r2",
         feature_scaling: List[str] = default_feature_scaling_names,
@@ -124,7 +124,7 @@ class RegressionEnsembleSeeker:
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
         self.ensemble_size = ensemble_size
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.metric = metric
         self.study_name = study_name
         self.hooks = hooks
@@ -135,7 +135,7 @@ class RegressionEnsembleSeeker:
             study_name,
             num_iter=num_iter,
             metric=metric,
-            CV=CV,
+            n_folds_cv=n_folds_cv,
             top_k=ensemble_size,
             timeout=timeout,
             feature_scaling=feature_scaling,
@@ -162,9 +162,9 @@ class RegressionEnsembleSeeker:
         self._should_continue()
 
         if group_ids is not None:
-            kf = GroupKFold(n_splits=self.CV)
+            kf = GroupKFold(n_splits=self.n_folds_cv)
         else:
-            kf = KFold(n_splits=self.CV, shuffle=True, random_state=seed)
+            kf = KFold(n_splits=self.n_folds_cv, shuffle=True, random_state=seed)
 
         folds = []
         for train_index, _ in kf.split(X, Y, groups=group_ids):
@@ -199,7 +199,7 @@ class RegressionEnsembleSeeker:
 
             try:
                 metrics = evaluate_regression(
-                    folds, X, Y, self.CV, pretrained=True, group_ids=group_ids
+                    folds, X, Y, self.n_folds_cv, pretrained=True, group_ids=group_ids
                 )
             except BaseException as e:
                 log.error(f"evaluate_regression_ensemble failed {e}")

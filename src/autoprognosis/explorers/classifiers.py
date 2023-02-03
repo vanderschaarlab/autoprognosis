@@ -45,7 +45,7 @@ class ClassifierSeeker:
                 - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
                 - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
                 - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         top_k: int
             Number of candidates to return
@@ -123,7 +123,7 @@ class ClassifierSeeker:
         study_name: str,
         num_iter: int = 100,
         metric: str = "aucroc",
-        CV: int = 5,
+        n_folds_cv: int = 5,
         top_k: int = 3,
         timeout: int = 360,
         feature_scaling: List[str] = default_feature_scaling_names,
@@ -135,7 +135,7 @@ class ClassifierSeeker:
         strict: bool = False,
         random_state: int = 0,
     ) -> None:
-        for int_val in [num_iter, CV, top_k, timeout]:
+        for int_val in [num_iter, n_folds_cv, top_k, timeout]:
             if int_val <= 0 or type(int_val) != int:
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
@@ -167,7 +167,7 @@ class ClassifierSeeker:
             for plugin in classifiers
         ]
 
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.num_iter = num_iter
         self.strict = strict
         self.timeout = timeout
@@ -196,7 +196,9 @@ class ClassifierSeeker:
 
             model = estimator.get_pipeline_from_named_args(**kwargs)
             try:
-                metrics = evaluate_estimator(model, X, Y, self.CV, group_ids=group_ids)
+                metrics = evaluate_estimator(
+                    model, X, Y, n_folds=self.n_folds_cv, group_ids=group_ids
+                )
             except BaseException as e:
                 log.error(f"evaluate_estimator failed: {e}")
 
