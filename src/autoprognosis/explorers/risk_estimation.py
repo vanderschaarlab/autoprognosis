@@ -1,7 +1,7 @@
 # stdlib
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -149,7 +149,7 @@ class RiskEstimatorSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         group_ids: Optional[pd.Series] = None,
-    ) -> Tuple[float, float, Dict]:
+    ) -> Tuple[List[float], List[float]]:
         self._should_continue()
 
         def evaluate_estimator(**kwargs: Any) -> float:
@@ -227,13 +227,15 @@ class RiskEstimatorSeeker:
 
         all_scores = []
         all_args = []
+        all_estimators = []
 
-        for idx, (best_score, best_args) in enumerate(search_results):
-            all_scores.append([best_score])
-            all_args.append([best_args])
+        for idx, (best_scores, best_args) in enumerate(search_results):
+            all_scores.extend(best_scores)
+            all_args.extend(best_args)
+            all_estimators.extend([self.estimators[idx]] * len(best_scores))
 
             log.info(
-                f"Time horizon {time_horizon}: evaluation for {self.estimators[idx].name()} scores:{best_score}. Args {best_args}"
+                f"Time horizon {time_horizon}: evaluation for {self.estimators[idx].name()} scores:{max(best_scores)}."
             )
 
         all_scores_np = np.array(all_scores)
@@ -244,11 +246,10 @@ class RiskEstimatorSeeker:
         for score in reversed(best_scores):
             pos = np.argwhere(all_scores_np == score)[0]
             pos_est = pos[0]
-            est_args = pos[1]
             log.info(
-                f"Selected score {score}: {self.estimators[pos_est].name()} : {all_args[pos_est][est_args]}"
+                f"Selected score {score}: {all_estimators[pos_est].name()} : {all_args[pos_est]}"
             )
-            result.append((pos_est, all_args[pos_est][est_args]))
+            result.append((all_estimators[pos_est], all_args[pos_est]))
 
         return result
 
@@ -268,10 +269,8 @@ class RiskEstimatorSeeker:
                 X, T, Y, time_horizon, group_ids=group_ids
             )
             horizon_result = []
-            for idx, args in best_estimators_template:
-                horizon_result.append(
-                    self.estimators[idx].get_pipeline_from_named_args(**args)
-                )
+            for est, args in best_estimators_template:
+                horizon_result.append(est.get_pipeline_from_named_args(**args))
             result.append(horizon_result)
 
         return result
