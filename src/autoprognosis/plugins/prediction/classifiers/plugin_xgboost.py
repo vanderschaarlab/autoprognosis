@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import class_weight
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
@@ -93,6 +94,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
         grow_policy: int = 0,
         random_state: int = 0,
         calibration: int = 0,
+        gamma: float = 0,
         model: Any = None,
         nthread: int = n_learner_jobs(),
         hyperparam_search_iterations: Optional[int] = None,
@@ -124,6 +126,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
             random_state=random_state,
             nthread=nthread,
             objective="multi:softmax",
+            gamma=gamma,
             **kwargs,
         )
         self.model = calibrated_model(model, calibration)
@@ -135,15 +138,16 @@ class XGBoostPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
+            params.Integer("max_depth", 1, 10),
+            params.Float("learning_rate", 1e-3, 0.3),
+            params.Integer("n_estimators", 10, 10000),
+            params.Float("colsample_bytree", 0.1, 0.5),
+            params.Float("gamma", 0, 1),
+            params.Float("subsample", 0.5, 1),
             params.Float("reg_lambda", 1e-3, 10.0),
             params.Float("reg_alpha", 1e-3, 10.0),
-            params.Float("colsample_bytree", 0.1, 0.9),
             params.Float("colsample_bynode", 0.1, 0.9),
             params.Float("colsample_bylevel", 0.1, 0.9),
-            params.Float("subsample", 0.1, 0.9),
-            params.Categorical("lr", [1e-4, 1e-3, 1e-2]),
-            params.Integer("max_depth", 1, 7),
-            params.Integer("n_estimators", 10, 10000),
             params.Integer("min_child_weight", 0, 300),
             params.Integer("max_bin", 256, 512),
             params.Integer("grow_policy", 0, len(XGBoostPlugin.grow_policy) - 1),
@@ -155,7 +159,10 @@ class XGBoostPlugin(base.ClassifierPlugin):
         self.encoder = LabelEncoder()
         y = self.encoder.fit_transform(y)
 
-        self.model.fit(X, y, **kwargs)
+        classes_weights = class_weight.compute_sample_weight(
+            class_weight="balanced", y=y
+        )
+        self.model.fit(X, y, sample_weight=classes_weights, **kwargs)
         return self
 
     def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:

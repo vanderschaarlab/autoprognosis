@@ -2,14 +2,12 @@
 from typing import Any, List
 
 # third party
+import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
-from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
-    calibrated_model,
-)
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -90,23 +88,18 @@ class LightGBMPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
-        model = lgbm.LGBMClassifier(
-            n_estimators=n_estimators,
-            boosting_type=boosting_type,
-            learning_rate=learning_rate,
-            max_depth=max_depth,
-            reg_lambda=reg_lambda,
-            reg_alpha=reg_alpha,
-            colsample_bytree=colsample_bytree,
-            subsample=subsample,
-            num_leaves=num_leaves,
-            min_child_samples=min_child_samples,
-            random_state=random_state,
-            objective="multiclass",
-            metric="multi_logloss",
-            num_iterations=num_iterations,
-        )
-        self.model = calibrated_model(model, calibration)
+        self.n_estimators = n_estimators
+        self.learning_rate = learning_rate
+        self.max_depth = max_depth
+        self.reg_lambda = reg_lambda
+        self.reg_alpha = reg_alpha
+        self.colsample_bytree = colsample_bytree
+        self.subsample = subsample
+        self.num_leaves = num_leaves
+        self.min_child_samples = min_child_samples
+        self.random_state = random_state
+        self.num_iterations = num_iterations
+        self.boosting_type = boosting_type
 
     @staticmethod
     def name() -> str:
@@ -115,17 +108,50 @@ class LightGBMPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Float("reg_lambda", 1e-3, 1e3),
-            params.Integer("max_depth", 1, 7),
-            params.Float("reg_alpha", 1e-3, 1e3),
-            params.Float("colsample_bytree", 0.1, 1.0),
-            params.Float("subsample", 0.1, 1.0),
-            params.Integer("num_leaves", 31, 256),
-            params.Integer("min_child_samples", 1, 500),
+            params.Categorical("boosting_type", ["gbdt", "dart", "goss"]),
+            params.Integer("num_leaves", 10, 256),
+            params.Float("learning_rate", 0.01, 0.3),
             params.Integer("n_estimators", 10, 3000),
+            params.Integer("max_depth", 1, 7),
+            params.Integer("min_child_samples", 1, 500),
+            params.Float("subsample", 0.1, 1.0),
+            params.Float("colsample_bytree", 0.1, 1.0),
+            params.Float("reg_lambda", 1e-3, 1),
+            params.Float("reg_alpha", 1e-3, 1),
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "LightGBMPlugin":
+        y = args[0]
+
+        num_classes = len(np.unique(y))
+
+        # scale positive weight is used to adjust the balance between positive and negative samples
+        scale_pos_weight = [0] * num_classes
+        for count, value in enumerate(np.unique(y)):
+            num_neg_samples = (y != value).sum()
+            num_pos_samples = (y == value).sum()
+            scale_pos_weight[count] = (
+                num_neg_samples / num_pos_samples if num_pos_samples > 0 else 1
+            )
+        scale_pos_weight = float(np.mean(scale_pos_weight))
+
+        self.model = lgbm.LGBMClassifier(
+            n_estimators=self.n_estimators,
+            learning_rate=self.learning_rate,
+            max_depth=self.max_depth,
+            reg_lambda=self.reg_lambda,
+            reg_alpha=self.reg_alpha,
+            colsample_bytree=self.colsample_bytree,
+            subsample=self.subsample,
+            num_leaves=self.num_leaves,
+            min_child_samples=self.min_child_samples,
+            random_state=self.random_state,
+            objective="multiclass",
+            num_iterations=self.num_iterations,
+            boosting_type=self.boosting_type,
+            scale_pos_weight=scale_pos_weight,
+        )
+
         self.model.fit(X, *args, **kwargs)
         return self
 

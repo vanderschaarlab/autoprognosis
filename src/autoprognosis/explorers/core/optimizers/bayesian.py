@@ -11,7 +11,7 @@ from pydantic import validate_arguments
 import autoprognosis.logger as log
 from autoprognosis.utils.redis import RedisBackend
 
-threshold = 40
+threshold = 100
 EPS = 1e-8
 
 
