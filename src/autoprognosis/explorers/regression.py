@@ -224,9 +224,10 @@ class RegressionSeeker:
         all_estimators = []
 
         for idx, (best_scores, best_args) in enumerate(search_results):
-            all_scores.extend(best_scores)
-            all_args.extend(best_args)
-            all_estimators.extend([self.estimators[idx]] * len(best_scores))
+            best_idx = np.argmax(best_scores)
+            all_scores.append(best_scores[best_idx])
+            all_args.append(best_args[best_idx])
+            all_estimators.append(self.estimators[idx])
 
             log.info(
                 f"Evaluation for {self.estimators[idx].name()} scores: {max(best_scores)}"
