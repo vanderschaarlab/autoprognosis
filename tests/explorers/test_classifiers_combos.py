@@ -30,7 +30,7 @@ def test_sanity(optimizer_type: str) -> None:
 
     assert eseeker.seeker.n_folds_cv == 10
     assert eseeker.seeker.num_iter == 123
-    assert eseeker.ensemble_size == 12
+    assert eseeker.ensemble_size == 1
 
     assert eseeker.seeker.estimators[0].feature_scaling[0].name() == "scaler"
     assert eseeker.seeker.estimators[0].name() == "perceptron"
