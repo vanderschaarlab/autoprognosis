@@ -19,7 +19,7 @@ from autoprognosis.utils.metrics import evaluate_auc
 def test_sanity(optimizer_type: str) -> None:
     eseeker = EnsembleSeeker(
         study_name="test_classifiers_combos",
-        CV=10,
+        n_folds_cv=10,
         num_iter=123,
         metric="aucprc",
         ensemble_size=12,
@@ -28,7 +28,7 @@ def test_sanity(optimizer_type: str) -> None:
         optimizer_type=optimizer_type,
     )
 
-    assert eseeker.seeker.CV == 10
+    assert eseeker.seeker.n_folds_cv == 10
     assert eseeker.seeker.num_iter == 123
     assert eseeker.ensemble_size == 12
 
@@ -46,7 +46,7 @@ def test_fails() -> None:
         )
 
     with pytest.raises(ValueError):
-        EnsembleSeeker(study_name="test_classifiers_combos", CV=-1)
+        EnsembleSeeker(study_name="test_classifiers_combos", n_folds_cv=-1)
 
     with pytest.raises(ValueError):
         EnsembleSeeker(study_name="test_classifiers_combos", num_iter=-2)

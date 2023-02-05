@@ -19,7 +19,7 @@ from autoprognosis.utils.metrics import evaluate_auc
 def test_sanity(optimizer_type: str) -> None:
     model = ClassifierSeeker(
         study_name="test_classifiers",
-        CV=10,
+        n_folds_cv=10,
         num_iter=123,
         top_k=5,
         timeout=6,
@@ -29,7 +29,7 @@ def test_sanity(optimizer_type: str) -> None:
         optimizer_type=optimizer_type,
     )
 
-    assert model.CV == 10
+    assert model.n_folds_cv == 10
     assert model.num_iter == 123
     assert model.top_k == 5
     assert model.timeout == 6
@@ -46,7 +46,7 @@ def test_fails() -> None:
         ClassifierSeeker(study_name="test_classifiers", feature_scaling=["invalid"])
 
     with pytest.raises(ValueError):
-        ClassifierSeeker(study_name="test_classifiers", CV=-1)
+        ClassifierSeeker(study_name="test_classifiers", n_folds_cv=-1)
 
     with pytest.raises(ValueError):
         ClassifierSeeker(study_name="test_classifiers", num_iter=-2)

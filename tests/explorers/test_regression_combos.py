@@ -17,7 +17,7 @@ from autoprognosis.explorers.regression_combos import RegressionEnsembleSeeker
 def test_sanity(optimizer_type: str) -> None:
     eseeker = RegressionEnsembleSeeker(
         study_name="test_regressors_combos",
-        CV=10,
+        n_folds_cv=10,
         num_iter=123,
         metric="r2",
         ensemble_size=12,
@@ -26,7 +26,7 @@ def test_sanity(optimizer_type: str) -> None:
         optimizer_type=optimizer_type,
     )
 
-    assert eseeker.seeker.CV == 10
+    assert eseeker.seeker.n_folds_cv == 10
     assert eseeker.seeker.num_iter == 123
     assert eseeker.ensemble_size == 12
 
@@ -46,7 +46,7 @@ def test_fails() -> None:
         )
 
     with pytest.raises(ValueError):
-        RegressionEnsembleSeeker(study_name="test_regressors_combos", CV=-1)
+        RegressionEnsembleSeeker(study_name="test_regressors_combos", n_folds_cv=-1)
 
     with pytest.raises(ValueError):
         RegressionEnsembleSeeker(study_name="test_regressors_combos", num_iter=-2)

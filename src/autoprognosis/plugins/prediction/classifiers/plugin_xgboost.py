@@ -125,7 +125,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
             grow_policy=XGBoostPlugin.grow_policy[grow_policy],
             random_state=random_state,
             nthread=nthread,
-            objective="multi:softproba",
+            objective="multi:softprob",
             gamma=gamma,
             **kwargs,
         )
