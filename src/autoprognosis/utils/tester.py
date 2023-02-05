@@ -46,6 +46,7 @@ clf_supported_metrics = [
     "f1_score_macro",
     "f1_score_weighted",
     "kappa",
+    "kappa_quadratic",
     "precision_micro",
     "precision_macro",
     "precision_weighted",
@@ -80,7 +81,7 @@ class classifier_metrics:
                 - "f1_score_micro": F1 score is a harmonic mean of the precision and recall. This version uses the "micro" average: calculate metrics globally by counting the total true positives, false negatives and false positives.
                 - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
                 - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
-                - "kappa":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
+                - "kappa", "kappa_quadratic":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
                 - "precision_micro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(micro) calculates metrics globally by counting the total true positives.
                 - "precision_macro": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(macro) calculates metrics for each label, and finds their unweighted mean.
                 - "precision_weighted": Precision is defined as the number of true positives over the number of true positives plus the number of false positives. This version(weighted) calculates metrics for each label, and find their average weighted by support.
@@ -127,6 +128,8 @@ class classifier_metrics:
                     y_test, y_pred, average="weighted", zero_division=0
                 )
             elif metric == "kappa":
+                results[metric] = cohen_kappa_score(y_test, y_pred)
+            elif metric == "kappa_quadratic":
                 results[metric] = cohen_kappa_score(y_test, y_pred, weights="quadratic")
             elif metric == "recall_micro":
                 results[metric] = recall_score(

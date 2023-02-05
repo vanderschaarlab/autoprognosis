@@ -58,6 +58,7 @@ class ClassifierStudy(Study):
                 - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
                 - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
                 - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
+                - "kappa", "kappa_quadratic":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
@@ -134,6 +135,10 @@ class ClassifierStudy(Study):
             Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
         max_search_sample_size: int
             Subsample size for the evaluation dataset, if `sample` is True.
+        n_folds_cv: int.
+            Number of cross-validation folds to use for study evaluation
+        ensemble_size: int
+            Maximum number of models to include in the ensemble
     Example:
         >>> from sklearn.datasets import load_breast_cancer
         >>>
