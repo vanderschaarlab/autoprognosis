@@ -111,7 +111,6 @@ class LightGBMPlugin(base.ClassifierPlugin):
             num_leaves=self.num_leaves,
             min_child_samples=self.min_child_samples,
             random_state=self.random_state,
-            objective="multiclass",
             num_iterations=self.num_iterations,
             boosting_type=self.boosting_type,
         )

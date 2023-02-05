@@ -89,8 +89,6 @@ class CatBoostPlugin(base.ClassifierPlugin):
             learning_rate=learning_rate,
             min_data_in_leaf=min_data_in_leaf,
             random_strength=random_strength,
-            loss_function="MultiClass",
-            eval_metric="WKappa",
             auto_class_weights="Balanced",
         )
 
