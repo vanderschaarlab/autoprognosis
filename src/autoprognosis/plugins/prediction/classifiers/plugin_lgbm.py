@@ -2,7 +2,6 @@
 from typing import Any, List
 
 # third party
-import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
@@ -101,6 +100,22 @@ class LightGBMPlugin(base.ClassifierPlugin):
         self.num_iterations = num_iterations
         self.boosting_type = boosting_type
 
+        self.model = lgbm.LGBMClassifier(
+            n_estimators=self.n_estimators,
+            learning_rate=self.learning_rate,
+            max_depth=self.max_depth,
+            reg_lambda=self.reg_lambda,
+            reg_alpha=self.reg_alpha,
+            colsample_bytree=self.colsample_bytree,
+            subsample=self.subsample,
+            num_leaves=self.num_leaves,
+            min_child_samples=self.min_child_samples,
+            random_state=self.random_state,
+            objective="multiclass",
+            num_iterations=self.num_iterations,
+            boosting_type=self.boosting_type,
+        )
+
     @staticmethod
     def name() -> str:
         return "lgbm"
@@ -121,37 +136,6 @@ class LightGBMPlugin(base.ClassifierPlugin):
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "LightGBMPlugin":
-        y = args[0]
-
-        num_classes = len(np.unique(y))
-
-        # scale positive weight is used to adjust the balance between positive and negative samples
-        scale_pos_weight = [0] * num_classes
-        for count, value in enumerate(np.unique(y)):
-            num_neg_samples = (y != value).sum()
-            num_pos_samples = (y == value).sum()
-            scale_pos_weight[count] = (
-                num_neg_samples / num_pos_samples if num_pos_samples > 0 else 1
-            )
-        scale_pos_weight = float(np.mean(scale_pos_weight))
-
-        self.model = lgbm.LGBMClassifier(
-            n_estimators=self.n_estimators,
-            learning_rate=self.learning_rate,
-            max_depth=self.max_depth,
-            reg_lambda=self.reg_lambda,
-            reg_alpha=self.reg_alpha,
-            colsample_bytree=self.colsample_bytree,
-            subsample=self.subsample,
-            num_leaves=self.num_leaves,
-            min_child_samples=self.min_child_samples,
-            random_state=self.random_state,
-            objective="multiclass",
-            num_iterations=self.num_iterations,
-            boosting_type=self.boosting_type,
-            scale_pos_weight=scale_pos_weight,
-        )
-
         self.model.fit(X, *args, **kwargs)
         return self
 
