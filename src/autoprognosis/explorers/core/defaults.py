@@ -6,6 +6,7 @@ default_classifiers_names = [
     "xgboost",
     "catboost",
     "lgbm",
+    "logistic_regression",
 ]
 default_regressors_names = [
     "random_forest_regressor",

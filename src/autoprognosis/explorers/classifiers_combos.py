@@ -144,6 +144,8 @@ class EnsembleSeeker:
         optimizer_type: str = "bayesian",
         random_state: int = 0,
     ) -> None:
+        ensemble_size = min(ensemble_size, len(classifiers))
+
         self.num_iter = num_ensemble_iter
         self.timeout = timeout
         self.ensemble_size = ensemble_size

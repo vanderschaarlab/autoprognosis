@@ -113,6 +113,8 @@ class RiskEnsembleSeeker:
         optimizer_type: str = "bayesian",
         random_state: int = 0,
     ) -> None:
+        ensemble_size = min(ensemble_size, len(estimators))
+
         self.time_horizons = time_horizons
         self.num_ensemble_iter = num_ensemble_iter
         self.num_iter = num_iter
