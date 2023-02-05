@@ -92,7 +92,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
         return [
             params.Integer("criterion", 0, len(RandomForestPlugin.criterions) - 1),
             params.Integer("n_estimators", 100, 10000),
-            params.Integer("max_depth", 1, 8),
+            params.Integer("max_depth", 1, 7),
             params.Categorical("min_samples_split", [2, 5, 10]),
             params.Categorical("bootstrap", [True, False]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),

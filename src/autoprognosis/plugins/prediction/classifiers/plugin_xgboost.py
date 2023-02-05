@@ -137,7 +137,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Integer("max_depth", 1, 10),
+            params.Integer("max_depth", 1, 7),
             params.Float("learning_rate", 1e-3, 0.3),
             params.Integer("n_estimators", 10, 10000),
             params.Float("colsample_bytree", 0.1, 0.5),

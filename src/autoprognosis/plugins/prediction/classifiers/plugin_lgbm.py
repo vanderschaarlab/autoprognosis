@@ -7,6 +7,9 @@ import pandas as pd
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
+    calibrated_model,
+)
 from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
 
@@ -79,7 +82,6 @@ class LightGBMPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
-        num_iterations: int = 10000,
         **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
@@ -97,10 +99,9 @@ class LightGBMPlugin(base.ClassifierPlugin):
         self.num_leaves = num_leaves
         self.min_child_samples = min_child_samples
         self.random_state = random_state
-        self.num_iterations = num_iterations
         self.boosting_type = boosting_type
 
-        self.model = lgbm.LGBMClassifier(
+        model = lgbm.LGBMClassifier(
             n_estimators=self.n_estimators,
             learning_rate=self.learning_rate,
             max_depth=self.max_depth,
@@ -111,9 +112,9 @@ class LightGBMPlugin(base.ClassifierPlugin):
             num_leaves=self.num_leaves,
             min_child_samples=self.min_child_samples,
             random_state=self.random_state,
-            num_iterations=self.num_iterations,
             boosting_type=self.boosting_type,
         )
+        self.model = calibrated_model(model, calibration)
 
     @staticmethod
     def name() -> str:
