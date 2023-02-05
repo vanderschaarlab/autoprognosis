@@ -3,7 +3,6 @@ from typing import Any, List, Optional
 
 # third party
 import pandas as pd
-from sklearn.utils import class_weight
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
@@ -14,7 +13,7 @@ import autoprognosis.utils.serialization as serialization
 for retry in range(2):
     try:
         # third party
-        from catboost import CatBoostClassifier, Pool
+        from catboost import CatBoostClassifier
 
         break
     except ImportError:
@@ -92,6 +91,7 @@ class CatBoostPlugin(base.ClassifierPlugin):
             random_strength=random_strength,
             loss_function="MultiClass",
             eval_metric="WKappa",
+            auto_class_weights="Balanced",
         )
 
     @staticmethod
@@ -111,14 +111,7 @@ class CatBoostPlugin(base.ClassifierPlugin):
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "CatBoostPlugin":
-        y = args[0]
-
-        classes_weights = class_weight.compute_sample_weight(
-            class_weight="balanced", y=y
-        )
-
-        train_data = Pool(data=X, label=y, weight=classes_weights)
-        self.model.fit(train_data)
+        self.model.fit(X, *args, **kwargs)
         return self
 
     def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:

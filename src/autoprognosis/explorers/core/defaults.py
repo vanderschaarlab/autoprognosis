@@ -18,7 +18,7 @@ default_imputers_names = ["mean", "ice", "missforest", "hyperimpute"]
 default_feature_scaling_names = Preprocessors(
     category="feature_scaling"
 ).list_available()
-default_feature_selection_names = ["nop", "variance_threshold", "pca", "fast_ica"]
+default_feature_selection_names = ["nop", "pca", "fast_ica"]
 default_risk_estimation_names = [
     "survival_xgboost",
     "loglogistic_aft",
