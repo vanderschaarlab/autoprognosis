@@ -24,7 +24,7 @@ def test_sanity(optimizer_type: str) -> None:
         study_name="test_risk_estimation",
         time_horizons=[2],
         num_iter=3,
-        CV=5,
+        n_folds_cv=5,
         top_k=2,
         timeout=10,
         optimizer_type=optimizer_type,
@@ -32,7 +32,7 @@ def test_sanity(optimizer_type: str) -> None:
 
     assert sq.time_horizons == [2]
     assert sq.num_iter == 3
-    assert sq.CV == 5
+    assert sq.n_folds_cv == 5
     assert sq.top_k == 2
     assert sq.timeout == 10
     assert len(sq.estimators) > 0
@@ -60,7 +60,7 @@ def test_search(group_id: Optional[bool]) -> None:
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
         num_iter=2,
-        CV=2,
+        n_folds_cv=2,
         top_k=3,
         timeout=10,
         estimators=estimators,
@@ -126,7 +126,7 @@ def test_hooks(optimizer_type: str) -> None:
         study_name="test_risk_estimation",
         time_horizons=eval_time_horizons,
         num_iter=20,
-        CV=5,
+        n_folds_cv=5,
         top_k=3,
         timeout=10,
         estimators=estimators,

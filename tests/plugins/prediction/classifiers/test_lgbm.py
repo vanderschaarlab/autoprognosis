@@ -60,13 +60,7 @@ def test_lgbm_plugin_type(test_plugin: PredictionPlugin) -> None:
     "test_plugin", [from_api(), from_module(), from_serde(), from_pickle()]
 )
 def test_lgbm_plugin_hyperparams(test_plugin: PredictionPlugin) -> None:
-    assert len(test_plugin.hyperparameter_space()) == 6
-    assert test_plugin.hyperparameter_space()[0].name == "reg_lambda"
-    assert test_plugin.hyperparameter_space()[1].name == "reg_alpha"
-    assert test_plugin.hyperparameter_space()[2].name == "colsample_bytree"
-    assert test_plugin.hyperparameter_space()[3].name == "subsample"
-    assert test_plugin.hyperparameter_space()[4].name == "num_leaves"
-    assert test_plugin.hyperparameter_space()[5].name == "min_child_samples"
+    assert len(test_plugin.hyperparameter_space()) == 10
 
 
 @pytest.mark.skipif(sys.platform == "darwin", reason="LGBM crash on OSX")

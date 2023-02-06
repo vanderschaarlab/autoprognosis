@@ -72,7 +72,7 @@ class GradientBoostingPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("n_estimators", 10, 500, 10),
-            params.Integer("max_depth", 5, 10),
+            params.Integer("max_depth", 1, 8),
             params.Categorical("learning_rate", [10**-p for p in range(1, 5)]),
         ]
 

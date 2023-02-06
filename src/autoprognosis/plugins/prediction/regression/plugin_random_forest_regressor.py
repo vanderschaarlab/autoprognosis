@@ -85,6 +85,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
             ),
             params.Categorical("min_samples_split", [2, 5, 10]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),
+            params.Integer("n_estimators", 10, 10000),
         ]
 
     def _fit(

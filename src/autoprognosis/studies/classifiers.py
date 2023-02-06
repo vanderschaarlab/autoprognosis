@@ -58,6 +58,7 @@ class ClassifierStudy(Study):
                 - "f1_score_macro": F1 score is a harmonic mean of the precision and recall. This version uses the "macro" average: calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
                 - "f1_score_weighted": F1 score is a harmonic mean of the precision and recall. This version uses the "weighted" average: Calculate metrics for each label, and find their average weighted by support (the number of true instances for each label).
                 - "mcc": The Matthews correlation coefficient is used in machine learning as a measure of the quality of binary and multiclass classifications. It takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes.
+                - "kappa", "kappa_quadratic":  computes Cohen’s kappa, a score that expresses the level of agreement between two annotators on a classification problem.
         study_name: str.
             The name of the study, to be used in the caches.
         feature_scaling: list.
@@ -134,6 +135,10 @@ class ClassifierStudy(Study):
             Subsample the evaluation dataset in the search pipeline. Improves the speed of the search.
         max_search_sample_size: int
             Subsample size for the evaluation dataset, if `sample` is True.
+        n_folds_cv: int.
+            Number of cross-validation folds to use for study evaluation
+        ensemble_size: int
+            Maximum number of models to include in the ensemble
     Example:
         >>> from sklearn.datasets import load_breast_cancer
         >>>
@@ -165,6 +170,7 @@ class ClassifierStudy(Study):
         target: str,
         num_iter: int = 20,
         num_study_iter: int = 5,
+        num_ensemble_iter: int = 15,
         timeout: int = 360,
         metric: str = "aucroc",
         study_name: Optional[str] = None,
@@ -180,6 +186,8 @@ class ClassifierStudy(Study):
         random_state: int = 0,
         sample_for_search: bool = True,
         max_search_sample_size: int = 10000,
+        ensemble_size: int = 3,
+        n_folds_cv: int = 5,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -235,11 +243,12 @@ class ClassifierStudy(Study):
         self.metric = metric
         self.score_threshold = score_threshold
         self.random_state = random_state
+        self.n_folds_cv = n_folds_cv
 
         self.seeker = EnsembleSeeker(
             self.internal_name,
             num_iter=num_iter,
-            num_ensemble_iter=15,
+            num_ensemble_iter=num_ensemble_iter,
             timeout=timeout,
             metric=metric,
             feature_scaling=feature_scaling,
@@ -248,6 +257,8 @@ class ClassifierStudy(Study):
             imputers=imputers,
             hooks=self.hooks,
             random_state=self.random_state,
+            ensemble_size=ensemble_size,
+            n_folds_cv=n_folds_cv,
         )
 
     def _should_continue(self) -> None:
@@ -269,6 +280,7 @@ class ClassifierStudy(Study):
                 self.search_Y,
                 metric=self.metric,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             best_score = metrics["raw"][self.metric][0]
             eval_metrics = {}
@@ -318,6 +330,7 @@ class ClassifierStudy(Study):
                 self.search_Y,
                 metric=self.metric,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             score = metrics["raw"][self.metric][0]
             eval_metrics = {}

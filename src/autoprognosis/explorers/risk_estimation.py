@@ -1,7 +1,7 @@
 # stdlib
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 # third party
 from joblib import Parallel, delayed
@@ -39,7 +39,7 @@ class RiskEstimatorSeeker:
             Maximum Number of optimization trials. This is the limit of trials for each base estimator in the "risk_estimators" list, used in combination with the "timeout" parameter. For each estimator, the search will end after "num_iter" trials or "timeout" seconds.
         timeout: int.
             Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "risk_estimators" list.
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         top_k: int
             Number of candidates to return.
@@ -102,7 +102,7 @@ class RiskEstimatorSeeker:
         time_horizons: List[int],
         num_iter: int = 50,
         timeout: int = 360,
-        CV: int = 5,
+        n_folds_cv: int = 5,
         top_k: int = 1,
         estimators: List[str] = default_risk_estimation_names,
         feature_scaling: List[str] = default_feature_scaling_names,
@@ -122,7 +122,7 @@ class RiskEstimatorSeeker:
         self.hooks = hooks
         self.optimizer_type = optimizer_type
         self.strict = strict
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.random_state = random_state
 
         self.estimators = [
@@ -149,7 +149,7 @@ class RiskEstimatorSeeker:
         Y: pd.DataFrame,
         time_horizon: int,
         group_ids: Optional[pd.Series] = None,
-    ) -> Tuple[float, float, Dict]:
+    ) -> Tuple[List[float], List[float]]:
         self._should_continue()
 
         def evaluate_estimator(**kwargs: Any) -> float:
@@ -227,13 +227,16 @@ class RiskEstimatorSeeker:
 
         all_scores = []
         all_args = []
+        all_estimators = []
 
-        for idx, (best_score, best_args) in enumerate(search_results):
-            all_scores.append([best_score])
-            all_args.append([best_args])
+        for idx, (best_scores, best_args) in enumerate(search_results):
+            best_idx = np.argmax(best_scores)
+            all_scores.append(best_scores[best_idx])
+            all_args.append(best_args[best_idx])
+            all_estimators.append(self.estimators[idx])
 
             log.info(
-                f"Time horizon {time_horizon}: evaluation for {self.estimators[idx].name()} scores:{best_score}. Args {best_args}"
+                f"Time horizon {time_horizon}: evaluation for {self.estimators[idx].name()} scores:{max(best_scores)}."
             )
 
         all_scores_np = np.array(all_scores)
@@ -244,11 +247,10 @@ class RiskEstimatorSeeker:
         for score in reversed(best_scores):
             pos = np.argwhere(all_scores_np == score)[0]
             pos_est = pos[0]
-            est_args = pos[1]
             log.info(
-                f"Selected score {score}: {self.estimators[pos_est].name()} : {all_args[pos_est][est_args]}"
+                f"Selected score {score}: {all_estimators[pos_est].name()} : {all_args[pos_est]}"
             )
-            result.append((pos_est, all_args[pos_est][est_args]))
+            result.append((all_estimators[pos_est], all_args[pos_est]))
 
         return result
 
@@ -268,10 +270,8 @@ class RiskEstimatorSeeker:
                 X, T, Y, time_horizon, group_ids=group_ids
             )
             horizon_result = []
-            for idx, args in best_estimators_template:
-                horizon_result.append(
-                    self.estimators[idx].get_pipeline_from_named_args(**args)
-                )
+            for est, args in best_estimators_template:
+                horizon_result.append(est.get_pipeline_from_named_args(**args))
             result.append(horizon_result)
 
         return result

@@ -43,7 +43,7 @@ class RiskEnsembleSeeker:
             Number of optimization trials for the ensemble weights.
         timeout: int.
             Maximum wait time(seconds) for each estimator hyperparameter search. This timeout will apply to each estimator in the "risk_estimators" list.
-        CV: int.
+        n_folds_cv: int.
             Number of folds to use for evaluation
         feature_scaling: list.
             Plugin search pool to use in the pipeline for scaling. Defaults to : ['maxabs_scaler', 'scaler', 'feature_normalizer', 'normal_transform', 'uniform_transform', 'nop', 'minmax_scaler']
@@ -103,7 +103,7 @@ class RiskEnsembleSeeker:
         num_iter: int = 50,
         num_ensemble_iter: int = 100,
         timeout: int = 360,
-        CV: int = 3,
+        n_folds_cv: int = 3,
         estimators: List[str] = default_risk_estimation_names,
         ensemble_size: int = 2,
         imputers: List[str] = [],
@@ -113,12 +113,14 @@ class RiskEnsembleSeeker:
         optimizer_type: str = "bayesian",
         random_state: int = 0,
     ) -> None:
+        ensemble_size = min(ensemble_size, len(estimators))
+
         self.time_horizons = time_horizons
         self.num_ensemble_iter = num_ensemble_iter
         self.num_iter = num_iter
         self.timeout = timeout
         self.ensemble_size = ensemble_size
-        self.CV = CV
+        self.n_folds_cv = n_folds_cv
         self.hooks = hooks
 
         self.study_name = study_name
@@ -129,7 +131,7 @@ class RiskEnsembleSeeker:
             study_name,
             time_horizons=time_horizons,
             num_iter=num_iter,
-            CV=CV,
+            n_folds_cv=n_folds_cv,
             top_k=ensemble_size,
             timeout=timeout,
             estimators=estimators,
@@ -159,10 +161,12 @@ class RiskEnsembleSeeker:
 
         if group_ids is not None:
             skf = StratifiedGroupKFold(
-                n_splits=self.CV, shuffle=True, random_state=seed
+                n_splits=self.n_folds_cv, shuffle=True, random_state=seed
             )
         else:
-            skf = StratifiedKFold(n_splits=self.CV, shuffle=True, random_state=seed)
+            skf = StratifiedKFold(
+                n_splits=self.n_folds_cv, shuffle=True, random_state=seed
+            )
 
         ensemble_folds = []
 

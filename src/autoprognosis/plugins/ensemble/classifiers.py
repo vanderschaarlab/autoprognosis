@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator
 from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
@@ -23,10 +24,13 @@ from autoprognosis.utils.tester import classifier_metrics
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
 
-class BaseEnsemble(metaclass=ABCMeta):
+class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
     """
     Abstract ensemble interface
     """
+
+    def __init__(self) -> None:
+        BaseEstimator.__init__(self)
 
     @abstractmethod
     def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble":
@@ -346,7 +350,10 @@ class StackingEnsemble(BaseEnsemble):
                     Imputers().get_type("ice").fqdn(),
                     Classifiers().get_type("logistic_regression").fqdn(),
                 ]
-            )(output="numpy")
+            )()
+        meta_model = copy.deepcopy(meta_model)
+        meta_model.change_output("numpy")
+
         self.meta_model = meta_model
 
         self.explainer_plugins = explainer_plugins
@@ -362,7 +369,7 @@ class StackingEnsemble(BaseEnsemble):
             self.clf = Stacking(
                 models,
                 meta_clf=meta_model,
-                use_proba=True,
+                use_proba=False,
             )
 
     def is_fitted(self) -> bool:

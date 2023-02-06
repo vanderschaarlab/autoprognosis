@@ -89,18 +89,30 @@ class LightGBMPlugin(base.ClassifierPlugin):
             self.model = model
             return
 
+        self.n_estimators = n_estimators
+        self.learning_rate = learning_rate
+        self.max_depth = max_depth
+        self.reg_lambda = reg_lambda
+        self.reg_alpha = reg_alpha
+        self.colsample_bytree = colsample_bytree
+        self.subsample = subsample
+        self.num_leaves = num_leaves
+        self.min_child_samples = min_child_samples
+        self.random_state = random_state
+        self.boosting_type = boosting_type
+
         model = lgbm.LGBMClassifier(
-            n_estimators=n_estimators,
-            boosting_type=boosting_type,
-            learning_rate=learning_rate,
-            max_depth=max_depth,
-            reg_lambda=reg_lambda,
-            reg_alpha=reg_alpha,
-            colsample_bytree=colsample_bytree,
-            subsample=subsample,
-            num_leaves=num_leaves,
-            min_child_samples=min_child_samples,
-            random_state=random_state,
+            n_estimators=self.n_estimators,
+            learning_rate=self.learning_rate,
+            max_depth=self.max_depth,
+            reg_lambda=self.reg_lambda,
+            reg_alpha=self.reg_alpha,
+            colsample_bytree=self.colsample_bytree,
+            subsample=self.subsample,
+            num_leaves=self.num_leaves,
+            min_child_samples=self.min_child_samples,
+            random_state=self.random_state,
+            boosting_type=self.boosting_type,
         )
         self.model = calibrated_model(model, calibration)
 
@@ -111,12 +123,16 @@ class LightGBMPlugin(base.ClassifierPlugin):
     @staticmethod
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
-            params.Float("reg_lambda", 1e-3, 1e3),
-            params.Float("reg_alpha", 1e-3, 1e3),
-            params.Float("colsample_bytree", 0.1, 1.0),
-            params.Float("subsample", 0.1, 1.0),
-            params.Integer("num_leaves", 31, 256),
+            params.Categorical("boosting_type", ["gbdt", "dart", "goss"]),
+            params.Integer("num_leaves", 10, 256),
+            params.Float("learning_rate", 0.01, 0.3),
+            params.Integer("n_estimators", 10, 3000),
+            params.Integer("max_depth", 1, 7),
             params.Integer("min_child_samples", 1, 500),
+            params.Float("subsample", 0.1, 1.0),
+            params.Float("colsample_bytree", 0.1, 1.0),
+            params.Float("reg_lambda", 1e-3, 1),
+            params.Float("reg_alpha", 1e-3, 1),
         ]
 
     def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "LightGBMPlugin":

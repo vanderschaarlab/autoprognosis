@@ -51,12 +51,13 @@ class RandomForestPlugin(base.ClassifierPlugin):
 
     def __init__(
         self,
-        n_estimators: int = 50,
+        n_estimators: int = 100,
         criterion: int = 0,
         min_samples_split: int = 2,
         bootstrap: bool = True,
         min_samples_leaf: int = 2,
         calibration: int = 0,
+        max_depth: int = 4,
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
@@ -74,7 +75,7 @@ class RandomForestPlugin(base.ClassifierPlugin):
             n_estimators=n_estimators,
             criterion=RandomForestPlugin.criterions[criterion],
             min_samples_split=min_samples_split,
-            max_depth=4,
+            max_depth=max_depth,
             bootstrap=bootstrap,
             min_samples_leaf=min_samples_leaf,
             n_jobs=n_learner_jobs(),
@@ -90,6 +91,8 @@ class RandomForestPlugin(base.ClassifierPlugin):
     def hyperparameter_space(*args: Any, **kwargs: Any) -> List[params.Params]:
         return [
             params.Integer("criterion", 0, len(RandomForestPlugin.criterions) - 1),
+            params.Integer("n_estimators", 100, 10000),
+            params.Integer("max_depth", 1, 7),
             params.Categorical("min_samples_split", [2, 5, 10]),
             params.Categorical("bootstrap", [True, False]),
             params.Categorical("min_samples_leaf", [2, 5, 10]),

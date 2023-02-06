@@ -4,8 +4,9 @@ from autoprognosis.plugins.preprocessors import Preprocessors
 default_classifiers_names = [
     "random_forest",
     "xgboost",
-    "logistic_regression",
     "catboost",
+    "lgbm",
+    "logistic_regression",
 ]
 default_regressors_names = [
     "random_forest_regressor",
@@ -18,7 +19,7 @@ default_imputers_names = ["mean", "ice", "missforest", "hyperimpute"]
 default_feature_scaling_names = Preprocessors(
     category="feature_scaling"
 ).list_available()
-default_feature_selection_names = ["nop", "variance_threshold", "pca", "fast_ica"]
+default_feature_selection_names = ["nop", "pca", "fast_ica"]
 default_risk_estimation_names = [
     "survival_xgboost",
     "loglogistic_aft",

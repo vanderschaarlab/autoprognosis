@@ -1,7 +1,7 @@
 # stdlib
 import json
 import math
-from typing import Any, Callable, Optional, Set, Tuple
+from typing import Any, Callable, List, Optional, Set, Tuple
 
 # third party
 import numpy as np
@@ -144,7 +144,7 @@ class HyperbandOptimizer:
         return candidate["score"], candidate["params"]
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
-    def evaluate(self) -> Tuple[float, dict]:
+    def evaluate(self) -> Tuple[List[float], List[dict]]:
         baseline_score = self.evaluation_cbk()
         candidate = {
             "score": baseline_score,
@@ -158,7 +158,9 @@ class HyperbandOptimizer:
                 **model_params,
             )
 
-        return self._internal_evaluate(objective, candidate)
+        score, params = self._internal_evaluate(objective, candidate)
+
+        return [score], [params]
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def evaluate_ensemble(self) -> Tuple[float, dict]:

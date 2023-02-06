@@ -1,6 +1,6 @@
 # stdlib
 import copy
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 # third party
 import numpy as np
@@ -11,7 +11,7 @@ from pydantic import validate_arguments
 import autoprognosis.logger as log
 from autoprognosis.utils.redis import RedisBackend
 
-threshold = 40
+threshold = 100
 EPS = 1e-8
 
 
@@ -162,7 +162,7 @@ class BayesianOptimizer:
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def evaluate(
         self,
-    ) -> Tuple[float, dict]:
+    ) -> Tuple[List[float], List[dict]]:
         if self.estimator is None:
             raise ValueError("Invalid estimator")
         study, pruner = self.create_study(study_name=self.study_name)
@@ -173,7 +173,7 @@ class BayesianOptimizer:
         log.info(f"baseline score for {self.estimator.name()} {baseline_score}")
 
         if len(self.estimator.hyperparameter_space()) == 0:
-            return baseline_score, {}
+            return [baseline_score], [{}]
 
         def objective(trial: optuna.Trial) -> float:
             args = self.estimator.sample_hyperparameters(trial)
@@ -190,10 +190,15 @@ class BayesianOptimizer:
         except EarlyStoppingExceeded:
             log.info("Early stopping triggered for search")
 
-        if baseline_score > study.best_value:
-            return baseline_score, {}
+        scores = [baseline_score]
+        params = [{}]
+        for trial_idx, trial_past in enumerate(
+            study.get_trials(states=[optuna.trial.TrialState.COMPLETE])
+        ):
+            scores.append(trial_past.values[0])
+            params.append(trial_past.params)
 
-        return study.best_value, study.best_trial.params
+        return scores, params
 
     @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def evaluate_ensemble(

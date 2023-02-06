@@ -153,6 +153,7 @@ class RegressionStudy(Study):
         target: str,
         num_iter: int = 20,
         num_study_iter: int = 5,
+        num_ensemble_iter: int = 15,
         timeout: int = 360,
         metric: str = "r2",
         study_name: Optional[str] = None,
@@ -168,6 +169,8 @@ class RegressionStudy(Study):
         random_state: int = 0,
         sample_for_search: bool = True,
         max_search_sample_size: int = 10000,
+        ensemble_size: int = 3,
+        n_folds_cv: int = 5,
     ) -> None:
         super().__init__()
         enable_reproducible_results(random_state)
@@ -191,6 +194,7 @@ class RegressionStudy(Study):
 
         self.Y = dataset[target]
         self.X = dataset.drop(columns=drop_cols)
+        self.n_folds_cv = n_folds_cv
 
         if sample_for_search:
             sample_size = min(len(self.Y), max_search_sample_size)
@@ -221,8 +225,8 @@ class RegressionStudy(Study):
 
         self.seeker = RegressionEnsembleSeeker(
             self.internal_name,
-            num_iter=10,
-            num_ensemble_iter=15,
+            num_iter=num_iter,
+            num_ensemble_iter=num_ensemble_iter,
             timeout=timeout,
             metric=metric,
             feature_scaling=feature_scaling,
@@ -231,6 +235,8 @@ class RegressionStudy(Study):
             imputers=imputers,
             hooks=self.hooks,
             random_state=self.random_state,
+            n_folds_cv=n_folds_cv,
+            ensemble_size=ensemble_size,
         )
 
     def _should_continue(self) -> None:
@@ -251,6 +257,7 @@ class RegressionStudy(Study):
                 self.search_X,
                 self.search_Y,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             best_score = metrics["raw"][self.metric][0]
             eval_metrics = {}
@@ -298,6 +305,7 @@ class RegressionStudy(Study):
                 self.search_X,
                 self.search_Y,
                 group_ids=self.search_group_ids,
+                n_folds=self.n_folds_cv,
             )
             score = metrics["raw"][self.metric][0]
             eval_metrics = {}
