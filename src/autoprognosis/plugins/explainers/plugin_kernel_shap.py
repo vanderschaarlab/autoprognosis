@@ -67,6 +67,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         time_to_event: Optional[pd.DataFrame] = None,  # for survival analysis
         eval_times: Optional[List] = None,  # for survival analysis
         random_state: int = 0,
+        **kwargs: Any,
     ) -> None:
         if task_type not in ["classification", "regression", "risk_estimation"]:
             raise RuntimeError("invalid task type")

@@ -163,7 +163,10 @@ class WeightedEnsemble(BaseEnsemble):
 
         results = {}
         for exp in self.explainers:
-            results[exp] = self.explainers[exp].explain(X)
+            try:
+                results[exp] = self.explainers[exp].explain(X)
+            except BaseException as e:
+                log.error(f"explainer {exp} failed: {e} ")
 
         return results
 

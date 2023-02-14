@@ -2,6 +2,7 @@
 from typing import Any, Dict, List
 
 # third party
+import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
@@ -114,12 +115,14 @@ def classification_dashboard(
     def update_interpretation(df: pd.DataFrame) -> px.imshow:
         for reason in models:
             if not hasattr(models[reason], "explain"):
+                log.error(f"Ignoring model for XAI {reason}")
                 continue
             try:
                 raw_interpretation = models[reason].explain(df)
                 if not isinstance(raw_interpretation, dict):
                     raise ValueError("raw_interpretation must be a dict")
             except BaseException:
+                log.error(f"Failed to get reason {reason}")
                 continue
 
             for src in raw_interpretation:
@@ -131,6 +134,8 @@ def classification_dashboard(
                         f"Interpretation source provided an invalid output {src_interpretation.shape}. expected {(1, len(df.columns))}"
                     )
                     continue
+
+                src_interpretation = np.asarray(src_interpretation)
 
                 interpretation_df = pd.DataFrame(
                     src_interpretation[0, :].reshape(1, -1),

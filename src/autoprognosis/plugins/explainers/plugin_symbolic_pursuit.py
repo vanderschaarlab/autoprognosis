@@ -90,6 +90,7 @@ class SymbolicPursuitPlugin(ExplainerPlugin):
         eps: float = 1.0e-5,
         patience: int = 10,
         random_state: int = 0,
+        **kwargs: Any,
     ) -> None:
         if task_type not in ["classification", "risk_estimation", "regression"]:
             raise RuntimeError("invalid task type")
