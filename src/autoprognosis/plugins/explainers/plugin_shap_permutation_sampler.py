@@ -75,6 +75,7 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
         eval_times: Optional[List] = None,  # for survival analysis
         prefit: bool = False,
         random_state: int = 0,
+        **kwargs: Any,
     ) -> None:
 
         if task_type not in [
