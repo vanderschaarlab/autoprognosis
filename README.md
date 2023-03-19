@@ -17,7 +17,7 @@
 [![](https://pepy.tech/badge/autoprognosis)](https://pypi.org/project/autoprognosis/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/vanderschaarlab/autoprognosis/blob/main/LICENSE)
 [![about](https://img.shields.io/badge/about-The%20van%20der%20Schaar%20Lab-blue)](https://www.vanderschaar-lab.com/)
-[![slack](https://img.shields.io/badge/chat-on%20slack-purple?logo=slack)](https://vanderschaarlab.slack.com/)
+[![slack](https://img.shields.io/badge/chat-on%20slack-purple?logo=slack)](https://join.slack.com/t/vanderschaarlab/shared_invite/zt-1pzy8z7ti-zVsUPHAKTgCd1UoY8XtTEw)
 
 </div>
 
