@@ -34,6 +34,7 @@
 - :notebook: [Python](#high_brightness-tutorials) and [R tutorials](https://github.com/vanderschaarlab/autoprognosis/tree/main/tutorials/bindings/R) available.
 - :book: [Read the docs](https://autoprognosis.readthedocs.io/)
 
+__Note__ : The R bindings have been tested using R version 4.2 and Python 3.8.
 
 ## :rocket: Installation
 
