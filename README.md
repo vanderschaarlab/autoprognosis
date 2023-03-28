@@ -9,7 +9,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2210.12090-b31b1b.svg)](https://arxiv.org/abs/2210.12090)
 
 
-[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test.yml)
+[![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_pr.yml)
 [![Tests R](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml)
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![Documentation Status](https://readthedocs.org/projects/autoprognosis/badge/?version=latest)](https://autoprognosis.readthedocs.io/en/latest/?badge=latest)
