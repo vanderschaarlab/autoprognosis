@@ -5,10 +5,10 @@ from typing import Any
 import autoprognosis.logger as log
 
 # autoprognosis relative
-from .base import Hooks
+from .base import Hook, Hooks
 
 
-class DefaultHooks(Hooks):
+class DefaultHook(Hook):
     def cancel(self) -> bool:
         return False
 
@@ -19,3 +19,8 @@ class DefaultHooks(Hooks):
 
     def finish(self) -> None:
         pass
+
+
+class DefaultHooks(Hooks):
+    def __init__(self) -> None:
+        super().__init__([DefaultHook()])
