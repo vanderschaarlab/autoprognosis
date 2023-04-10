@@ -9,7 +9,7 @@ from .base import Hook
 
 
 class WandbHook(Hook):
-    def __init__(self, **config: Any):
+    def __init__(self, **config: Any) -> None:
         super().__init__()
         self.wandb_config = config
 
