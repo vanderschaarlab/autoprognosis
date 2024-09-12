@@ -56,5 +56,4 @@ class PredictionPlugin(plugin.Plugin):
     @abstractmethod
     def _predict_proba(
         self, X: pd.DataFrame, *args: Any, **kwargs: Any
-    ) -> pd.DataFrame:
-        ...
+    ) -> pd.DataFrame: ...

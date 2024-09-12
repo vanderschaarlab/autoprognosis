@@ -33,12 +33,10 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         BaseEstimator.__init__(self)
 
     @abstractmethod
-    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble":
-        ...
+    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble": ...
 
     @abstractmethod
-    def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         preds = self.predict_proba(X, *args)
@@ -47,8 +45,7 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         return pd.Series(res)
 
     @abstractmethod
-    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     def enable_explainer(
         self,
@@ -64,21 +61,17 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         return ev.score_proba(y, preds)[metric]
 
     @abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     @abstractmethod
-    def save(self) -> bytes:
-        ...
+    def save(self) -> bytes: ...
 
     @classmethod
     @abstractmethod
-    def load(cls, buff: bytes) -> "BaseEnsemble":
-        ...
+    def load(cls, buff: bytes) -> "BaseEnsemble": ...
 
     @abstractmethod
-    def is_fitted(self) -> bool:
-        ...
+    def is_fitted(self) -> bool: ...
 
 
 class WeightedEnsemble(BaseEnsemble):

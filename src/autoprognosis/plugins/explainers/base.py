@@ -26,21 +26,18 @@ class ExplainerPlugin(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def name() -> str:
-        ...
+    def name() -> str: ...
 
     @staticmethod
     @abstractmethod
-    def pretty_name() -> str:
-        ...
+    def pretty_name() -> str: ...
 
     @staticmethod
     def type() -> str:
         return "explainer"
 
     @abstractmethod
-    def explain(self, X: pd.DataFrame) -> pd.DataFrame:
-        ...
+    def explain(self, X: pd.DataFrame) -> pd.DataFrame: ...
 
     def plot(
         self,

@@ -115,7 +115,7 @@ class RegressionSeeker:
         random_state: int = 0,
     ) -> None:
         for int_val in [num_iter, n_folds_cv, top_k, timeout]:
-            if int_val <= 0 or type(int_val) != int:
+            if int_val <= 0 or type(int_val) != int:  # noqa: E721
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
                 )

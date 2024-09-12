@@ -30,7 +30,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
-    """DeepHit plugin for survival analysis. DeepHit, that uses a deep neural network to learn the distribution of survival times directly.DeepHit makes no assumptions about the underlying stochastic process and allows for the possibility that the relationship between covariates and risk(s) changes over time. Most importantly, DeepHit smoothly handles competing risks; i.e. settings in which there is more than one possible event of interest.
+    """DeepHit plugin for survival analysis. DeepHit, that uses a deep neural network to learn the distribution of \
+survival times directly.DeepHit makes no assumptions about the underlying stochastic process and allows for the \
+possibility that the relationship between covariates and risk(s) changes over time. Most importantly, DeepHit \
+smoothly handles competing risks; i.e. settings in which there is more than one possible event of interest.
 
     Args:
         num_durations: int

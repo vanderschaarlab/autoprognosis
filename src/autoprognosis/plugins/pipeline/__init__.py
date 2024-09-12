@@ -45,9 +45,9 @@ class PipelineMeta(type):
         dct["name"] = _generate_name_impl(plugins)
         dct["type"] = _generate_type_impl(plugins)
         dct["hyperparameter_space"] = _generate_hyperparameter_space_impl(plugins)
-        dct[
-            "hyperparameter_space_for_layer"
-        ] = _generate_hyperparameter_space_for_layer_impl(plugins)
+        dct["hyperparameter_space_for_layer"] = (
+            _generate_hyperparameter_space_for_layer_impl(plugins)
+        )
         dct["sample_params"] = _generate_sample_param_impl(plugins)
         dct["get_args"] = _generate_get_args()
 
