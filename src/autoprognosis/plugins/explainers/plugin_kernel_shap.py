@@ -128,7 +128,7 @@ class KernelSHAPPlugin(ExplainerPlugin):
         X = pd.DataFrame(X, columns=self.feature_names)
         importance = np.asarray(self.explainer.shap_values(X))
         if self.task_type == "classification":
-            importance = importance[1, :]
+            importance = importance[:,:,1]
 
         return importance
 
