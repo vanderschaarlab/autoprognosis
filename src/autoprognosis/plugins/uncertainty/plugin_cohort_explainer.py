@@ -261,6 +261,8 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             risk_estimation, regression, classification.
         random_seed: int
             Random seed
+        effect_size: float
+            Effect size for the risk estimation.
     """
 
     def __init__(
@@ -268,10 +270,12 @@ class CohortExplainerPlugin(UncertaintyPlugin):
         model: Any,
         task_type: str = "classification",
         random_seed: int = 0,
+        effect_size: float = 0.5,
     ) -> None:
         self.model = copy.deepcopy(model)
         self.random_seed = random_seed
         self.task_type = task_type
+        self.effect_size = effect_size
 
         self.cohort_calibration: Dict[float, CohortMgmt] = {}
 
@@ -370,7 +374,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             Y_eval,
             task_type="classification",
             prefit=True,
-            effect_size=0.5,
+            effect_size=self.effect_size,
         )
         important_cols = exp.explain(X_eval).index.tolist()
 
@@ -454,7 +458,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
                 Y_horizon,
                 task_type="risk_estimation",
                 prefit=True,
-                effect_size=0.5,
+                effect_size=self.effect_size,
                 time_to_event=T_horizon,
                 eval_times=[target_horizon],
             )
@@ -538,7 +542,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             y_pred = np.asarray(y_pred)[:, 1]
 
             diags = self.cohort_calibration[0].diagnostics_df(eval_data, y_pred)
-            output = output.append(diags)
+            output = pd.concat([output, diags])
 
         return output
 
@@ -561,7 +565,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
                     eval_data, y_pred
                 )
                 diags["horizon"] = horizon
-                output = output.append(diags)
+                output = pd.concat([output, diags])
 
         return output
 
