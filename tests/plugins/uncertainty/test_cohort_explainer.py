@@ -44,6 +44,7 @@ def test_fit() -> None:
 def test_predict_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
+        effect_size=0.01,
     )
 
     X, y = load_iris(return_X_y=True)
@@ -69,6 +70,7 @@ def test_predict_classifier() -> None:
 def test_predict_proba_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
+        effect_size=0.01,
     )
 
     X, y = load_iris(return_X_y=True)
