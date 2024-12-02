@@ -31,6 +31,7 @@ def test_sanity(plugin: Any) -> None:
 def test_fit() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
+        effect_size=0.3,
     )
 
     X, y = load_iris(return_X_y=True)
