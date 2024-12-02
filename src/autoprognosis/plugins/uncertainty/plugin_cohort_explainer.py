@@ -542,7 +542,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             y_pred = np.asarray(y_pred)[:, 1]
 
             diags = self.cohort_calibration[0].diagnostics_df(eval_data, y_pred)
-            output = output.append(diags)
+            output = pd.concat([output, diags])
 
         return output
 
@@ -565,7 +565,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
                     eval_data, y_pred
                 )
                 diags["horizon"] = horizon
-                output = output.append(diags)
+                output = pd.concat([output, diags])
 
         return output
 
