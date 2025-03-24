@@ -55,7 +55,6 @@ jobs:
       - name: Install dependencies
         run: |
             pip install --upgrade pip
-            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
 
             # Needed until this issue is fixed (added to release):
             # https://github.com/yzhao062/pyod/pull/632
