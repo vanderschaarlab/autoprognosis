@@ -1,24 +1,25 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
 
 # third party
 from joblib import Parallel, delayed
-import numpy as np
-import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
 import autoprognosis.logger as log
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.ensemble.combos import SimpleClassifierAggregator, Stacking
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.plugins.prediction.classifiers import Classifiers
 from autoprognosis.utils.parallel import n_opt_jobs
-import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_metrics
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())

@@ -142,7 +142,6 @@ def inference(
         else:
             raise ValueError("Race must be specified as W or B")
     elif gender.upper() == "M":
-
         X_men = np.array(
             [
                 np.log(age),

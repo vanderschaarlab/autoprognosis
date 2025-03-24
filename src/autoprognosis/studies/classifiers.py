@@ -1,11 +1,13 @@
 # stdlib
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 # third party
 import numpy as np
 import pandas as pd
+
+import autoprognosis.logger as log
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -16,7 +18,6 @@ from autoprognosis.explorers.core.defaults import (
     default_feature_selection_names,
 )
 from autoprognosis.hooks import DefaultHooks, Hooks
-import autoprognosis.logger as log
 from autoprognosis.studies._base import Study
 from autoprognosis.utils.distributions import enable_reproducible_results
 from autoprognosis.utils.serialization import (

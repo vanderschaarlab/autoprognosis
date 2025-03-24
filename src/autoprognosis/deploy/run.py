@@ -1,12 +1,13 @@
 # stdlib
 import multiprocessing
 import os
-from pathlib import Path
 import re
+from pathlib import Path
+
+import autoprognosis.logger as log
 
 # autoprognosis absolute
 from autoprognosis.deploy.utils import get_ports
-import autoprognosis.logger as log
 from autoprognosis.plugins import Plugins
 from autoprognosis.utils.serialization import load_model_from_file
 

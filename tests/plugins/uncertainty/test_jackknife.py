@@ -1,9 +1,10 @@
 # stdlib
 from typing import Any
 
+import pytest
+
 # third party
 from lifelines.datasets import load_rossi
-import pytest
 from sklearn.datasets import load_breast_cancer, load_diabetes
 from sklearn.model_selection import train_test_split
 

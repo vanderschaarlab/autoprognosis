@@ -2,22 +2,11 @@
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 
+import matplotlib.pyplot as plt
+
 # third party
 import numpy as np
 import pandas as pd
-
-# autoprognosis absolute
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import matplotlib.pyplot as plt
-
-        break
-    except ImportError:
-        depends = ["matplotlib"]
-        install(depends)
 
 
 class ExplainerPlugin(metaclass=ABCMeta):
@@ -44,7 +33,6 @@ class ExplainerPlugin(metaclass=ABCMeta):
         importances: pd.DataFrame,
         feature_names: Optional[list] = None,
     ) -> None:
-
         importances = np.asarray(importances)
 
         title = f"{self.name()} importance"

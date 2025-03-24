@@ -3,23 +3,13 @@ from typing import Any, List
 
 # third party
 import pandas as pd
+from lifelines import WeibullAFTFitter
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.risk_estimation.base as base
 import autoprognosis.plugins.prediction.risk_estimation.helper_lifelines as helper_lifelines
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from lifelines import WeibullAFTFitter
-
-        break
-    except ImportError:
-        depends = ["lifelines"]
-        install(depends)
 
 
 class WeibullAFTPlugin(base.RiskEstimationPlugin):
@@ -55,7 +45,7 @@ class WeibullAFTPlugin(base.RiskEstimationPlugin):
         l1_ratio: float = 0,
         model: Any = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

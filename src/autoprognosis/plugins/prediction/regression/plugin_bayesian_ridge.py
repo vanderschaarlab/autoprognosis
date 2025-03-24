@@ -37,9 +37,8 @@ class BayesianRidgePlugin(base.RegressionPlugin):
         hyperparam_search_iterations: Optional[int] = None,
         model: Any = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
         if model is not None:
             self.model = model

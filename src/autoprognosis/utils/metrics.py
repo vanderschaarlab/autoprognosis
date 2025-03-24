@@ -53,7 +53,6 @@ def evaluate_auc(
     y_pred_proba_tmp = get_y_pred_proba_hlpr(y_pred_proba, n_classes)
 
     if n_classes > 2:
-
         log.debug(f"+evaluate_auc {y_test.shape} {y_pred_proba_tmp.shape}")
 
         fpr = dict()
@@ -81,7 +80,6 @@ def evaluate_auc(
         aucroc = roc_auc["micro"]
         aucprc = average_precision["micro"]
     else:
-
         aucroc = roc_auc_score(np.ravel(y_test), y_pred_proba_tmp, multi_class="ovr")
         aucprc = average_precision_score(np.ravel(y_test), y_pred_proba_tmp)
 

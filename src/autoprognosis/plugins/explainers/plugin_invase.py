@@ -1,34 +1,24 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
 import itertools
+from abc import ABCMeta, abstractmethod
 from typing import Any, Generator, List, Optional, Union
+
+import matplotlib.pyplot as plt
 
 # third party
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import torch
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.utils import resample
+from torch import nn
 
 # autoprognosis absolute
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        import torch
-        from torch import nn
-
-        break
-    except ImportError:
-        depends = ["matplotlib", "seaborn", "torch"]
-        install(depends)
-
 
 EPS = 1e-8
 

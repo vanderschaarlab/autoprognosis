@@ -6,26 +6,16 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import class_weight
+from xgboost import XGBClassifier
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
 from autoprognosis.utils.parallel import n_learner_jobs
-from autoprognosis.utils.pip import install
-import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from xgboost import XGBClassifier
-
-        break
-    except ImportError:
-        depends = ["xgboost"]
-        install(depends)
 
 
 class XGBoostPlugin(base.ClassifierPlugin):
@@ -98,7 +88,7 @@ class XGBoostPlugin(base.ClassifierPlugin):
         model: Any = None,
         nthread: int = n_learner_jobs(),
         hyperparam_search_iterations: Optional[int] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

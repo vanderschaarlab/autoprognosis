@@ -2,12 +2,13 @@
 import sys
 from typing import Optional
 
-# third party
-from explorers_mocks import MockHook
-from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
 import pytest
+
+# third party
+from explorers_mocks import MockHook
+from lifelines.datasets import load_rossi
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
@@ -41,7 +42,6 @@ def test_sanity(optimizer_type: str) -> None:
 @pytest.mark.skipif(sys.platform == "darwin", reason="slow")
 @pytest.mark.parametrize("group_id", [False])
 def test_search(group_id: Optional[bool]) -> None:
-
     rossi = load_rossi()
 
     X = rossi.drop(["week", "arrest"], axis=1)

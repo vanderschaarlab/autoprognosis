@@ -8,11 +8,11 @@ from sklearn.linear_model import LogisticRegression
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
 from autoprognosis.utils.parallel import n_learner_jobs
-import autoprognosis.utils.serialization as serialization
 
 
 class LogisticRegressionPlugin(base.ClassifierPlugin):
@@ -65,7 +65,7 @@ class LogisticRegressionPlugin(base.ClassifierPlugin):
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
         n_jobs: int = n_learner_jobs(),
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

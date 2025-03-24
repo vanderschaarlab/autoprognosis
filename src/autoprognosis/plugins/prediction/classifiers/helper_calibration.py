@@ -1,9 +1,10 @@
 # stdlib
 from typing import Any
 
+import sklearn
+
 # third party
 from packaging import version
-import sklearn
 from sklearn.calibration import CalibratedClassifierCV
 
 # autoprognosis absolute

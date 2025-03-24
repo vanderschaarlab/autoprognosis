@@ -6,16 +6,17 @@ for more information.
 # License: BSD 2 clause
 
 # stdlib
+import copy
+import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
-import copy
 from inspect import signature
-import warnings
+
+import numpy as np
+import pandas as pd
 
 # third party
 from numpy import percentile
-import numpy as np
-import pandas as pd
 from pyod.utils.utility import check_parameter
 from scipy.special import erf
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401,E402
@@ -463,7 +464,6 @@ class Stacking(BaseAggregator):
         threshold=None,
         pre_fitted=None,
     ):
-
         super(Stacking, self).__init__(
             base_estimators=base_estimators, pre_fitted=pre_fitted
         )
@@ -719,7 +719,6 @@ class SimpleClassifierAggregator(BaseAggregator):
         weights=None,
         pre_fitted=False,
     ):
-
         super(SimpleClassifierAggregator, self).__init__(
             base_estimators=base_estimators, pre_fitted=pre_fitted
         )

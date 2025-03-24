@@ -1,7 +1,8 @@
 """
-    Setup file for autoprognosis.
-    Use setup.cfg to configure your project.
+Setup file for autoprognosis.
+Use setup.cfg to configure your project.
 """
+
 # stdlib
 import os
 import re

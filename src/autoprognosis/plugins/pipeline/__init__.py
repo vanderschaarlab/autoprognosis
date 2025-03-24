@@ -1,9 +1,10 @@
 # stdlib
 from typing import Any, Dict, List, Tuple, Type
 
+import pandas as pd
+
 # third party
 from optuna.trial import Trial
-import pandas as pd
 
 # autoprognosis absolute
 from autoprognosis.plugins import group

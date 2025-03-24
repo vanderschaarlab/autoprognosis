@@ -71,3 +71,6 @@ datasets
 generated
 image_bin
 release
+
+# Other
+.dev

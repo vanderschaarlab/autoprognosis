@@ -1,6 +1,6 @@
 # third party
-from lifelines.datasets import load_rossi
 import pytest
+from lifelines.datasets import load_rossi
 from sklearn.datasets import load_diabetes, load_iris
 
 # autoprognosis absolute

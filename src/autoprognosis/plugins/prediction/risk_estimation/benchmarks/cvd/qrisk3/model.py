@@ -399,7 +399,6 @@ def inference(
     town: float,  # Townsend deprivation score
     surv: int = 10,  # 10-year risk
 ) -> float:
-
     if gender == "M":
         pct = cvd_male_raw(
             age=age,

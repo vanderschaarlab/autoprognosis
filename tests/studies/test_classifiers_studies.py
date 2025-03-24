@@ -1,12 +1,13 @@
 # stdlib
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
 
 # third party
 from helpers import MockHook
-import numpy as np
-import pytest
 from sklearn.datasets import load_breast_cancer
 
 # autoprognosis absolute

@@ -4,20 +4,10 @@ from typing import Any, List, Optional, Union
 
 # third party
 import pandas as pd
+import shap
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import shap
-
-        break
-    except ImportError:
-        depends = ["shap"]
-        install(depends)
 
 
 class ShapPermutationSamplerPlugin(ExplainerPlugin):
@@ -77,7 +67,6 @@ class ShapPermutationSamplerPlugin(ExplainerPlugin):
         random_state: int = 0,
         **kwargs: Any,
     ) -> None:
-
         if task_type not in [
             "classification",
             "risk_estimation",

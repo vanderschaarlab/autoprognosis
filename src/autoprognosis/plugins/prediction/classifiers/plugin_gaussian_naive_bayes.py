@@ -8,10 +8,10 @@ from sklearn.naive_bayes import GaussianNB
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
-import autoprognosis.utils.serialization as serialization
 
 
 class GaussianNaiveBayesPlugin(base.ClassifierPlugin):
@@ -38,7 +38,7 @@ class GaussianNaiveBayesPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         random_state: int = 0,
         model: Any = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

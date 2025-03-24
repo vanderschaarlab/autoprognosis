@@ -164,7 +164,7 @@ class RiskEffectSizePlugin(ExplainerPlugin):
 
                 heatmaps[key] = diffs[key]
 
-            output = output.append(heatmaps)
+            output = pd.concat([output, heatmaps], ignore_index=True)
             index.append(f"Risk lvl {bucket}")
 
         output.index = index

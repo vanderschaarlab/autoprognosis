@@ -7,10 +7,11 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
+import autoprognosis.logger as log
+
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.hooks import DefaultHooks, Hooks
-import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
 
 EPS = 10**-8

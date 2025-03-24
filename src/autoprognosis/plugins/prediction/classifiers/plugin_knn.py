@@ -8,10 +8,10 @@ from sklearn.neighbors import KNeighborsClassifier
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
-import autoprognosis.utils.serialization as serialization
 
 
 class KNNPlugin(base.ClassifierPlugin):

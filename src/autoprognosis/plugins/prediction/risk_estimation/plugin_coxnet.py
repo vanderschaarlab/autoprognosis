@@ -4,27 +4,16 @@ from typing import Any, List
 # third party
 import numpy as np
 import pandas as pd
+import torch
+import torchtuples as tt
+from pycox.models import CoxPH
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.risk_estimation.base as base
-from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from pycox.models import CoxPH
-        import torch
-        import torchtuples as tt
-
-        break
-    except ImportError:
-        depends = ["torch", "pycox", "torchtuples"]
-        install(depends)
-
+from autoprognosis.utils.distributions import enable_reproducible_results
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -83,9 +72,8 @@ class CoxnetRiskEstimationPlugin(base.RiskEstimationPlugin):
         batch_size: int = 128,
         verbose: bool = False,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
 
         enable_reproducible_results(random_state)

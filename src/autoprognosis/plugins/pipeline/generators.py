@@ -3,8 +3,8 @@ from typing import Any, Callable, Dict, Tuple, Type
 
 # third party
 import numpy as np
-from optuna.trial import Trial
 import pandas as pd
+from optuna.trial import Trial
 
 # autoprognosis absolute
 import autoprognosis.plugins.utils.decorators as decorators
@@ -36,7 +36,7 @@ def _generate_hyperparameter_space_impl(plugins: Tuple[Type, ...]) -> Callable:
 
 
 def _generate_hyperparameter_space_for_layer_impl(
-    plugins: Tuple[Type, ...]
+    plugins: Tuple[Type, ...],
 ) -> Callable:
     def hyperparameter_space_for_layer_impl(
         layer: str, *args: Any, **kwargs: Any

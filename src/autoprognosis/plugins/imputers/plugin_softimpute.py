@@ -1,20 +1,11 @@
 # stdlib
 from typing import Any, List
 
+from hyperimpute.plugins.imputers.plugin_softimpute import plugin as base_model
+
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.imputers.base as base
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from hyperimpute.plugins.imputers.plugin_softimpute import plugin as base_model
-
-        break
-    except ImportError:
-        depends = ["hyperimpute"]
-        install(depends)
 
 
 class SoftImputePlugin(base.ImputerPlugin):

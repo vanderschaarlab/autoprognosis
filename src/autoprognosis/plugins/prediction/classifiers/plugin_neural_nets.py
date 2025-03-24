@@ -4,27 +4,16 @@ from typing import Any, List, Optional
 # third party
 import numpy as np
 import pandas as pd
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
 
 # autoprognosis absolute
 import autoprognosis.logger as log
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
 from autoprognosis.utils.serialization import load_model, save_model
-
-for retry in range(2):
-    try:
-        # third party
-        import torch
-        from torch import nn
-        from torch.utils.data import DataLoader, TensorDataset
-
-        break
-    except ImportError:
-        depends = ["torch"]
-        install(depends)
-
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

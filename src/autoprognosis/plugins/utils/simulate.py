@@ -7,18 +7,8 @@ from typing import List
 
 # third party
 import numpy as np
-
-# autoprognosis absolute
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from scipy import optimize
-        from scipy.special import expit
-    except ImportError:
-        depends = ["scipy"]
-        install(depends)
+from scipy import optimize
+from scipy.special import expit
 
 
 def pick_coeffs(

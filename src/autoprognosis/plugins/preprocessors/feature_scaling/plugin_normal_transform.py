@@ -70,7 +70,6 @@ class NormalTransformPlugin(base.PreprocessorPlugin):
     def _fit(
         self, X: pd.DataFrame, *args: Any, **kwargs: Any
     ) -> "NormalTransformPlugin":
-
         self.model.fit(X, *args, **kwargs)
 
         return self

@@ -1,7 +1,7 @@
 # stdlib
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
 
 # third party
 import click

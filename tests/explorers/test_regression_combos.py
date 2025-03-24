@@ -1,11 +1,12 @@
 # stdlib
 from typing import Optional
 
-# third party
-from explorers_mocks import MockHook
 import numpy as np
 import pandas as pd
 import pytest
+
+# third party
+from explorers_mocks import MockHook
 from sklearn.datasets import load_diabetes
 
 # autoprognosis absolute

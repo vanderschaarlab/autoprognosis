@@ -128,7 +128,13 @@ class KernelSHAPPlugin(ExplainerPlugin):
         X = pd.DataFrame(X, columns=self.feature_names)
         importance = np.asarray(self.explainer.shap_values(X))
         if self.task_type == "classification":
-            importance = importance[1, :]
+            importance_reshaped = importance[:, :, 1]
+            if importance_reshaped.shape != X.shape:
+                raise ValueError(
+                    "The shape of the importance matrix does not match the shape of the input data. This could be "
+                    "due to `shap` version, please try to update it to the latest version of the `shap` package."
+                )
+            return importance_reshaped
 
         return importance
 

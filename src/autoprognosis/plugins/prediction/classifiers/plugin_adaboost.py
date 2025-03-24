@@ -2,34 +2,26 @@
 import copy
 from typing import Any, List
 
-# third party
-from packaging import version
 import pandas as pd
 import sklearn
+
+# third party
+from packaging import version
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
-from autoprognosis.utils.pip import install
-import autoprognosis.utils.serialization as serialization
 
 from sklearn.ensemble import HistGradientBoostingClassifier  # isort:skip
 
-for retry in range(2):
-    try:
-        # third party
-        from catboost import CatBoostClassifier
-        import lightgbm as lgbm
-
-        break
-    except ImportError:
-        depends = ["catboost", "lightgbm"]
-        install(depends)
+import lightgbm as lgbm
+from catboost import CatBoostClassifier
 
 
 class AdaBoostPlugin(base.ClassifierPlugin):
@@ -79,7 +71,7 @@ class AdaBoostPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

@@ -17,7 +17,6 @@ def inference(
     bmi: float,  # Body mass index = kg/m^2
     b_treatedhyp: bool,  # Do you have high blood pressure requiring treatment?
 ) -> float:
-
     score = 0.0
     if age >= 50 and age <= 59:
         score += 5

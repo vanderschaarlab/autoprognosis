@@ -460,7 +460,7 @@ model = UncertaintyQuantification().get(<NAME>)
 ## |:hammer:| Test
 After installing the library, the tests can be executed using `pytest`
 ```bash
-$ pip install .[testing]
+$ pip install .[dev]
 $ pytest -vxs -m "not slow"
 ```
 

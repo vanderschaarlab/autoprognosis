@@ -1,19 +1,20 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, List, Optional
 
-# third party
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 
+# third party
+from joblib import Parallel, delayed
+
 # autoprognosis absolute
 import autoprognosis.logger as log
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.pipeline import PipelineMeta
 from autoprognosis.utils.parallel import n_opt_jobs
-import autoprognosis.utils.serialization as serialization
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 

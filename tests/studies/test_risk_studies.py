@@ -1,13 +1,14 @@
 # stdlib
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
 
 # third party
 from helpers import MockHook
 from lifelines.datasets import load_rossi
-import numpy as np
-import pytest
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -66,7 +67,7 @@ def test_surv_search(sample_for_search: bool) -> None:
     metrics = evaluate_survival_estimator(
         model_v1, X, T.values, Y.values.tolist(), eval_time_horizons
     )
-    score_v1 = metrics["raw"]["c_index"][0]
+    score_v1 = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
     # resume the study - should get at least the same score
     study.run()
@@ -76,7 +77,7 @@ def test_surv_search(sample_for_search: bool) -> None:
     model_v2 = load_model_from_file(output)
 
     metrics = evaluate_survival_estimator(model_v2, X, T, Y, eval_time_horizons)
-    score_v2 = metrics["raw"]["c_index"][0]
+    score_v2 = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
     assert score_v2 >= score_v1
 

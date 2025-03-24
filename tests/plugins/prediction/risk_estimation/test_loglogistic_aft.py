@@ -1,6 +1,6 @@
 # third party
-from lifelines.datasets import load_rossi
 import pytest
+from lifelines.datasets import load_rossi
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute

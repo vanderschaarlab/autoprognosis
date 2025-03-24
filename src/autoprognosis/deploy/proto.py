@@ -1,18 +1,7 @@
 # stdlib
 from typing import Callable, Optional
 
-# autoprognosis absolute
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from pydantic import BaseModel
-
-        break
-    except ImportError:
-        depends = ["pydantic"]
-        install(depends)
+from pydantic import BaseModel
 
 
 class BaseAppProto(BaseModel):

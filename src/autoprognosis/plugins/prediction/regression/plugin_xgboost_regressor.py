@@ -3,23 +3,13 @@ from typing import Any, List, Optional
 
 # third party
 import pandas as pd
+from xgboost import XGBRegressor
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
-from autoprognosis.utils.parallel import n_learner_jobs
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from xgboost import XGBRegressor
-
-        break
-    except ImportError:
-        depends = ["xgboost"]
-        install(depends)
+from autoprognosis.utils.parallel import n_learner_jobs
 
 
 class XGBoostRegressorPlugin(base.RegressionPlugin):
@@ -86,7 +76,7 @@ class XGBoostRegressorPlugin(base.RegressionPlugin):
         model: Any = None,
         random_state: int = 0,
         hyperparam_search_iterations: Optional[int] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

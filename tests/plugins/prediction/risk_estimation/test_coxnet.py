@@ -1,6 +1,6 @@
 # third party
-from pycox.datasets import metabric
 import pytest
+from pycox.datasets import metabric
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute

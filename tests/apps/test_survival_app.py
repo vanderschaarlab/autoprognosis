@@ -81,6 +81,7 @@ def test_surv_app() -> None:
                     ),
                 ],
                 "auth": False,
+                "extras_cbk": None,
             }
         ),
     )
