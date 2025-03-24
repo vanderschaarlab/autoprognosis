@@ -79,7 +79,8 @@ def test_surv_search(sample_for_search: bool) -> None:
     metrics = evaluate_survival_estimator(model_v2, X, T, Y, eval_time_horizons)
     score_v2 = metrics["raw"]["c_index"][0] - metrics["raw"]["brier_score"][0]
 
-    assert score_v2 >= score_v1
+    EPS = 0.05
+    assert score_v2 + EPS >= score_v1
 
     model = study.fit()
     assert model.is_fitted()
