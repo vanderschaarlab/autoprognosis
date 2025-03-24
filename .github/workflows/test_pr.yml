@@ -60,7 +60,7 @@ jobs:
             # https://github.com/yzhao062/pyod/pull/632
             pip install "setuptools<78"
             pip install pyod
-            pip install -U setuptools
+            pip install -U setuptools wheel
 
             pip install .[dev]
       - name: Test with pytest
