@@ -55,12 +55,15 @@ jobs:
       - name: Install dependencies
         run: |
             pip install --upgrade pip
+            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
+
+            pip install numpy torch
 
             # Needed until this issue is fixed (added to release):
             # https://github.com/yzhao062/pyod/pull/632
             pip install "setuptools<78"
             pip install pyod
-            pip install -U setuptools wheel
+            pip install --upgrade setuptools wheel
 
             pip install .[dev]
       - name: Test with pytest
