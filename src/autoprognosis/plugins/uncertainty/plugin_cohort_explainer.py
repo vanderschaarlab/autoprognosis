@@ -171,7 +171,7 @@ class CohortMgmt:
     global_cohort = "(*)"
 
     def __init__(self, cohort_rules: Dict[str, CohortRule]) -> None:
-        if not (CohortMgmt.global_cohort in cohort_rules):
+        if CohortMgmt.global_cohort not in cohort_rules:
             raise ValueError("Provide a rule for the full population")
 
         self.cohort_scores = sorted(
