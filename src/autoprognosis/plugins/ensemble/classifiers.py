@@ -1,24 +1,25 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
 
 # third party
 from joblib import Parallel, delayed
-import numpy as np
-import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import StratifiedKFold
 
 # autoprognosis absolute
 import autoprognosis.logger as log
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.ensemble.combos import SimpleClassifierAggregator, Stacking
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.plugins.prediction.classifiers import Classifiers
 from autoprognosis.utils.parallel import n_opt_jobs
-import autoprognosis.utils.serialization as serialization
 from autoprognosis.utils.tester import classifier_metrics
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
@@ -33,12 +34,10 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         BaseEstimator.__init__(self)
 
     @abstractmethod
-    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble":
-        ...
+    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseEnsemble": ...
 
     @abstractmethod
-    def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def predict_proba(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
         preds = self.predict_proba(X, *args)
@@ -47,8 +46,7 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         return pd.Series(res)
 
     @abstractmethod
-    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     def enable_explainer(
         self,
@@ -64,21 +62,17 @@ class BaseEnsemble(BaseEstimator, metaclass=ABCMeta):
         return ev.score_proba(y, preds)[metric]
 
     @abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     @abstractmethod
-    def save(self) -> bytes:
-        ...
+    def save(self) -> bytes: ...
 
     @classmethod
     @abstractmethod
-    def load(cls, buff: bytes) -> "BaseEnsemble":
-        ...
+    def load(cls, buff: bytes) -> "BaseEnsemble": ...
 
     @abstractmethod
-    def is_fitted(self) -> bool:
-        ...
+    def is_fitted(self) -> bool: ...
 
 
 class WeightedEnsemble(BaseEnsemble):

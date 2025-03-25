@@ -20,7 +20,6 @@ def inference(
     b_ever_had_high_glucose: bool,
     fh_diab: int,  # Do immediate family (mother, father, brothers or sisters) have diabetes?
 ) -> float:
-
     score = 0.0
 
     if age >= 45 and age < 55:

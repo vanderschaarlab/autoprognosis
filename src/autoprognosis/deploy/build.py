@@ -1,14 +1,16 @@
 # stdlib
 import atexit
 import json
-from pathlib import Path
 import queue
 import threading
 import traceback
+from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
 # third party
 import pandas as pd
+
+import autoprognosis.logger as log
 
 # autoprognosis absolute
 from autoprognosis.apps.common.pandas_to_streamlit import (
@@ -20,7 +22,6 @@ from autoprognosis.deploy.proto import (
 )
 from autoprognosis.deploy.utils import file_copy, file_md5
 from autoprognosis.exceptions import BuildCancelled
-import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsembleCV
 from autoprognosis.plugins.prediction import Predictions
 from autoprognosis.utils.data_encoder import dataframe_encode

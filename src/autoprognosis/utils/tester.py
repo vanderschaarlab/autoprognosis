@@ -169,7 +169,6 @@ class classifier_metrics:
     def average_precision_score(
         self, y_test: np.ndarray, y_pred_proba: np.ndarray
     ) -> float:
-
         return evaluate_auc(y_test, y_pred_proba)[1]
 
 
@@ -248,7 +247,6 @@ def evaluate_estimator(
 
     # group_ids is always ignored for StratifiedKFold so safe to pass None
     for train_index, test_index in skf.split(X, Y, groups=group_ids):
-
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]
         X_test = X.loc[X.index[test_index]]
@@ -523,7 +521,6 @@ def evaluate_survival_estimator(
 
     cv_idx = 0
     for train_index, test_index in skf.split(X, Y, groups=group_ids):
-
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]
         T_train = T.loc[T.index[train_index]]
@@ -558,7 +555,6 @@ def evaluate_survival_estimator(
         for train_index, test_index in skf.split(
             X_horizon, Y_horizon, groups=group_ids
         ):
-
             X_train = X_horizon.loc[X_horizon.index[train_index]]
             Y_train = Y_horizon.loc[Y_horizon.index[train_index]]
             T_train = T_horizon.loc[T_horizon.index[train_index]]
@@ -748,7 +744,6 @@ def evaluate_regression(
         kf = KFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
     for train_index, test_index in kf.split(X, Y, groups=group_ids):
-
         X_train = X.loc[X.index[train_index]]
         Y_train = Y.loc[Y.index[train_index]]
         X_test = X.loc[X.index[test_index]]

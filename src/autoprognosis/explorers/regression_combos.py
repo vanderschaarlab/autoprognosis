@@ -8,6 +8,8 @@ import pandas as pd
 from pydantic import validate_arguments
 from sklearn.model_selection import GroupKFold, KFold
 
+import autoprognosis.logger as log
+
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
@@ -17,7 +19,6 @@ from autoprognosis.explorers.core.defaults import (
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
 from autoprognosis.hooks import DefaultHooks, Hooks
-import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.regression import (
     BaseRegressionEnsemble,
     WeightedRegressionEnsemble,

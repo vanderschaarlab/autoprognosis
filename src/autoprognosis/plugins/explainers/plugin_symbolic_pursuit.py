@@ -5,20 +5,10 @@ from typing import Any, Callable, List, Optional
 # third party
 import numpy as np
 import pandas as pd
+from symbolic_pursuit.models import SymbolicRegressor
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        from symbolic_pursuit.models import SymbolicRegressor
-
-        break
-    except ImportError:
-        depends = ["symbolic_pursuit"]
-        install(depends)
 
 
 class SymbolicPursuitPlugin(ExplainerPlugin):

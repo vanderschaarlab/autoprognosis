@@ -7,13 +7,14 @@ on:
     types: [opened, synchronize, reopened]
   schedule:
     - cron:  '1 3 * * 0'
+  workflow_dispatch:
 
 jobs:
   Tutorials:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v2
@@ -29,12 +30,8 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
-            pip install -r prereq.txt
             pip install --upgrade pip
-            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
-
-            pip install .
-            pip install .[testing]
+            pip install .[dev]
 
             python -m pip install ipykernel
             python -m ipykernel install --user

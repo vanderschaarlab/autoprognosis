@@ -318,8 +318,9 @@ class SurvivalFunctionEstimator(BaseEstimator):
         extends = time > self.unique_time_[-1]
         if self.prob_[-1] > 0 and extends.any():
             raise ValueError(
-                "time must be smaller than largest "
-                "observed time point: {}".format(self.unique_time_[-1])
+                "time must be smaller than largest observed time point: {}".format(
+                    self.unique_time_[-1]
+                )
             )
 
         # beyond last time point is zero probability

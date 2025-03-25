@@ -4,33 +4,25 @@ from typing import Any, List, Optional, Tuple
 # third party
 import numpy as np
 import pandas as pd
+import torch
+import torchtuples as tt
+from pycox.models import DeepHitSingle
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.risk_estimation.base as base
-from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from pycox.models import DeepHitSingle
-        import torch
-        import torchtuples as tt
-
-        break
-    except ImportError:
-        depends = ["torch", "pycox", "torchtuples"]
-        install(depends)
-
+from autoprognosis.utils.distributions import enable_reproducible_results
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
-    """DeepHit plugin for survival analysis. DeepHit, that uses a deep neural network to learn the distribution of survival times directly.DeepHit makes no assumptions about the underlying stochastic process and allows for the possibility that the relationship between covariates and risk(s) changes over time. Most importantly, DeepHit smoothly handles competing risks; i.e. settings in which there is more than one possible event of interest.
+    """DeepHit plugin for survival analysis. DeepHit, that uses a deep neural network to learn the distribution of \
+survival times directly.DeepHit makes no assumptions about the underlying stochastic process and allows for the \
+possibility that the relationship between covariates and risk(s) changes over time. Most importantly, DeepHit \
+smoothly handles competing risks; i.e. settings in which there is more than one possible event of interest.
 
     Args:
         num_durations: int
@@ -93,7 +85,7 @@ class DeepHitRiskEstimationPlugin(base.RiskEstimationPlugin):
         batch_norm: bool = False,
         random_state: int = 0,
         hyperparam_search_iterations: Optional[int] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
 

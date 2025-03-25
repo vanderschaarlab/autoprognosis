@@ -5,24 +5,14 @@ from typing import Any, List, Optional
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from xgbse import XGBSEDebiasedBCE, XGBSEStackedWeibull
+from xgbse.converters import convert_to_structured
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.risk_estimation.base as base
-from autoprognosis.utils.parallel import n_learner_jobs
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from xgbse import XGBSEDebiasedBCE, XGBSEStackedWeibull
-        from xgbse.converters import convert_to_structured
-
-        break
-    except ImportError:
-        depends = ["xgbse"]
-        install(depends)
+from autoprognosis.utils.parallel import n_learner_jobs
 
 
 class XGBoostRiskEstimationPlugin(base.RiskEstimationPlugin):

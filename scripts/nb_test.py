@@ -3,8 +3,8 @@ from pathlib import Path
 
 # third party
 import click
-from nbconvert.preprocessors import ExecutePreprocessor
 import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
 
 workspace = Path(__file__).parents[0] / "workspace"
 workspace.mkdir(parents=True, exist_ok=True)

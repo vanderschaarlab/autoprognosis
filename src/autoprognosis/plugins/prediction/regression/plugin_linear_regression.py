@@ -8,8 +8,8 @@ from sklearn.linear_model import LinearRegression
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
-from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
+from autoprognosis.utils.parallel import n_learner_jobs
 
 
 class LinearRegressionPlugin(base.RegressionPlugin):
@@ -26,7 +26,6 @@ class LinearRegressionPlugin(base.RegressionPlugin):
     solvers = ["auto", "cholesky", "lsqr", "sparse_cg", "sag", "saga"]
 
     def __init__(self, model: Any = None, random_state: int = 0, **kwargs: Any) -> None:
-
         super().__init__(**kwargs)
         if model is not None:
             self.model = model

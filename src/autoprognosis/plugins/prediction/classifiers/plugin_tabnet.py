@@ -4,25 +4,14 @@ from typing import Any, List
 # third party
 import numpy as np
 import pandas as pd
+import torch
+from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
-from autoprognosis.utils.pip import install
 from autoprognosis.utils.serialization import load_model, save_model
-
-for retry in range(2):
-    try:
-        # third party
-        from pytorch_tabnet.tab_model import TabNetClassifier
-        import torch
-
-        break
-    except ImportError:
-        depends = ["torch", "pytorch_tabnet"]
-        install(depends)
-
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

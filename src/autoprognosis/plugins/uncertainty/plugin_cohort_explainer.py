@@ -171,7 +171,7 @@ class CohortMgmt:
     global_cohort = "(*)"
 
     def __init__(self, cohort_rules: Dict[str, CohortRule]) -> None:
-        if not (CohortMgmt.global_cohort in cohort_rules):
+        if CohortMgmt.global_cohort not in cohort_rules:
             raise ValueError("Provide a rule for the full population")
 
         self.cohort_scores = sorted(
@@ -262,7 +262,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
         random_seed: int
             Random seed
         effect_size: float
-            Effect size for the risk estimation.
+            Effect size for the risk effect size explainer.
     """
 
     def __init__(
@@ -383,6 +383,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             X_eval, Y_eval, important_cols
         )
 
+        print(calibration_filters)
         all_calibration_filters = calibration_filters[0][1]
 
         for filter_rule, fl in calibration_filters:
@@ -542,7 +543,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
             y_pred = np.asarray(y_pred)[:, 1]
 
             diags = self.cohort_calibration[0].diagnostics_df(eval_data, y_pred)
-            output = pd.concat([output, diags])
+            output = pd.concat([output, diags], ignore_index=True)
 
         return output
 
@@ -565,7 +566,7 @@ class CohortExplainerPlugin(UncertaintyPlugin):
                     eval_data, y_pred
                 )
                 diags["horizon"] = horizon
-                output = pd.concat([output, diags])
+                output = pd.concat([output, diags], ignore_index=True)
 
         return output
 

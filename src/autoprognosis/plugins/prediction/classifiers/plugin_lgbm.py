@@ -1,27 +1,18 @@
 # stdlib
 from typing import Any, List
 
+import lightgbm as lgbm
+
 # third party
 import pandas as pd
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
-from autoprognosis.utils.pip import install
-import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        import lightgbm as lgbm
-
-        break
-    except ImportError:
-        depends = ["lightgbm"]
-        install(depends)
 
 
 class LightGBMPlugin(base.ClassifierPlugin):
@@ -82,7 +73,7 @@ class LightGBMPlugin(base.ClassifierPlugin):
         calibration: int = 0,
         model: Any = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

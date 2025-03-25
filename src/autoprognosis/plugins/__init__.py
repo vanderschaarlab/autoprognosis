@@ -1,12 +1,13 @@
 # stdlib
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
+import autoprognosis.plugins.utils  # noqa: F401,E402
+
 # autoprognosis absolute
 from autoprognosis.plugins.explainers import Explainers  # noqa: F401,E402
 from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.prediction import Predictions
 from autoprognosis.plugins.preprocessors import Preprocessors
-import autoprognosis.plugins.utils  # noqa: F401,E402
 
 # autoprognosis relative
 from .core import base_plugin  # noqa: F401,E402

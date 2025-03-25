@@ -1,9 +1,10 @@
 # stdlib
 import sys
 
+import pytest
+
 # third party
 from pycox.datasets import metabric
-import pytest
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute

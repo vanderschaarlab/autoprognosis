@@ -1,7 +1,7 @@
 # third party
-from lifelines.datasets import load_rossi
 import numpy as np
 import pytest
+from lifelines.datasets import load_rossi
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
@@ -66,9 +66,9 @@ def test_risk_estimation_ensemble_predict() -> None:
             f"[{e_idx}] Comparing individual brier_score {ind_brier} with ensemble c_index {ens_brier}"
         )
 
-        assert (
-            ind_c_index <= ens_c_index
-        ), f"The ensemble should have a better c_index. horizon {eval_time}"
+        assert ind_c_index <= ens_c_index, (
+            f"The ensemble should have a better c_index. horizon {eval_time}"
+        )
 
 
 def test_risk_estimation_explain() -> None:

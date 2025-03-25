@@ -1,22 +1,11 @@
 # stdlib
-from contextlib import closing
 import hashlib
-from pathlib import Path
 import shutil
 import socket
+from contextlib import closing
+from pathlib import Path
 
-# autoprognosis absolute
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import psutil
-
-        break
-    except ImportError:
-        depends = ["psutil"]
-        install(depends)
+import psutil
 
 
 def get_ports(pid: int) -> list:

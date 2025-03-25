@@ -3,22 +3,12 @@ from typing import Any, List, Optional
 
 # third party
 import pandas as pd
+from catboost import CatBoostRegressor
 
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
-from autoprognosis.utils.pip import install
 import autoprognosis.utils.serialization as serialization
-
-for retry in range(2):
-    try:
-        # third party
-        from catboost import CatBoostRegressor
-
-        break
-    except ImportError:
-        depends = ["catboost"]
-        install(depends)
 
 
 class CatBoostRegressorPlugin(base.RegressionPlugin):
@@ -67,7 +57,7 @@ class CatBoostRegressorPlugin(base.RegressionPlugin):
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

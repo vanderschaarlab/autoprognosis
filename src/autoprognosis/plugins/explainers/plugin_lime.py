@@ -2,24 +2,15 @@
 import copy
 from typing import Any, List, Optional
 
+import lime
+import lime.lime_tabular
+
 # third party
 import numpy as np
 import pandas as pd
 
 # autoprognosis absolute
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import lime
-        import lime.lime_tabular
-
-        break
-    except ImportError:
-        depends = ["lime"]
-        install(depends)
 
 
 class LimePlugin(ExplainerPlugin):

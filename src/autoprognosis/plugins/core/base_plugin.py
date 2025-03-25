@@ -1,15 +1,15 @@
 # stdlib
+import importlib.util
 from abc import ABCMeta, abstractmethod
 from importlib.abc import Loader
-import importlib.util
 from os.path import basename
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Type
 
 # third party
 import numpy as np
-from optuna.trial import Trial
 import pandas as pd
+from optuna.trial import Trial
 from sklearn.preprocessing import LabelEncoder
 
 # autoprognosis absolute
@@ -206,8 +206,7 @@ class Plugin(metaclass=ABCMeta):
         return self
 
     @abstractmethod
-    def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin":
-        ...
+    def _fit(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> "Plugin": ...
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """Transform the input. Used by imputers and preprocessors.
@@ -223,8 +222,7 @@ class Plugin(metaclass=ABCMeta):
         return self.output(self._transform(X))
 
     @abstractmethod
-    def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        ...
+    def _transform(self, X: pd.DataFrame) -> pd.DataFrame: ...
 
     def predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
         """Run predictions for the input. Used by predictors.
@@ -240,8 +238,7 @@ class Plugin(metaclass=ABCMeta):
         return self.output(self._predict(X, *args, *kwargs))
 
     @abstractmethod
-    def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame:
-        ...
+    def _predict(self, X: pd.DataFrame, *args: Any, **kwargs: Any) -> pd.DataFrame: ...
 
     @abstractmethod
     def save(self) -> bytes:

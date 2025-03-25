@@ -1,9 +1,10 @@
 # stdlib
 from typing import Any
 
+import pytest
+
 # third party
 from lifelines.datasets import load_rossi
-import pytest
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
@@ -31,7 +32,7 @@ def test_sanity(plugin: Any) -> None:
 def test_fit() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
-        effect_size=0.3,
+        effect_size=0.05,
     )
 
     X, y = load_iris(return_X_y=True)
@@ -44,7 +45,7 @@ def test_fit() -> None:
 def test_predict_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
-        effect_size=0.01,
+        effect_size=0.05,
     )
 
     X, y = load_iris(return_X_y=True)
@@ -70,7 +71,7 @@ def test_predict_classifier() -> None:
 def test_predict_proba_classifier() -> None:
     uncert_model = plugin(
         Classifiers().get("logistic_regression"),
-        effect_size=0.01,
+        effect_size=0.05,
     )
 
     X, y = load_iris(return_X_y=True)

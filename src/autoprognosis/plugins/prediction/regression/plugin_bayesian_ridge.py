@@ -37,9 +37,8 @@ class BayesianRidgePlugin(base.RegressionPlugin):
         hyperparam_search_iterations: Optional[int] = None,
         model: Any = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
-
         super().__init__(**kwargs)
         if model is not None:
             self.model = model
@@ -48,10 +47,20 @@ class BayesianRidgePlugin(base.RegressionPlugin):
         if hyperparam_search_iterations:
             n_iter = hyperparam_search_iterations
 
-        self.model = BayesianRidge(
-            n_iter=n_iter,
-            tol=tol,
-        )
+        try:
+            self.model = BayesianRidge(
+                n_iter=n_iter,
+                tol=tol,
+            )
+        except TypeError as e:
+            # scikit-learn > 1.3:
+            if "n_iter" in str(e):
+                self.model = BayesianRidge(
+                    max_iter=n_iter,
+                    tol=tol,
+                )
+            else:
+                raise e
 
     @staticmethod
     def name() -> str:

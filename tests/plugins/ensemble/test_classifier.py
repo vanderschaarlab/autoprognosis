@@ -70,9 +70,11 @@ def test_weighted_ensemble_explainer() -> None:
     ens.fit(X_train, y_train)
 
     y_pred = ens.explain(X_test.head(3))
+    print("y_pred", y_pred)
     assert sorted(y_pred.keys()) == sorted(["invase", "kernel_shap"])
     for src in y_pred:
         print("weighted_ensemble", src)
+        print(y_pred[src].shape)
         assert y_pred[src].shape == (3, X_test.shape[1])
 
 

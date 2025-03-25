@@ -2,12 +2,13 @@
 import sys
 from typing import Optional
 
-# third party
-from explorers_mocks import MockHook
-from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
 import pytest
+
+# third party
+from explorers_mocks import MockHook
+from lifelines.datasets import load_rossi
 from sklearn.model_selection import train_test_split
 
 # autoprognosis absolute
@@ -104,9 +105,9 @@ def test_search(group_id: Optional[bool]) -> None:
             f"Comparing individual brier_score {ind_brier} with ensemble c_index {ens_brier}"
         )
 
-        assert (
-            ind_c_index <= ens_c_index
-        ), f"The ensemble should have a better c_index. horizon {eval_time}"
+        assert ind_c_index <= ens_c_index, (
+            f"The ensemble should have a better c_index. horizon {eval_time}"
+        )
 
 
 @pytest.mark.parametrize("optimizer_type", ["bayesian", "hyperband"])

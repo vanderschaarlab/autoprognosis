@@ -17,16 +17,13 @@ class Params(metaclass=ABCMeta):
         self.bounds = bounds
 
     @abstractmethod
-    def get(self) -> List[Any]:
-        ...
+    def get(self) -> List[Any]: ...
 
     @abstractmethod
-    def sample(self, trial: Trial) -> Any:
-        ...
+    def sample(self, trial: Trial) -> Any: ...
 
     @abstractmethod
-    def sample_np(self) -> Any:
-        ...
+    def sample_np(self) -> Any: ...
 
 
 class Categorical(Params):

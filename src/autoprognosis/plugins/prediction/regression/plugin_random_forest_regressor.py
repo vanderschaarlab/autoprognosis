@@ -8,8 +8,8 @@ from sklearn.ensemble import RandomForestRegressor
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
-from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
+from autoprognosis.utils.parallel import n_learner_jobs
 
 
 class RandomForestRegressionPlugin(base.RegressionPlugin):
@@ -52,7 +52,7 @@ class RandomForestRegressionPlugin(base.RegressionPlugin):
         model: Any = None,
         hyperparam_search_iterations: Optional[int] = None,
         random_state: int = 0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

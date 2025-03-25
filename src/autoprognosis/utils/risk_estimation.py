@@ -1,11 +1,12 @@
 # stdlib
 from typing import Any, Tuple
 
-# third party
-from lifelines import CRCSplineFitter
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+# third party
+from lifelines import CRCSplineFitter
 
 
 def generate_dataset_for_horizon(

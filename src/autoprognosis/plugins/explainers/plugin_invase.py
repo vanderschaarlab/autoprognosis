@@ -1,34 +1,24 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
 import itertools
+from abc import ABCMeta, abstractmethod
 from typing import Any, Generator, List, Optional, Union
+
+import matplotlib.pyplot as plt
 
 # third party
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import torch
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.utils import resample
+from torch import nn
 
 # autoprognosis absolute
 import autoprognosis.logger as log
 from autoprognosis.plugins.explainers.base import ExplainerPlugin
 from autoprognosis.utils.distributions import enable_reproducible_results
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        import torch
-        from torch import nn
-
-        break
-    except ImportError:
-        depends = ["matplotlib", "seaborn", "torch"]
-        install(depends)
-
 
 EPS = 1e-8
 
@@ -131,38 +121,31 @@ class invaseBase(metaclass=ABCMeta):
         self._train(estimator, X)
 
     @abstractmethod
-    def explain(self, X: np.ndarray, *args: Any, **kwargs: Any) -> np.ndarray:
-        ...
+    def explain(self, X: np.ndarray, *args: Any, **kwargs: Any) -> np.ndarray: ...
 
     @abstractmethod
-    def _build_critic(self) -> nn.Module:
-        ...
+    def _build_critic(self) -> nn.Module: ...
 
     @abstractmethod
     def _baseline_metric(
         self, estimator: Any, x: torch.Tensor, y: torch.Tensor
-    ) -> torch.Tensor:
-        ...
+    ) -> torch.Tensor: ...
 
     @abstractmethod
-    def _baseline_predict(self, estimator: Any, x: torch.Tensor) -> torch.Tensor:
-        ...
+    def _baseline_predict(self, estimator: Any, x: torch.Tensor) -> torch.Tensor: ...
 
     @abstractmethod
     def _importance_loss(
         self, y_pred: torch.Tensor, y_true: torch.Tensor
-    ) -> torch.Tensor:
-        ...
+    ) -> torch.Tensor: ...
 
     @abstractmethod
-    def _importance_init(self, x: torch.Tensor) -> torch.Tensor:
-        ...
+    def _importance_init(self, x: torch.Tensor) -> torch.Tensor: ...
 
     @abstractmethod
     def _importance_test(
         self, estimator: Any, x: np.ndarray, y: np.ndarray
-    ) -> np.ndarray:
-        ...
+    ) -> np.ndarray: ...
 
     def _train(self, estimator: Any, x: np.ndarray) -> "invaseBase":
         critic_solver = torch.optim.Adam(

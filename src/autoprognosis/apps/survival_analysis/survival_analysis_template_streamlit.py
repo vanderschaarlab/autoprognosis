@@ -4,6 +4,10 @@ from typing import Any, Callable, Dict, List
 # third party
 import numpy as np
 import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+import autoprognosis.logger as log
 
 # autoprognosis absolute
 from autoprognosis.apps.common.login import (
@@ -12,22 +16,8 @@ from autoprognosis.apps.common.login import (
     is_authenticated,
     login,
 )
-import autoprognosis.logger as log
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.utils.data_encoder import EncodersCallbacks
-from autoprognosis.utils.pip import install
-
-for retry in range(2):
-    try:
-        # third party
-        import plotly.express as px
-        import streamlit as st
-
-        break
-    except ImportError:
-        depends = ["streamlit", "plotly"]
-        install(depends)
-
 
 LOGO_URL = "https://www.vanderschaar-lab.com/wp-content/uploads/2020/04/transpLogo_long_plus.png"
 SITE_URL = "https://www.vanderschaar-lab.com/"

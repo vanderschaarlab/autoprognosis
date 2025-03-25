@@ -4,14 +4,15 @@ from typing import Any, Dict, List, Tuple, Type, Union
 # third party
 from optuna.trial import Trial
 
+import autoprognosis.logger as log
+import autoprognosis.plugins.core.params as params
+
 # autoprognosis absolute
 from autoprognosis.explorers.core.defaults import (
     default_feature_scaling_names,
     default_feature_selection_names,
 )
-import autoprognosis.logger as log
 from autoprognosis.plugins.core.base_plugin import Plugin
-import autoprognosis.plugins.core.params as params
 from autoprognosis.plugins.imputers import Imputers
 from autoprognosis.plugins.pipeline import Pipeline, PipelineMeta
 from autoprognosis.plugins.prediction import Predictions

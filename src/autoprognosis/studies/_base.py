@@ -8,5 +8,4 @@ class Study(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def run(self) -> Any:
-        ...
+    def run(self) -> Any: ...

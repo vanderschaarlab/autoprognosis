@@ -95,7 +95,6 @@ class HyperbandOptimizer:
         self, objective: Callable, candidate: dict
     ) -> Tuple[float, dict]:
         for s in reversed(range(self.s_max + 1)):
-
             # initial number of configurations
             n = int(math.ceil(self.B / self.max_iter / (s + 1) * self.eta**s))
 

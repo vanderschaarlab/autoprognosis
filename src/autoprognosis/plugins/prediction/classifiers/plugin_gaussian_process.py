@@ -8,11 +8,11 @@ from sklearn.gaussian_process import GaussianProcessClassifier
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.classifiers.base as base
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.prediction.classifiers.helper_calibration import (
     calibrated_model,
 )
 from autoprognosis.utils.parallel import n_learner_jobs
-import autoprognosis.utils.serialization as serialization
 
 
 class GaussianProcessPlugin(base.ClassifierPlugin):

@@ -1,19 +1,20 @@
 # stdlib
-from abc import ABCMeta, abstractmethod
 import copy
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, List, Optional
 
-# third party
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 
+# third party
+from joblib import Parallel, delayed
+
 # autoprognosis absolute
 import autoprognosis.logger as log
+import autoprognosis.utils.serialization as serialization
 from autoprognosis.plugins.explainers import Explainers
 from autoprognosis.plugins.pipeline import PipelineMeta
 from autoprognosis.utils.parallel import n_opt_jobs
-import autoprognosis.utils.serialization as serialization
 
 dispatcher = Parallel(max_nbytes=None, backend="loky", n_jobs=n_opt_jobs())
 
@@ -24,12 +25,10 @@ class BaseRegressionEnsemble(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseRegressionEnsemble":
-        ...
+    def fit(self, X: pd.DataFrame, Y: pd.DataFrame) -> "BaseRegressionEnsemble": ...
 
     @abstractmethod
-    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def explain(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     def enable_explainer(
         self,
@@ -40,25 +39,20 @@ class BaseRegressionEnsemble(metaclass=ABCMeta):
         self.explanations_nepoch = explanations_nepoch
 
     @abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     @abstractmethod
-    def save(self) -> bytes:
-        ...
+    def save(self) -> bytes: ...
 
     @abstractmethod
-    def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame:
-        ...
+    def predict(self, X: pd.DataFrame, *args: Any) -> pd.DataFrame: ...
 
     @classmethod
     @abstractmethod
-    def load(cls, buff: bytes) -> "BaseRegressionEnsemble":
-        ...
+    def load(cls, buff: bytes) -> "BaseRegressionEnsemble": ...
 
     @abstractmethod
-    def is_fitted(self) -> bool:
-        ...
+    def is_fitted(self) -> bool: ...
 
 
 class WeightedRegressionEnsemble(BaseRegressionEnsemble):

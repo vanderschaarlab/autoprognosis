@@ -9,6 +9,8 @@ import pandas as pd
 from pydantic import validate_arguments
 from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
+import autoprognosis.logger as log
+
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
 from autoprognosis.explorers.core.defaults import (
@@ -18,7 +20,6 @@ from autoprognosis.explorers.core.defaults import (
 )
 from autoprognosis.explorers.core.optimizer import EnsembleOptimizer
 from autoprognosis.hooks import DefaultHooks, Hooks
-import autoprognosis.logger as log
 from autoprognosis.plugins.ensemble.risk_estimation import RiskEnsemble
 from autoprognosis.utils.tester import evaluate_survival_estimator
 
@@ -171,7 +172,6 @@ class RiskEnsembleSeeker:
         ensemble_folds = []
 
         for train_index, _ in skf.split(X, Y, groups=group_ids):
-
             X_train = X.loc[X.index[train_index]]
             Y_train = Y.loc[Y.index[train_index]]
             T_train = T.loc[T.index[train_index]]

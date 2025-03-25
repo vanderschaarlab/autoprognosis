@@ -8,8 +8,8 @@ from sklearn.neighbors import KNeighborsRegressor
 # autoprognosis absolute
 import autoprognosis.plugins.core.params as params
 import autoprognosis.plugins.prediction.regression.base as base
-from autoprognosis.utils.parallel import n_learner_jobs
 import autoprognosis.utils.serialization as serialization
+from autoprognosis.utils.parallel import n_learner_jobs
 
 
 class KNeighborsRegressorPlugin(base.RegressionPlugin):
@@ -50,7 +50,7 @@ class KNeighborsRegressorPlugin(base.RegressionPlugin):
         random_state: int = 0,
         hyperparam_search_iterations: Optional[int] = None,
         model: Any = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         if model is not None:

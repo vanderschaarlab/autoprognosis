@@ -1,11 +1,12 @@
 # stdlib
 from typing import Tuple, Type
 
-# third party
-from lifelines.datasets import load_rossi
 import numpy as np
 import pandas as pd
 import pytest
+
+# third party
+from lifelines.datasets import load_rossi
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 

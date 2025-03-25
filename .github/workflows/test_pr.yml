@@ -5,15 +5,24 @@ on:
     branches: [main, release]
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 
 jobs:
   Linter:
+    # GH runners:
     runs-on: ${{ matrix.os }}
+    # # Self-hosted runners:
+    # runs-on:
+    #   - self-hosted
+    #   - ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.10"]
+        # GH runners:
         os: [ubuntu-latest]
+        # # Self-hosted runners:
+        # os: [Linux]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -34,11 +43,19 @@ jobs:
 
   Library:
     needs: [Linter]
+    # GH runners:
     runs-on: ${{ matrix.os }}
+    # # Self-hosted runners:
+    # runs-on:
+    #   - self-hosted
+    #   - ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        # GH runners:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        # # Self-hosted runners:
+        # os: [Linux, Windows, macOS]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -50,15 +67,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install MacOS dependencies
         run: |
-            brew install rajivshah3/libomp-tap/libomp@11.1.0
+          brew install libomp
         if: ${{ matrix.os == 'macos-latest' }}
       - name: Install dependencies
         run: |
-            pip install -r prereq.txt
-
             pip install --upgrade pip
-            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
-
-            pip install .[testing]
+            pip install .[dev]
       - name: Test with pytest
         run: pytest -vvvsx -m "not slow" --durations=50

@@ -2,11 +2,14 @@
 import time
 from typing import Any, List, Optional, Tuple
 
-# third party
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
+
+# third party
+from joblib import Parallel, delayed
 from pydantic import validate_arguments
+
+import autoprognosis.logger as log
 
 # autoprognosis absolute
 from autoprognosis.exceptions import StudyCancelled
@@ -18,7 +21,6 @@ from autoprognosis.explorers.core.defaults import (
 from autoprognosis.explorers.core.optimizer import Optimizer
 from autoprognosis.explorers.core.selector import PipelineSelector
 from autoprognosis.hooks import DefaultHooks, Hooks
-import autoprognosis.logger as log
 from autoprognosis.utils.parallel import n_opt_jobs
 from autoprognosis.utils.tester import evaluate_estimator
 
@@ -136,7 +138,10 @@ class ClassifierSeeker:
         random_state: int = 0,
     ) -> None:
         for int_val in [num_iter, n_folds_cv, top_k, timeout]:
-            if int_val <= 0 or type(int_val) != int:
+            # TODO: Resolve
+            # E721 do not compare types, for exact checks use `is` / `is not`, for instance checks use `isinstance()`
+            # For now ignoring.
+            if int_val <= 0 or type(int_val) != int:  # noqa: E721
                 raise ValueError(
                     f"invalid input number {int_val}. Should be a positive integer"
                 )

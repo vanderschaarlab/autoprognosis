@@ -1,9 +1,10 @@
 # stdlib
 import os
 
+import redis
+
 # third party
 from optuna.storages import JournalRedisStorage, JournalStorage
-import redis
 
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
