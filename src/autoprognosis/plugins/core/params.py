@@ -85,7 +85,7 @@ class Integer(Params):
         return [self.name, self.low, self.high, self.step]
 
     def sample(self, trial: Trial) -> Any:
-        return trial.suggest_int(self.name, self.low, self.high, self.step)
+        return trial.suggest_int(self.name, self.low, self.high, step=self.step)
 
     def sample_np(self) -> Any:
         return np.random.choice(self.choices, 1)[0]
