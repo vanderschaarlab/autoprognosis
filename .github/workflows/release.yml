@@ -42,8 +42,8 @@ jobs:
     container: quay.io/pypa/manylinux2014_x86_64
 
     steps:
-      # Problems using v3, keep using v2.
-      - uses: actions/checkout@v2
+      # Problems using newer checkout, keep using v1:
+      - uses: actions/checkout@v1
         with:
           submodules: true
       - name: Set target Python version PATH
