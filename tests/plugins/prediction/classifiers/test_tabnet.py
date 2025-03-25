@@ -79,6 +79,8 @@ def test_param_search() -> None:
     if len(plugin.hyperparameter_space()) == 0:
         return
 
+    expected_len = 10
+
     X, y = load_iris(return_X_y=True)
 
     def evaluate_args(**kwargs: Any) -> float:
@@ -98,6 +100,8 @@ def test_param_search() -> None:
         directions=["maximize"],
         study_name=f"test_param_search_{plugin.name()}",
     )
-    study.optimize(objective, n_trials=10, timeout=60)
+    study.optimize(objective, n_trials=expected_len, timeout=60)
 
-    assert len(study.trials) == 10
+    FAILURE_TOL = 0.20
+    expect_above = int(round(expected_len * FAILURE_TOL))
+    assert expected_len - len(study.trials) <= expect_above

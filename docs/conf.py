@@ -120,7 +120,7 @@ html_static_path = ["_static"]
 nbsphinx_execute = "never"
 
 nbsphinx_prolog = r"""
-{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None)|string %}
 .. only:: html
     .. role:: raw-html(raw)
         :format: html

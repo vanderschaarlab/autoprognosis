@@ -2,20 +2,20 @@ name: Package release
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 
 jobs:
+  # Build for OSX and publish, see scripts/release_osx.sh.
   deploy_osx:
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        os: [macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Set up Python
@@ -28,7 +28,9 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: ${GITHUB_WORKSPACE}/.github/workflows/scripts/release_osx.sh
 
+  # Build for Linux and publish, see scripts/release_linux.sh.
   deploy_linux:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:
@@ -37,10 +39,10 @@ jobs:
           - cp311-cp311
           - cp312-cp312
 
-    runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux2014_x86_64
+
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Set target Python version PATH
@@ -52,6 +54,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: ${GITHUB_WORKSPACE}/.github/workflows/scripts/release_linux.sh
 
+  # Build for Windows and publish, see scripts/release_windows.bat.
   deploy_windows:
     runs-on: windows-latest
     strategy:
@@ -59,7 +62,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Set up Python ${{ matrix.python-version }}
