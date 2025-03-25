@@ -1,9 +1,9 @@
 name: Tests R
 
 on:
-  push:
-    branches: [main, release]
   workflow_dispatch:
+  # push:
+  #   branches: [main, release]
   # schedule:
   #   - cron:  '2 3 * * 4'
 
