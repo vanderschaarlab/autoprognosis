@@ -36,6 +36,7 @@ jobs:
           - cp39-cp39
           - cp310-cp310
           - cp311-cp311
+          - cp312-cp312
 
     runs-on: ubuntu-latest
     container:
