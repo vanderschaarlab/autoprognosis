@@ -390,6 +390,16 @@ model.predict(X, eval_time_horizons)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1lqbElEVJa2Q0JDsXPgb8K_QUTDcZvUQq?usp=sharing)[ Classification demonstrator](tutorials/demonstrators/tutorial_00_build_a_demonstrator_classification.ipynb)
  - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZwjD9RkosCtboyblH4C8sQV1DuGY1H2X?usp=sharing)[ Survival analysis demonstrator](tutorials/demonstrators/tutorial_01_build_a_demonstrator_survival_analysis.ipynb)
 
+### AutoPrognosis 101 Tutorial Series
+ - [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1axBQRnGCeh6vqhisfMNBLe9jHNKhVvG2)[ 00. Run a classification study](https://colab.research.google.com/drive/1axBQRnGCeh6vqhisfMNBLe9jHNKhVvG2)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1RIxuYuFyTlaE1RZ0-y-W2kx54_vlWYTL)[ 01. Run a regression study](https://colab.research.google.com/drive/1RIxuYuFyTlaE1RZ0-y-W2kx54_vlWYTL)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/13shRlJgADizDgWJP0tN8HhIVfT8vnCeS)[ 02. Run a survival analysis study](https://colab.research.google.com/drive/13shRlJgADizDgWJP0tN8HhIVfT8vnCeS)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/137KvWXXYZXaajbrVBW_vEeCEJmyXA4OZ)[ 03. Run a study and interpret the model](https://colab.research.google.com/drive/137KvWXXYZXaajbrVBW_vEeCEJmyXA4OZ)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/13QMhuDfuXJNllvCa09T27YSyaJlmpBjP)[ 04. What’s a plugin? Survival analysis example](https://colab.research.google.com/drive/13QMhuDfuXJNllvCa09T27YSyaJlmpBjP)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1nl0ZUWbglmJQzTowLoSOz2pmHIzBZm-z)[ 05. Pipelines](https://colab.research.google.com/drive/1nl0ZUWbglmJQzTowLoSOz2pmHIzBZm-z)
+- [![Test In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Y47ortMzmqvc0JPvptIsiNiHFoynni-j)[ 06. [Advanced] Creating your own plugin: preprocessing example](https://colab.research.google.com/drive/1Y47ortMzmqvc0JPvptIsiNiHFoynni-j)
+
+
 ## :zap: Plugins
 
 ### Imputation methods
