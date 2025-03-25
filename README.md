@@ -11,7 +11,7 @@
 
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_pr.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_pr.yml)
 [![Tests](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_full.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_full.yml)
-[![Tests R](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml)
+<!-- [![Tests R](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_R.yml) -->
 [![Tutorials](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/vanderschaarlab/autoprognosis/actions/workflows/test_tutorials.yml)
 [![Documentation Status](https://readthedocs.org/projects/autoprognosis/badge/?version=latest)](https://autoprognosis.readthedocs.io/en/latest/?badge=latest)
 
