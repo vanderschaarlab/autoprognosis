@@ -16,7 +16,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
-        os: [ubuntu-latest]
+        # -- GH runners:
+        # os: [ubuntu-latest]
+        # -- Self-hosted runners:
+        os: [Linux]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -43,7 +46,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        # -- GH runners:
+        # os: [macos-latest, ubuntu-latest, windows-latest]
+        # -- Self-hosted runners:
+        os: [Linux, Windows, macOS]
     steps:
       - uses: actions/checkout@v2
         with:
