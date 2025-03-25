@@ -10,16 +10,19 @@ on:
 
 jobs:
   Linter:
-    runs-on:
-      - self-hosted
-      - ${{ matrix.os }}
+    # GH runners:
+    runs-on: ${{ matrix.os }}
+    # # Self-hosted runners:
+    # runs-on:
+    #   - self-hosted
+    #   - ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.10"]
-        # -- GH runners:
-        # os: [ubuntu-latest]
-        # -- Self-hosted runners:
-        os: [Linux]
+        # GH runners:
+        os: [ubuntu-latest]
+        # # Self-hosted runners:
+        # os: [Linux]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -40,16 +43,19 @@ jobs:
 
   Library:
     needs: [Linter]
-    runs-on:
-      - self-hosted
-      - ${{ matrix.os }}
+    # GH runners:
+    runs-on: ${{ matrix.os }}
+    # # Self-hosted runners:
+    # runs-on:
+    #   - self-hosted
+    #   - ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-        # -- GH runners:
-        # os: [macos-latest, ubuntu-latest, windows-latest]
-        # -- Self-hosted runners:
-        os: [Linux, Windows, macOS]
+        # GH runners:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        # # Self-hosted runners:
+        # os: [Linux, Windows, macOS]
     steps:
       - uses: actions/checkout@v2
         with:
