@@ -30,25 +30,27 @@ jobs:
 
   # Build for Linux and publish, see scripts/release_linux.sh.
   deploy_linux:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:
           - cp39-cp39
           - cp310-cp310
           - cp311-cp311
-          - cp312-cp312
 
-    container: quay.io/pypa/manylinux2014_x86_64
-
+    runs-on: ubuntu-latest
+    container:
+      image: node:20-bullseye  # Use the official Node.js 20 image based on Debian
     steps:
-      # Problems using newer checkout, keep using v1:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Set target Python version PATH
         run: |
-            echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
+          echo "/opt/python/${{ matrix.python-version }}/bin" >> $GITHUB_PATH
+      - name: Install Python Build Dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3 python3-pip python3-dev build-essential
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__
