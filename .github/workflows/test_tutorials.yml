@@ -7,6 +7,7 @@ on:
     types: [opened, synchronize, reopened]
   schedule:
     - cron:  '1 3 * * 0'
+  workflow_dispatch:
 
 jobs:
   Tutorials:
@@ -30,9 +31,6 @@ jobs:
       - name: Install dependencies
         run: |
             pip install --upgrade pip
-            pip install --upgrade cryptography scipy scikit-learn xgboost lightgbm
-
-            pip install .
             pip install .[dev]
 
             python -m pip install ipykernel
