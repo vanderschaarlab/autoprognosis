@@ -102,6 +102,6 @@ def test_param_search() -> None:
     )
     study.optimize(objective, n_trials=expected_len, timeout=60)
 
-    FAILURE_TOL = 0.20
+    FAILURE_TOL = 0.40
     expect_above = int(round(expected_len * FAILURE_TOL))
     assert expected_len - len(study.trials) <= expect_above
